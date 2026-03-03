@@ -1101,6 +1101,7 @@ img {
 .board {
     width: 100dvw;
     height: 100dvh;
+    background-color: #fff;
     background-image:
         linear-gradient(to right, #A0E7E5 1px, transparent 1px),
         linear-gradient(to bottom, #A0E7E5 1px, transparent 1px);
