@@ -65,6 +65,8 @@ function startApp() {
         time += 10;
     });
 
-    if (localStorage.getItem("tutorial-seen") !== "true") setTimeout(startTutorial, 400);
+    simulateFileUpload("/assets/templates/red.ptt");
+
+    //if (localStorage.getItem("tutorial-seen") !== "true") setTimeout(startTutorial, 400);
 
 }

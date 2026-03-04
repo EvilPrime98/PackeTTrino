@@ -523,3 +523,16 @@ function resetDnsCacheTables() {
         }
     });
 }
+
+/**SIMULATES THE UPLOAD OF A FILE*/
+async function simulateFileUpload(filePath) {
+    try {
+        const response = await fetch(filePath);
+        const blob = await response.blob();
+        const fileName = filePath.split("/").pop();
+        const file = new File([blob], fileName, { type: "text/html" });
+        loadState([file]);
+    }catch(error) {
+        console.log(error);
+    }
+}
