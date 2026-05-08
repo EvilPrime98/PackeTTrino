@@ -1,10 +1,30 @@
+/**
+ * Dispatches an incoming packet to all active services installed on the network device
+ * and collects their responses.
+ *
+ * Each service is only invoked if both the packet's protocol matches and the service is
+ * listed as active by `getAvailableServices`. Dispatching rules:
+ *
+ * - **DHCP packets** — checked against `dhclient`, `dhcpd`, and `dhcrelay` in order.
+ *   For relay responses, the output interface is derived from the `giaddr` field of the
+ *   reply (OFFER/ACK are sent back toward the relay's client-facing interface).
+ * - **DNS request packets** — dispatched to `named_service` when `named` is active.
+ * - **HTTP request packets** — dispatched to `apache_service` when `apache2` is active.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network device.
+ * @param {Object} packet - The incoming packet object.
+ * @param {string} networkObjectInterface - The name of the interface on which the packet arrived.
+ * @returns {Promise<Array<{packet: Object, outInterface: string}>>}
+ *   An array of response descriptors. Each entry contains the reply packet and the
+ *   output interface name to use when sending it (`""` means use normal routing).
+ */
 async function serviceProcessor(networkObjectId, packet, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableServices = getAvailableServices(networkObjectId);
     const responses = [];
 
-    //servicio DHCP
+    //DHCP service
     if (packet.protocol === "dhcp") {
 
         if (availableServices.includes("dhclient")) {
@@ -54,7 +74,7 @@ async function serviceProcessor(networkObjectId, packet, networkObjectInterface)
 
     }
 
-    //servicio DNS
+    //DNS service
     if (packet.protocol === "dns" && packet.type === "request" && availableServices.includes("named")) {
 
         const replyPacket = await named_service(networkObjectId, packet);
@@ -70,7 +90,7 @@ async function serviceProcessor(networkObjectId, packet, networkObjectInterface)
 
     }
 
-    //servicio HTTP
+    //HTTP service
     if (packet.protocol === "http" && packet.type === "request" && availableServices.includes("apache2")) {
 
         const replyPacket = await apache_service(networkObjectId, packet);

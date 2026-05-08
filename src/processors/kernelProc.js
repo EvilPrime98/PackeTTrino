@@ -1,10 +1,36 @@
+/**
+ * Handles low-level protocol processing for a network device, acting as the kernel's
+ * network stack. Packets that are not addressed to this device are silently ignored
+ * (returns `undefined`).
+ *
+ * Supported protocols and their behaviour:
+ *
+ * | Protocol | Type          | Action |
+ * |----------|---------------|--------|
+ * | ARP      | request       | Adds the sender to the ARP table; returns an ARP reply. |
+ * | ARP      | reply         | Sets `arpFlag`, adds sender to ARP table, stores packet in `buffer`. |
+ * | ICMP     | request       | Returns an ICMP echo reply. |
+ * | ICMP     | time-exceeded | If a traceroute is active, pushes the origin IP to `traceBuffer` and sets `traceReturn`. |
+ * | ICMP     | reply         | Sets `icmpFlag`; if traceroute active, pushes origin IP and sets `traceFlag`. |
+ * | TCP      | syn           | Completes handshake step 2 — returns a SYN-ACK with correct sequence/ack numbers. |
+ * | TCP      | syn-ack       | Completes handshake step 3 — returns an ACK; sets `tcpSyncFlag`. |
+ * | TCP      | syn-ack-reply | Validates the ACK number against `tcpBuffer`; returns nothing. |
+ * | HTTP     | reply         | Stores the packet in `httpBuffer`. |
+ * | DNS      | reply         | Sets `dnsRequestFlag`; stores the packet in `buffer`. |
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network device.
+ * @param {Object} packet - The incoming packet object.
+ * @param {string} inputInterface - The name of the interface on which the packet arrived.
+ * @returns {Promise<Object|undefined>} A reply packet to be routed back, or `undefined`
+ *   if no reply is needed (packet consumed, buffered, or not addressed to this device).
+ */
 async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableIps = getAvailableIps(networkObjectId);
     const networkObjectIp = $networkObject.getAttribute(`ip-${inputInterface}`);
     const networkObjectMac = $networkObject.getAttribute(`mac-${inputInterface}`);
-    
+
     if (packet.protocol === "arp" && packet.type === "request") {
 
         if (packet.destination_ip !== networkObjectIp) return;
@@ -65,16 +91,16 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
         if (!availableIps.includes(packet.destination_ip)) return;
 
-        let newPacket = new synAck(
-            networkObjectIp, //ip del origen
-            packet.origin_ip, //ip del destino
-            networkObjectMac, //mac del origen
-            packet.origin_mac, //mac del destino
-            packet.dport, //puerto del origen
-            packet.sport //puerto del destino
+        const newPacket = new synAck(
+            networkObjectIp, //source IP
+            packet.origin_ip, //destination IP
+            networkObjectMac, //source MAC
+            packet.origin_mac, //destination MAC
+            packet.dport, //source port
+            packet.sport //destination port
         );
 
-        newPacket.ack_number = packet.sequence_number + 1; // <--- el ack debe ser el siguiente número de secuencia
+        newPacket.ack_number = packet.sequence_number + 1; // <--- the ack must be the next sequence number
 
         tcpBuffer[networkObjectId] = newPacket.sequence_number;
 
@@ -88,17 +114,17 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
         if (packet.ack_number !== tcpBuffer[networkObjectId] + 1) return;
 
-        let newPacket = new Ack(
-            networkObjectIp, //ip del origen
-            packet.origin_ip, //ip del destino
-            networkObjectMac, //mac del origen
-            packet.origin_mac, //mac del destino
-            packet.dport, //puerto del origen
-            packet.sport //puerto del destino
+        const newPacket = new Ack(
+            networkObjectIp, //source IP
+            packet.origin_ip, //destination IP
+            networkObjectMac, //source MAC
+            packet.origin_mac, //destination MAC
+            packet.dport, //source port
+            packet.sport //destination port
         );
 
-        newPacket.ack_number = packet.sequence_number + 1; // <--- el ack debe ser el siguiente número de secuencia
-        newPacket.sequence_number = packet.ack_number - 1; //<--- el paquete debe tener la secuencia correcta
+        newPacket.ack_number = packet.sequence_number + 1; // <--- the ack must be the next sequence number
+        newPacket.sequence_number = packet.ack_number - 1; //<--- the packet must have the correct sequence number
 
         tcpSyncFlag[networkObjectId] = true;
 
