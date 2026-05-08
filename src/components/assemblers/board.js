@@ -1,4 +1,11 @@
-/**ESTA FUNCION GENERA UN ELEMENTO NODO TABLERO */
+/**
+ * Returns the main Board component. The board is the area where all the network objects are rendered.
+ * This component also renders the board's SVG layer.The default event listeners set are:
+ *  - ondragover: dragOverBoard
+ *  - ondrop: dropItemOverBoard
+ *  - onclick: closeAllAdvOptsModals
+ * @returns {HTMLElement} The board component.
+ */
 function itemBoard() {
 
     const $board = document.createElement("section");
@@ -17,13 +24,21 @@ function itemBoard() {
     return $board
 }
 
-/**ESTA FUNCION GESTIONA EL DRAG OVER DE EL ELEMENTO  */
+/**
+ * Manages the drag-over event over the board.
+ * @param {DragEvent} event
+ * @returns {void}
+ */
 function dragOverBoard(event) {
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
 }
 
-/**ESTA FUNCION GESTIONA EL DRAG START DE UN ELEMENTO QUE ESTÉ SOBRE EL ELEMENTO TABLERO */
+/**
+ * Manages the drag-start event for items alredy on the board.
+ * @param {DragEvent} event
+ * @returns {void}
+ */
 function BoardItemDragStart(event) {
 
     const $networkObject = event.target.closest(".item-dropped");
@@ -46,12 +61,16 @@ function BoardItemDragStart(event) {
     }));
 }
 
-/**ESTA FUNCION GESTIONA EL DROP DE UN ELEMENTO SOBRE EL ELEMENTO TABLERO */
+/**
+ * Manages the drop event over the board.
+ * @param {DragEvent} event
+ * @returns {void}
+ */
 function dropItemOverBoard(event) {
     
     event.preventDefault();
 
-    /*esto solo funciona en algunos navegadores
+    /*only works in some browsers
     if (event.dataTransfer.files.length > 0) {
         const files = event.dataTransfer.files;
         loadState(files);
@@ -77,15 +96,15 @@ function dropItemOverBoard(event) {
         "text": () => TextObject(x, y),
     }
 
-    if (itemType === "item" && boardItemRender[itemId]) { //<-- es un item del panel y existe una función para renderizarlo
-        let $newItem = boardItemRender[itemId]();
-        //se le añade el evento de arrastrar y soltar sobre un switch
+    if (itemType === "item" && boardItemRender[itemId]) { //<- is a item from the panel and there is a function to render it
+        const $newItem = boardItemRender[itemId]();
+        //add the event of dragging and dropping over a switch
         if (!itemId.startsWith("switch")) $newItem.setAttribute("ondrop", `dropPackageOverItem(event); dropSwitchOverItem(event);`);
         boardComponent.render($newItem);
-        itemIndex++; //<-- incrementamos el índice de items para generar un nuevo id único
+        itemIndex++; //<-- increase the index of items to generate a new unique id
     }
 
-    if (itemType === "item-dropped" && !isConnected(itemId)) { //<-- es un item que se ha arrastrado y no tiene ninguna conexión
+    if (itemType === "item-dropped" && !isConnected(itemId)) {  //<-- is an item that has been dragged and does not have any connection
         [x, y] = checkObjectClip(x, y);
         $networkObject.style.left = `${x}px`;
         $networkObject.style.top = `${y}px`;
@@ -93,7 +112,12 @@ function dropItemOverBoard(event) {
 
 }
 
-/**ESTA FUNCION ELIMINA UN ELEMENTO DE RED DEL TABLERO */
+/**
+ * Manages the deletion of an item from the board and deletes the information of the device stored
+ * in the buffers and the background processes associated with the device.
+ * @param {Event} event
+ * @returns {void}
+ */
 function deleteItem(event) {
 
     event.stopPropagation();
@@ -101,25 +125,30 @@ function deleteItem(event) {
     const interfaces = getInterfaces($networkObject.id);
 
     if (!isConnected($networkObject.id)) {
-        //eliminamos la informacion del dispositivo guardada en los buffers
+        //remove the information of the device stored in the buffers
         delete buffer[$networkObject.id];
         delete httpBuffer[$networkObject.id];
         delete dhcpOfferBuffer[$networkObject.id];
         delete tcpBuffer[$networkObject.id];
         delete traceBuffer[$networkObject.id];
-        //eliminamos los procesos en segundo plano asociados al dispositivo
+        //remove the background processes associated with the device
         clearInterval(serverLeaseTimers[$networkObject.id]);
         clearInterval(clientLeaseTimers[`${$networkObject.id}-${interfaces[0]}`]);
         delete serverLeaseTimers[$networkObject.id];
         delete clientLeaseTimers[`${$networkObject.id}-${interfaces[0]}`];
         $networkObject.remove();
     }else {
-        boardComponent.render(popupMessage(`<span>Error: </span>No se puede eliminar un dispositivo con conexiones.`));
+        boardComponent.render(popupMessage(`<span>Error: </span>Cannot delete a device with connections.`));
     }
 
 }
 
-/**ESTA FUNCION GESTIONA EL DROP DE UN PAQUETE SOBRE UN ELEMENTO DE RED EN EL TABLERO */
+/**
+ * Manages the drop of a package over an item on the board. When successful, it will trigger the
+ * installation of a package using the **dpkg** utility.
+ * @param {Event} event 
+ * @returns {void}
+ */
 function dropPackageOverItem(event) {
 
     const package = event.dataTransfer.getData("json");
@@ -129,19 +158,23 @@ function dropPackageOverItem(event) {
     const itemId = JSON.parse(package).itemId;
     const packages = ["isc-dhcp-server", "isc-dhcp-client", "isc-dhcp-relay", "bind9", "apache2"];
     
-    if (itemType !== "item") return; //<-- evitamos que se instalen paquetes que no son items
-    if (!packages.includes(itemId)) return; //<-- evitamos que se instalen paquetes que no sean los que nos interesan
+    if (itemType !== "item") return; //<-- prevents from installing packages that are not items
+    if (!packages.includes(itemId)) return; //<-- prevents from installing packages that are not those we are interested in
 
     try {
         dpkg(networkObjectId, "install", itemId);
-        boardComponent.render(popupMessage(`Se instaló el paquete ${itemId} con éxito.`));
+        boardComponent.render(popupMessage(`Package ${itemId} was installed successfully.`));
     }catch(error) {
         boardComponent.render(popupMessage(error.message));
     }
 
 }
 
-/**ESTA FUNCION GESTIONA EL DROP DE UN SWITCH SOBRE UN ELEMENTO DE RED EN EL TABLERO */
+/**
+ * Manages the drop of a switch over an item on the board.
+ * @param {Event} event 
+ * @returns {void}
+ */
 function dropSwitchOverItem(event) {
     
     const switchInfo = event.dataTransfer.getData("json");

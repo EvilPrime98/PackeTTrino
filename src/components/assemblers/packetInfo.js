@@ -1,3 +1,9 @@
+/**
+ * Returns the packet info modal for a packet.
+ * @param {Event} event - The event object that triggered the modal. Used to get the packet data from the 
+ * **PacketTracer** buffer.
+ * @returns {HTMLDivElement} modal - An HTML div element representing the packet info modal.
+ */
 function packetInfo(event) {
     
     const packet = trafficBuffer[event.target.dataset.buffer];
@@ -27,14 +33,14 @@ function packetInfo(event) {
         "method", "contentType", "body", "userAgent", "keepalive", "host", "resource", "statusCode", //http
         "ciaddr", "giaddr", "siaddr", "yiaddr", "chaddr", //dhcp
         "query", "answer", "answer_type", "answer", //dns
-        "sport", "dport" //puertos
+        "sport", "dport" //ports
     ];
 
     const layers = [layer1Fields, layer2Fields, layer3Fields, layer4Fields, layer5Fields, layer6Fields, layer7Fields]
 
-    //creamos los campos
+    //create the fields
 
-    let $packetPrint = [ [], [], [], [], [], [], [] ];
+    const $packetPrint = [ [], [], [], [], [], [], [] ];
 
     for (let i = 0; i < packetFields.length; i++) {
 
@@ -81,7 +87,7 @@ function packetInfo(event) {
         }
     }
 
-    //creamos el modal
+    //create the modal
 
     const $packetInfo = document.createElement("div");
 
@@ -92,39 +98,39 @@ function packetInfo(event) {
         <div class="packet-fields-modal">
             <table>
                 <tr>
-                    <th>Aplicación</th>
+                    <th>Application</th>
                     ${$packetPrint[6].map(field => `<td>${escapeHtml(field)}</td>`).join("")}
                 </tr>
                 <tr>
-                    <th>Presentación</th>
+                    <th>Presentation</th>
                     ${$packetPrint[5].map(field => `<td>${field}</td>`).join("")}
                 </tr>
                 <tr>
-                    <th>Sesión</th>
+                    <th>Session</th>
                     ${$packetPrint[4].map(field => `<td>${field}</td>`).join("")}
                 </tr>
                 <tr>
-                    <th>Transporte</th>
+                    <th>Transport</th>
                     ${$packetPrint[3].map(field => `<td>${field}</td>`).join("")}
                 </tr>
                 <tr>
-                    <th>Red</th>
+                    <th>Network</th>
                     <td>IPv4</td>
                     ${$packetPrint[2].map(field => `<td>${field}</td>`).join("")}
                 </tr>
                 <tr>
-                    <th>Enlace de Datos</th>
+                    <th>Data Link</th>
                     <td>Ethernet (IEEE 802.3)</td>
                     ${$packetPrint[1].map(field => `<td>${field}</td>`).join("")}
                 </tr>
                 <tr>
-                    <th>Física</th>
+                    <th>Physical</th>
                     <td>Ethernet</td>
                     ${$packetPrint[0].map(field => `<td>${field}</td>`).join("")}
                 </tr>
             </table>
             
-            <button class="btn-close" onclick="closePacketFieldsModal()">Cerrar</button>
+            <button class="btn-close" onclick="closePacketFieldsModal()">Close</button>
 
         </div>
     `;
