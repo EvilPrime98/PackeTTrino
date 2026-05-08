@@ -29,35 +29,38 @@ setTimeout(startApp, 1000);
 
 function startApp() {
 
-    const loadingScreen = document.getElementById('loading-screen');
+    const $loadingScreen = $('#loading-screen');
+    const $itemPanel = $('#item-panel');
 
-    loadingScreen.style.opacity = '0';
+    $loadingScreen.style.opacity = '0';
 
     setTimeout(() => {
-        loadingScreen.style.display = 'none';
+        $loadingScreen.style.display = 'none';
     }, 500);
 
     if (localStorage.getItem("dark-mode") === null) {
 
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.querySelector(".settings-modal").querySelector("#dark-mode").checked = true;
+        if (window
+            .matchMedia('(prefers-color-scheme: dark)')
+            .matches
+        ) {
+            $(".settings-modal #dark-mode").checked = true;
             activateDarkMode();
         }
 
     }else {
 
         if (localStorage.getItem("dark-mode") === "true") {
-            document.querySelector(".settings-modal").querySelector("#dark-mode").checked = true;
+            $(".settings-modal #dark-mode").checked = true;
             activateDarkMode();
         }
         
     }
     
-    document.querySelector("#item-panel").classList.remove("hidden");
+    $itemPanel.classList.remove('hidden');
 
-    const $items = document.querySelector("#item-panel").querySelectorAll(".item");
+    const $items = $$('.item', $itemPanel);
     let time = 0;
-
     $items.forEach((item) => {
         setTimeout( () => {
             item.classList.remove("hidden");
