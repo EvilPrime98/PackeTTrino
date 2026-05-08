@@ -1,6 +1,15 @@
+/**
+ * Installs the Bind9 DNS server package on a network object.
+ * Appends the DNS records table and cache table to the element, sets the `named`,
+ * `recursion`, and `resolved` attributes, and injects the corresponding option
+ * buttons and configuration panel into the advanced-options modal.
+ *
+ * @param {HTMLElement} $networkObject - The DOM element representing the network device.
+ * @returns {void}
+ */
 function installBind9($networkObject) {
 
-    terminalMessage("Instalando Bind...", $networkObject.id);
+    terminalMessage("Installing Bind...", $networkObject.id);
 
     const $advancedOptions = $networkObject.querySelector(".advanced-options-modal");
     const attr = (attribute, value) => $networkObject.setAttribute(attribute, value);
@@ -17,13 +26,22 @@ function installBind9($networkObject) {
     attr("resolved", "false");
     addOption(dnsRecordsOptionButton(), dnsServerConfig(), cacheDnsOptionButton());
 
-    terminalMessage("Bind instalado correctamente.", $networkObject.id);
+    terminalMessage("Bind installed successfully.", $networkObject.id);
 
 }
 
+/**
+ * Uninstalls the Bind9 DNS server package from a network object.
+ * Removes the DNS records table and cache table from the element, strips the
+ * `named`, `recursion`, and `resolved` attributes, and removes the DNS-related
+ * entries from the advanced-options modal.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network device.
+ * @returns {void}
+ */
 function uninstallBind9(networkObjectId) {
 
-    terminalMessage("Desinstalando Bind...", networkObjectId);
+    terminalMessage("Uninstalling Bind...", networkObjectId);
 
     const $networkObject = document.getElementById(networkObjectId);
     const $advancedOptions = $networkObject.querySelector(".advanced-options-modal");
@@ -38,6 +56,6 @@ function uninstallBind9(networkObjectId) {
     remOption("dns-option");
     remOption("dns-server-config");
     remOption("cache-dns-option");
-    
-    terminalMessage("Bind desinstalado correctamente.", networkObjectId);
+
+    terminalMessage("Bind uninstalled successfully.", networkObjectId);
 }

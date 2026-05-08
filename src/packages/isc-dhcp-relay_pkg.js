@@ -1,24 +1,34 @@
+/**
+ * Installs the ISC DHCP relay agent package on a network object.
+ * Sets the `dhcrelay`, `dhcrelay-main-server`, and `dhcrelay-listen-on-interfaces`
+ * attributes, injects the relay configuration panel into the advanced-options modal,
+ * and creates the `/etc/default/isc-dhcp-relay` config file in the virtual filesystem
+ * with empty SERVERS and INTERFACES fields.
+ *
+ * @param {HTMLElement} $networkObject - The DOM element representing the network device.
+ * @returns {void}
+ */
 function installDhcprelay($networkObject) {
 
     const networkObjectId = $networkObject.id;
 
-    terminalMessage("Instalando DHCP Relay...", networkObjectId);
+    terminalMessage("Installing DHCP Relay...", networkObjectId);
 
     const $advancedOptions = $networkObject.querySelector(".advanced-options-modal");
     const attr = (attribute, value) => $networkObject.setAttribute(attribute, value);
     const append = (...nodes) => nodes.forEach(node => $networkObject.appendChild(node));
     const addOption = (...nodes) => nodes.forEach(node => $advancedOptions.appendChild(node));
 
-    //atributos
+    //attributes
     attr("dhcrelay", "true");
     attr("dhcrelay-main-server", "");
     attr("dhcrelay-listen-on-interfaces", "");
     addOption(dhcpRelayConfig());
 
-    //directorios y archivos
+    //directories and files
 
     const iscDhcpRelayDefaultContent = `
-    #Este archivo configura los servidores e interfaces disponibles para el servidor DHCP Relay
+    #This file configures the available servers and interfaces for the DHCP Relay server
     SERVERS=""
     INTERFACES=""
     `;
@@ -28,12 +38,21 @@ function installDhcprelay($networkObject) {
     networkObjectFileSystem.touch("isc-dhcp-relay", ["etc", "default"]);
     networkObjectFileSystem.write("isc-dhcp-relay", ["etc", "default"], iscDhcpRelayDefaultContent.split('\n').map(line => line.trimStart()).join('\n'));
 
-    terminalMessage("DHCP Relay instalado correctamente.", networkObjectId);
+    terminalMessage("DHCP Relay installed successfully.", networkObjectId);
 }
 
+/**
+ * Uninstalls the ISC DHCP relay agent package from a network object.
+ * Strips the relay-related attributes, removes the relay configuration panel from the
+ * advanced-options modal, and deletes the `/etc/default` directory from the virtual
+ * filesystem.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network device.
+ * @returns {void}
+ */
 function uninstallDhcprelay(networkObjectId) {
 
-    terminalMessage("Desinstalando DHCP Relay...", networkObjectId);
+    terminalMessage("Uninstalling DHCP Relay...", networkObjectId);
 
     const $networkObject = document.getElementById(networkObjectId);
     const $advancedOptions = $networkObject.querySelector(".advanced-options-modal");
@@ -44,10 +63,10 @@ function uninstallDhcprelay(networkObjectId) {
     rattr("dhcrelay", "dhcrelay-main-server", "dhcrelay-listen-on-interfaces");
     remOption("dhcp-relay-config");
 
-    //eliminar directorios y archivos
+    //delete directories and files
     const networkObjectFileSystem = new FileSystem($networkObject);
     networkObjectFileSystem.rmdir("default", ["etc"]);
 
-    terminalMessage("DHCP Relay desinstalado correctamente.", networkObjectId);
+    terminalMessage("DHCP Relay uninstalled successfully.", networkObjectId);
 
 }

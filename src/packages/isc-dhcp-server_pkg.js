@@ -1,3 +1,14 @@
+/**
+ * Installs the ISC DHCP server package on a network object.
+ * Creates the `/etc/dhcp/dhcpd.conf` and `/etc/default/isc-dhcp-server` config files
+ * in the virtual filesystem with commented-out example content, sets all DHCP service
+ * attributes (pool range, gateway, netmask, DNS, lease time, reservations, and
+ * listen interfaces), and injects the leases table and server configuration panel into
+ * the element and its advanced-options modal respectively.
+ *
+ * @param {HTMLElement} $networkObject - The DOM element representing the network device.
+ * @returns {void}
+ */
 function installDhcpd($networkObject) {
 
     const networkObjectId = $networkObject.id;
@@ -7,10 +18,10 @@ function installDhcpd($networkObject) {
     const addOption = (...nodes) => nodes.forEach(node => $advancedOptions.appendChild(node));
     const networkObjectFileSystem = new FileSystem($networkObject);
 
-    terminalMessage("Instalando DHCP Server...", networkObjectId);
+    terminalMessage("Installing DHCP Server...", networkObjectId);
 
     const dhcpdConfDefaultContent = `
-    # Ejemplo de archivo de configuración para DHCP
+    # Example DHCP configuration file
     #
     #   shared-network 192.168.0.0 255.255.255.0 {
     #        subnet 192.168.0.0 netmask 255.255.255.0 {
@@ -29,12 +40,12 @@ function installDhcpd($networkObject) {
     `;
 
     const iscDhcpServerDefaultContent = `
-    #Este archivo configura las interfaces disponibles para el servidor DHCP
-    #Ejemplo: INTERFACESv4="enp0s3 enp0s8"
+    #This file configures the available interfaces for the DHCP server
+    #Example: INTERFACESv4="enp0s3 enp0s8"
     INTERFACESv4=""
     `;
 
-    //directorios y archivos
+    //directories and files
     networkObjectFileSystem.mkdir("dhcp", ["etc"]);
     networkObjectFileSystem.touch("dhcpd.conf", ["etc", "dhcp"]);
     networkObjectFileSystem.write("dhcpd.conf", ["etc", "dhcp"], dhcpdConfDefaultContent.split('\n').map(line => line.trimStart()).join('\n'));
@@ -42,29 +53,39 @@ function installDhcpd($networkObject) {
     networkObjectFileSystem.touch("isc-dhcp-server", ["etc", "default"]);
     networkObjectFileSystem.write("isc-dhcp-server", ["etc", "default"], iscDhcpServerDefaultContent.split('\n').map(line => line.trimStart()).join('\n'));
 
-    //atributos del servidor DHCP
+    //DHCP server attributes
     attr("dhcpd", "true");
     attr("dhcp-listen-on-interfaces", "");
     attr("data-interval", "false");
 
-    //atributos del servicio DHCP
+    //DHCP service attributes
     attr("data-range-start", "");
     attr("data-range-end", "");
     attr("dhcp-offer-gateway", "");
     attr("dhcp-offer-netmask", "");
-    attr("dhcp-offer-dns", "");  
+    attr("dhcp-offer-dns", "");
     attr("dhcp-offer-lease-time", "");
     attr("dhcp-reservations", `{}`);
 
-    addOption(leasesTableOptionButton(), dhcpServerConfig()); //<-- se añaden opciones a las opciones avanzadas
-    append(dhcpTable()); //<-- se añade la tabla de DHCP
+    addOption(leasesTableOptionButton(), dhcpServerConfig()); //<-- options are added to the advanced options
+    append(dhcpTable()); //<-- the DHCP table is added
 
-    terminalMessage("DHCP Server instalado correctamente.", networkObjectId);
+    terminalMessage("DHCP Server installed successfully.", networkObjectId);
 }
 
+/**
+ * Uninstalls the ISC DHCP server package from a network object.
+ * Deletes the `/etc/dhcp` and `/etc/default` directories from the virtual filesystem,
+ * removes all DHCP-related attributes, removes the leases table and server config
+ * entries from the advanced-options modal, clears the active lease-renewal interval,
+ * and deletes the server's entry from the global `serverLeaseTimers` registry.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network device.
+ * @returns {void}
+ */
 function uninstallDhcpd(networkObjectId) {
 
-    terminalMessage("Desinstalando DHCP Server...", networkObjectId);
+    terminalMessage("Uninstalling DHCP Server...", networkObjectId);
 
     const $networkObject = document.getElementById(networkObjectId);
     const $advancedOptions = $networkObject.querySelector(".advanced-options-modal");
@@ -74,31 +95,31 @@ function uninstallDhcpd(networkObjectId) {
     const remOption = (...options) => options.forEach(option => $advancedOptions.querySelector("#" + option).remove());
     const networkObjectFileSystem = new FileSystem($networkObject);
 
-    //directorios y archivos
+    //directories and files
     networkObjectFileSystem.rmdir("dhcp", ["etc"]);
     networkObjectFileSystem.rmdir("default", ["etc"]);
-    
-    //atributos del servidor DHCP
+
+    //DHCP server attributes
     rattr(
-        "dhcpd", 
-        "data-range-start", 
-        "data-range-end", 
-        "dhcp-offer-gateway", 
-        "dhcp-offer-netmask", 
-        "dhcp-offer-dns", 
-        "dhcp-offer-lease-time", 
+        "dhcpd",
+        "data-range-start",
+        "data-range-end",
+        "dhcp-offer-gateway",
+        "dhcp-offer-netmask",
+        "dhcp-offer-dns",
+        "dhcp-offer-lease-time",
         "data-interval",
         "dhcp-listen-on-interfaces"
     );
 
-    //se eliminan opciones de la opciones avanzadas
-    remOption("dhcp-option", "dhcp-server-config"); 
+    //remove options from the advanced options
+    remOption("dhcp-option", "dhcp-server-config");
     remove($dhcpTable);
 
-    //se elimina el timer de alquiler asociado al servidor DHCP
-    clearInterval(serverLeaseTimers[networkObjectId]); 
+    //delete the lease timer associated with the DHCP server
+    clearInterval(serverLeaseTimers[networkObjectId]);
     delete serverLeaseTimers[networkObjectId];
 
-    terminalMessage("DHCP Server desinstalado correctamente.", networkObjectId);
+    terminalMessage("DHCP Server uninstalled successfully.", networkObjectId);
 
-} 
+}
