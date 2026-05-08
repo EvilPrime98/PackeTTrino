@@ -1,3 +1,20 @@
+/**
+ * Sends a single ICMP echo request (ping) from a network object to a destination and
+ * reports the result as a numeric status code.
+ *
+ * Resolves domain names to IPs when necessary, short-circuits for local destinations,
+ * and rejects network addresses. Uses the global `icmpFlag` to detect whether a reply
+ * was received.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object sending the ping.
+ * @param {string} destination - Destination IP address or domain name.
+ * @returns {Promise<number>} Status code:
+ *   - `0` — success (reply received or local destination)
+ *   - `1` — DNS resolution failed
+ *   - `2` — destination is a network address
+ *   - `3` — no reply received (timeout or routing failure)
+ *   - `4` — the interface has no IP or netmask configured
+ */
 async function ping(networkObjectId, destination) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -11,9 +28,9 @@ async function ping(networkObjectId, destination) {
         destination = await domainNameResolution(networkObjectId, destination);
         if (!destination) return 1;
     }
-    
+
     if (isLocalIp(networkObjectId, destination)) {
-        await new Promise(resolve => setTimeout(resolve, 50)); //<-- esta promesa esta aquí para que la terminal visualmente no se "buguee"
+        await new Promise(resolve => setTimeout(resolve, 50)); //<-- this promise is here to prevent the terminal from visually glitching
         return 0;
     }
 
@@ -21,7 +38,7 @@ async function ping(networkObjectId, destination) {
 
     icmpFlag[networkObjectId] = false;
 
-    try {       
+    try {
         await icmpRequestPacketGenerator(networkObjectId, networkObjectIp, destination, networkObjectInterface);
     } catch (error) {
         return 3;
@@ -32,8 +49,20 @@ async function ping(networkObjectId, destination) {
 
 }
 
+/**
+ * Performs a traceroute from a network object to a destination, printing each hop to the terminal.
+ *
+ * Resolves domain names, skips local destinations, and iteratively sends ICMP echo requests
+ * with increasing TTL values. Reads intermediate hop information from the global `traceBuffer`
+ * and `traceReturn` flags. Ends by printing the final hop or a failure line with asterisks.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object originating the traceroute.
+ * @param {string} destination - Destination IP address or domain name.
+ * @param {boolean} [numeric=false] - When true, prefixes each output line with a hop count number.
+ * @returns {Promise<void>}
+ */
 async function traceroute(networkObjectId, destination, numeric = false) {
-    
+
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectInterface = getInterfaces(networkObjectId)[0];
     const networkObjectIp = $networkObject.getAttribute(`ip-${networkObjectInterface}`);
@@ -45,42 +74,42 @@ async function traceroute(networkObjectId, destination, numeric = false) {
         const domainName = destination;
         destination = await domainNameResolution(networkObjectId, destination);
         if (!destination) {
-            terminalMessage(`traceroute: Nombre "${domainName}" o servicio desconocido.`, networkObjectId);
+            terminalMessage(`traceroute: Name "${domainName}" or service unknown.`, networkObjectId);
             return;
         }
     }
 
     if (isLocalIp(networkObjectId, destination)) {
-        await new Promise(resolve => setTimeout(resolve, 50)); //<-- esta promesa esta aquí para que la terminal visualmente no se "buguee"
+        await new Promise(resolve => setTimeout(resolve, 50)); //<-- this promise is here to prevent the terminal from visually glitching
         return;
     }
 
-    trace[networkObjectId] = true; //<-- activamos el modo de trazado
+    trace[networkObjectId] = true; //<-- enable trace mode
     traceFlag[networkObjectId] = false;
 
-    let packet = new IcmpEchoRequest(
-        networkObjectIp, //ip de origen
-        destination, //ip de destino
-        networkObjectMac, //mac de origen
-        "" //mac de destino
+    const packet = new IcmpEchoRequest(
+        networkObjectIp, //source IP
+        destination, //destination IP
+        networkObjectMac, //source MAC
+        "" //destination MAC
     );
 
-    packet.ttl = 1; //el TTL inicial es 1
+    packet.ttl = 1; //the initial TTL is 1
 
-    traceBuffer[networkObjectId] = [networkObjectIp]; //el punto de partida es la IP del objeto
+    traceBuffer[networkObjectId] = [networkObjectIp]; //the starting point is the object's IP
     traceReturn[networkObjectId] = false;
 
     await routing(networkObjectId, packet, true);
 
     while (traceReturn[networkObjectId] === true) {
-        //construimos y mostramos el mensaje de salida
+        //build and display the output message
         let message = `${hops}`;
         message +=` ${traceBuffer[networkObjectId][traceBuffer[networkObjectId].length - 2].toString().padEnd(15," ")}`;
         message +=` ${traceBuffer[networkObjectId][traceBuffer[networkObjectId].length - 1].toString()}`;
         terminalMessage(message, networkObjectId);
-        //limpiamos el buffer de mensajes de salida
+        //clear the output message buffer
         traceReturn[networkObjectId] = false;
-        //aumentamos el TTL y enviamos el paquete de nuevo
+        //increment the TTL and send the packet again
         packet.ttl++;
         hops = (numeric) ? hops + 1 : "";
         await routing(networkObjectId, packet, true);
@@ -95,8 +124,16 @@ async function traceroute(networkObjectId, destination, numeric = false) {
         traceRouteFail(traceBuffer[networkObjectId][traceBuffer[networkObjectId].length - 1], hops, numeric);
     }
 
-    trace[networkObjectId] = false; //<-- desactivamos el modo de trazado
+    trace[networkObjectId] = false; //<-- disable trace mode
 
+    /**
+     * Prints a traceroute failure line for an unreachable hop and starts repeating asterisk lines.
+     *
+     * @param {string} origin - The last known hop IP address.
+     * @param {number|string} seq - The current hop sequence value.
+     * @param {boolean} [numeric=false] - Whether to prefix output lines with numeric hop counts.
+     * @returns {void}
+     */
     function traceRouteFail(origin, seq, numeric = false) {
         if (document.querySelector(".terminal-component").style.display === "none") return;
         seq = numeric ? seq + 1 : "";
@@ -109,9 +146,21 @@ async function traceroute(networkObjectId, destination, numeric = false) {
 
 }
 
+/**
+ * Builds and routes an ICMP echo request packet from a network object.
+ *
+ * Reads the MAC address of the specified interface, constructs an `IcmpEchoRequest` packet,
+ * and forwards it through the routing layer.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object sending the ICMP request.
+ * @param {string} originIp - Source IP address to use in the ICMP packet.
+ * @param {string} destinationIp - Destination IP address.
+ * @param {string} [iface="enp0s3"] - Interface name used to look up the source MAC address.
+ * @returns {Promise<void>}
+ */
 async function icmpRequestPacketGenerator(networkObjectId, originIp, destinationIp, iface = "enp0s3") {
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectMac = $networkObject.getAttribute(`mac-${iface}`);
-    let packet = new IcmpEchoRequest(originIp, destinationIp, networkObjectMac, "");
+    const packet = new IcmpEchoRequest(originIp, destinationIp, networkObjectMac, "");
     await routing(networkObjectId, packet, true);
 }

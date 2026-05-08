@@ -1,3 +1,20 @@
+/**
+ * Processes an incoming DNS request on behalf of the named (BIND9) DNS server running on a network object.
+ *
+ * Handles type-A, PTR, SOA, and NS queries. For type-A queries the resolution order is:
+ * local zone (iterative), DNS cache (if enabled), and recursive lookup via the Google DNS API
+ * (if recursion is enabled). Caches successful recursive results when the cache is active.
+ * Returns undefined when the named service is off.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object acting as the DNS server.
+ * @param {Object} packet - The incoming DNS request packet.
+ * @param {string} packet.origin_ip - Source IP address of the requester.
+ * @param {string} packet.origin_mac - Source MAC address of the requester.
+ * @param {string} packet.query - Domain name being queried.
+ * @param {string} packet.answer_type - DNS record type requested: "A", "PTR", "SOA", or "NS".
+ * @param {number} packet.sport - Source port of the requester (used as destination port for the reply).
+ * @returns {Promise<Object|undefined>} The DNS reply packet, or undefined if named is off.
+ */
 async function named_service(networkObjectId, packet) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -5,60 +22,60 @@ async function named_service(networkObjectId, packet) {
     const networkObjectMac = $networkObject.getAttribute(`mac-${networkObjectInterface}`);
     const networkObjectIp = $networkObject.getAttribute(`ip-${networkObjectInterface}`);
     const isNamedOn = $networkObject.getAttribute("named") === "true";
-    const isRecursiveOn = $networkObject.getAttribute("recursion") === "true"; //<-- comprobamos si estamos activado el modo recursion
-    const isCacheOn = $networkObject.getAttribute("resolved") === "true"; //<-- comprobamos si estamos activado el modo cache dns
+    const isRecursiveOn = $networkObject.getAttribute("recursion") === "true"; //<-- check if recursion mode is enabled
+    const isCacheOn = $networkObject.getAttribute("resolved") === "true"; //<-- check if DNS cache mode is enabled
 
     if (!isNamedOn) return;
 
-    let newPacket = new dnsReply( // <--inicializamos el paquete sin respuesta
-        networkObjectIp, // <--ip de origen
-        packet.origin_ip, // <--ip de destino
-        networkObjectMac, // <--mac de origen
-        packet.origin_mac, // <--mac de destino
-        packet.query, // <--nombre de dominio
-        "" // <--respuesta
+    const newPacket = new dnsReply( // <-- initialize the packet without a response
+        networkObjectIp, // <-- source IP
+        packet.origin_ip, // <-- destination IP
+        networkObjectMac, // <-- source MAC
+        packet.origin_mac, // <-- destination MAC
+        packet.query, // <-- domain name
+        "" // <-- answer
     );
 
     newPacket.dport = packet.sport;
 
     if (packet.answer_type === "A") {
 
-        //consulta iterativa
+        //iterative query
 
-        let answer = iterativeDnsQuery(networkObjectId, packet.query); 
+        let answer = iterativeDnsQuery(networkObjectId, packet.query);
 
-        //consulta de la cache dns
+        //DNS cache query
 
         if (!answer && isCacheOn) answer = isDomainInCacheDns(networkObjectId, packet.query)[1];
 
-        //consulta recursiva
+        //recursive query
 
         if (!answer && isRecursiveOn) {
             answer = await recursiveDnsQuery(packet.query);
             if (answer && isCacheOn) addDnsCacheEntryServer(networkObjectId, packet.query, packet.answer_type, answer[0]);
         }
-        
-        //obtenemos el TTL del registro en caché
-        
+
+        //get the TTL of the cached record
+
         if (answer) {
             const soaData = getSoaRecord(networkObjectId, packet.query);
             newPacket.cache_ttl = soaData["cacheTTL"];
         }
 
-        //añadimos los valores de la respuesta
+        //add the response values
 
         if (typeof answer === 'string') newPacket.answer = [answer];
         else newPacket.answer = answer;
 
-        //se añade el tipo de registro
-        
-        newPacket.answer_type = "A"; 
+        //add the record type
+
+        newPacket.answer_type = "A";
     }
 
     if (packet.answer_type === "PTR") {
-        let answer = iterativeDnsQuery(networkObjectId, (packet.query).split(".").reverse().join(".") + ".IN-ADDR.ARPA."); //<-- consulta iterativa
-        newPacket.answer = answer; //<-- se añade la respuesta
-        newPacket.answer_type = "PTR"; //<-- se añade el tipo de registro
+        const answer = iterativeDnsQuery(networkObjectId, (packet.query).split(".").reverse().join(".") + ".IN-ADDR.ARPA."); //<-- iterative query
+        newPacket.answer = answer; //<-- add the answer
+        newPacket.answer_type = "PTR"; //<-- add the record type
     }
 
     if (packet.answer_type === "SOA" || packet.answer_type === "NS") {
@@ -79,13 +96,22 @@ async function named_service(networkObjectId, packet) {
 
 }
 
+/**
+ * Resolves a domain name to one or more IP addresses using the Google DNS-over-HTTPS API.
+ *
+ * Sends a type-A query to `dns.google.com/resolve` and extracts all valid IPv4 addresses
+ * from the answer section of the JSON response.
+ *
+ * @param {string} domain - The fully qualified domain name to resolve.
+ * @returns {Promise<Array<string>|false>} An array of resolved IPv4 addresses, or false on failure.
+ */
 async function recursiveDnsQuery(domain) {
 
     try {
 
-        const apiResponse = await fetch("https://dns.google.com/resolve?name=" + domain + "&type=A"); // <-- llamamos a la api de google
-        const apiReply = await apiResponse.json(); // <-- decodificamos la respuesta json
-        let resolution = apiReply.Answer.reduce( (acc, answer) => { if (isValidIp(answer.data)) acc.push(answer.data); return acc; }, []);        
+        const apiResponse = await fetch("https://dns.google.com/resolve?name=" + domain + "&type=A"); // <-- call the Google DNS API
+        const apiReply = await apiResponse.json(); // <-- decode the JSON response
+        const resolution = apiReply.Answer.reduce( (acc, answer) => { if (isValidIp(answer.data)) acc.push(answer.data); return acc; }, []);
         return resolution;
 
     } catch (error) {

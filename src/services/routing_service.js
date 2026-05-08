@@ -1,4 +1,16 @@
-/**ESTA FUNCION INSERTA UN REGLA DE CONEXION DIRECTA A LA TABLA DE ENRUTAMIENTO DE UN EQUIPO */
+/**
+ * Inserts or updates a direct (connected) routing rule in a network object's routing table.
+ *
+ * A direct rule represents a locally connected network reachable through the given interface,
+ * identified by a next-hop of "0.0.0.0". If a row for the interface already exists it is updated
+ * in place; otherwise a new row is inserted before the default route (or appended).
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object whose routing table is modified.
+ * @param {string} gateway - The IP address assigned to the interface (used to derive the network address).
+ * @param {string} netmask - The subnet mask of the directly connected network.
+ * @param {string} iface - The interface name the network is reachable through.
+ * @returns {void}
+ */
 function setDirectRoutingRule(networkObjectId, gateway, netmask, iface) {
 
     if (!netmask || !gateway || !iface) return;
@@ -27,7 +39,7 @@ function setDirectRoutingRule(networkObjectId, gateway, netmask, iface) {
 
         const $defaultRule = $routingTable.querySelector(".default-route");
 
-        let $newRow = document.createElement("tr");
+        const $newRow = document.createElement("tr");
 
         $newRow.classList.add("direct-route");
 
@@ -46,7 +58,21 @@ function setDirectRoutingRule(networkObjectId, gateway, netmask, iface) {
 
 }
 
-/**ESTA FUNCION INSERTA UN REGLA REMOTA A LA TABLA DE ENRUTAMIENTO DE UN EQUIPO */
+/**
+ * Inserts or updates a remote (static or dynamic) routing rule in a router's routing table.
+ *
+ * Rows are keyed by destination network and netmask. A destination of "0.0.0.0" with a netmask
+ * of "0.0.0.0" is classified as the default route. When `gateway` is "0.0.0.0" the interface's
+ * own IP address is used as the gateway value.
+ *
+ * @param {string} routerObjectId - The DOM element ID of the router whose routing table is modified.
+ * @param {string} destination - Destination network address.
+ * @param {string} netmask - Subnet mask for the destination network.
+ * @param {string} gateway - Next-hop IP address, or "0.0.0.0" to use the interface IP.
+ * @param {string} iface - Egress interface name.
+ * @param {string} nexthop - Next-hop IP address stored in the Next Hop column.
+ * @returns {void}
+ */
 function setRemoteRoutingRule(routerObjectId, destination, netmask, gateway, iface, nexthop) {
 
     if (!destination || !netmask || !gateway || !iface || !nexthop) return;
@@ -71,9 +97,9 @@ function setRemoteRoutingRule(routerObjectId, destination, netmask, gateway, ifa
 
         const $defaultRule = $routingTable.querySelector(".default-route");
 
-        let $newRow = document.createElement("tr");
+        const $newRow = document.createElement("tr");
 
-        let ruleType = (destination === "0.0.0.0" && netmask === "0.0.0.0") ? "default-route" : "remote-route";
+        const ruleType = (destination === "0.0.0.0" && netmask === "0.0.0.0") ? "default-route" : "remote-route";
 
         $newRow.classList.add(ruleType);
 
@@ -92,7 +118,16 @@ function setRemoteRoutingRule(routerObjectId, destination, netmask, gateway, ifa
 
 }
 
-/**ESTA FUNCION ELIMINA UNA REGLA DE CONEXION DIRECTA DE LA TABLA DE ENRUTAMIENTO DE UN EQUIPO */
+/**
+ * Removes the direct (connected) routing rule associated with a specific interface
+ * from a network object's routing table.
+ *
+ * Deletes any row whose interface column matches `iface` and whose next-hop is "0.0.0.0".
+ *
+ * @param {string} routerObjectId - The DOM element ID of the network object whose routing table is modified.
+ * @param {string} iface - The interface name whose direct route should be removed.
+ * @returns {void}
+ */
 function removeDirectRoutingRule(routerObjectId, iface) {
     const $networkObject = document.getElementById(routerObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
@@ -104,7 +139,17 @@ function removeDirectRoutingRule(routerObjectId, iface) {
     });
 }
 
-/**ESTA FUNCION ELIMINA UNA REGLA REMOTA DE LA TABLA DE ENRUTAMIENTO DE UN EQUIPO */
+/**
+ * Removes a remote (static or dynamic) routing rule from a router's routing table
+ * identified by its destination network and subnet mask.
+ *
+ * Only removes rows whose next-hop is not "0.0.0.0" (i.e. does not touch direct routes).
+ *
+ * @param {string} routerObjectId - The DOM element ID of the router whose routing table is modified.
+ * @param {string} destination - Destination network address of the rule to remove.
+ * @param {string} netmask - Subnet mask of the rule to remove.
+ * @returns {void}
+ */
 function removeRemoteRoutingRule(routerObjectId, destination, netmask) {
     const $networkObject = document.getElementById(routerObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
@@ -117,7 +162,16 @@ function removeRemoteRoutingRule(routerObjectId, destination, netmask) {
     });
 }
 
-/**ESTA FUNCION IMPRIME EL ENRUTAMIENTO DE UN EQUIPO POR LA TERMINAL*/
+/**
+ * Prints the routing table of a network object to its terminal, mimicking `ip route show`.
+ *
+ * Outputs the default route first, then remote routes, then directly connected routes.
+ * Each remote route is printed in CIDR notation with its next-hop and interface.
+ * Each direct route is printed with its interface, protocol, scope, and source address.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object whose routes are printed.
+ * @returns {void}
+ */
 function printRouting(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -127,33 +181,40 @@ function printRouting(networkObjectId) {
     const $defaultRoutingRule = $routingTable.querySelector(".default-route");
 
     if ($defaultRoutingRule) {
-        let $defaultfields = $defaultRoutingRule.querySelectorAll("td");
-        let defaultInterface = $defaultfields[3].innerHTML;
-        let nextHop = $defaultfields[4].innerHTML;
+        const $defaultfields = $defaultRoutingRule.querySelectorAll("td");
+        const defaultInterface = $defaultfields[3].innerHTML;
+        const nextHop = $defaultfields[4].innerHTML;
         terminalMessage(`default via ${nextHop} dev ${defaultInterface}`, networkObjectId);
     };
 
     $remoteRoutingRules.forEach($rule => {
-        let $fields = $rule.querySelectorAll("td");
-        let destination = $fields[0].innerHTML;
-        let netmask = $fields[1].innerHTML;
-        let iface = $fields[3].innerHTML;
-        let nextHop = $fields[4].innerHTML;
+        const $fields = $rule.querySelectorAll("td");
+        const destination = $fields[0].innerHTML;
+        const netmask = $fields[1].innerHTML;
+        const iface = $fields[3].innerHTML;
+        const nextHop = $fields[4].innerHTML;
         terminalMessage(`${destination}/${netmaskToCidr(netmask)} via ${nextHop} dev ${iface}`, networkObjectId);
     });
 
     $directRoutingRules.forEach($rule => {
-        let $fields = $rule.querySelectorAll("td");
-        let destination = $fields[0].innerHTML;
-        let netmask = $fields[1].innerHTML;
-        let gateway = $fields[2].innerHTML;
-        let iface = $fields[3].innerHTML;
+        const $fields = $rule.querySelectorAll("td");
+        const destination = $fields[0].innerHTML;
+        const netmask = $fields[1].innerHTML;
+        const gateway = $fields[2].innerHTML;
+        const iface = $fields[3].innerHTML;
         terminalMessage(`${destination}/${netmaskToCidr(netmask)} dev ${iface} proto kernel scope link src ${gateway}`, networkObjectId);
     });
 
 }
 
-/**ESTA FUNCION RESTAURA LA TABLA DE ENRUTAMIENTO DE UN EQUIPO (DEPRECADA)*/
+/**
+ * Resets a router's routing table to its initial empty HTML structure with three blank rows
+ * and one default-route placeholder row.
+ *
+ * @deprecated Use targeted rule removal functions instead of resetting the entire table.
+ * @param {string} routerObjectid - The DOM element ID of the router whose routing table is reset.
+ * @returns {void}
+ */
 function routingTableRestore(routerObjectid) {
 
     const $routerObject = document.getElementById(routerObjectid);
@@ -198,14 +259,28 @@ function routingTableRestore(routerObjectid) {
 
 }
 
-/**ESTA FUNCION ELIMINA TODAS LAS REGLAS REMOTAS DE LA TABLA DE ENRUTAMIENTO DE UN EQUIPO */
+/**
+ * Removes all remote routing rules (`.remote-route` rows) from a router's routing table.
+ *
+ * @param {string} $routerObjectId - The DOM element ID of the router whose remote routes are cleared.
+ * @returns {void}
+ */
 function removeRemoteRules($routerObjectId) {
     const $networkObject = document.getElementById($routerObjectId);
     const $remoteRoutingRules = $networkObject.querySelectorAll(".remote-route");
     $remoteRoutingRules.forEach($rule => $rule.remove());
 }
 
-/**ESTA FUNCION DEVUELVE UN NODO TIPO ROW DE LA TABLA DE ENRUTAMIENTO DE UN EQUIPO A PARTIR DEL DESTINO Y MASCARA*/
+/**
+ * Returns the table row element for a routing rule identified by destination network and netmask.
+ *
+ * Skips the header row and returns the first matching `<tr>`, or false when not found.
+ *
+ * @param {string} routerObjectId - The DOM element ID of the router whose routing table is searched.
+ * @param {string} destination - Destination network address to match.
+ * @param {string} netmask - Subnet mask to match.
+ * @returns {HTMLTableRowElement|false} The matching table row, or false if not found.
+ */
 function getRoutingRule(routerObjectId, destination, netmask) {
     const $networkObject = document.getElementById(routerObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
@@ -213,15 +288,24 @@ function getRoutingRule(routerObjectId, destination, netmask) {
     let response = false;
 
     for (let i = 1; i < $rows.length; i++) {
-        let $row = $rows[i];
-        let cells = $row.querySelectorAll("td");
+        const $row = $rows[i];
+        const cells = $row.querySelectorAll("td");
         if (cells.length > 0 && cells[0].innerHTML === destination && cells[1].innerHTML === netmask) response = $row;
     }
 
     return response;
 }
 
-/**ESTA FUNCION DEVUELVE TODAS LAS REGLAS DE ENRUTAMIENTO DE UN EQUIPO COMO ARRAY DE STRINGS A PARTIR DE UNA INTERFAZ*/
+/**
+ * Returns all remote routing rules for a specific interface as an array of `ip route add` command strings.
+ *
+ * Reads from row index 4 onward (skipping header, direct-route, and default-route rows).
+ * Only includes rows whose next-hop is not "0.0.0.0" and whose interface matches `targetinterface`.
+ *
+ * @param {string} routerObjectid - The DOM element ID of the router whose routing rules are read.
+ * @param {string} targetinterface - The interface name to filter rules by.
+ * @returns {Array<string>} An array of `ip route add <dest>/<cidr> via <nexthop>` strings.
+ */
 function getRoutingRules(routerObjectid, targetinterface) {
 
     const $routerObject = document.getElementById(routerObjectid);
@@ -230,19 +314,28 @@ function getRoutingRules(routerObjectid, targetinterface) {
     const rules = [];
 
     for (let i = 4; i < $rows.length; i++) {
-        let $row = $rows[i];
-        let $cells = $row.querySelectorAll("td");
-        let destination = $cells[0].innerHTML.trim();
-        let netmask = $cells[1].innerHTML.trim();
-        let iface = $cells[3].innerHTML.trim();
-        let nextHop = $cells[4].innerHTML.trim();
+        const $row = $rows[i];
+        const $cells = $row.querySelectorAll("td");
+        const destination = $cells[0].innerHTML.trim();
+        const netmask = $cells[1].innerHTML.trim();
+        const iface = $cells[3].innerHTML.trim();
+        const nextHop = $cells[4].innerHTML.trim();
         if (iface === targetinterface && nextHop !== "0.0.0.0") rules.push(`ip route add ${destination}/${netmaskToCidr(netmask)} via ${nextHop}`);
     }
 
     return rules;
 }
 
-/**ESTA FUNCION ELIMINA LAS REGLAS REMOTAS ASOCIADAS A UNA INTERFAZ DE UN EQUIPO */
+/**
+ * Removes all routing rules (both direct and remote) associated with a specific interface
+ * from a network object's routing table.
+ *
+ * Deletes any row whose interface column matches `iface`, regardless of next-hop value.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object whose routing table is modified.
+ * @param {string} iface - The interface name whose rules should be removed.
+ * @returns {void}
+ */
 function removeInterfaceRoutingRules(networkObjectId, iface) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -254,5 +347,5 @@ function removeInterfaceRoutingRules(networkObjectId, iface) {
         if ($fields.length === 0) return;
         if ($fields[3].innerHTML === iface) $rule.remove();
     });
-    
+
 }

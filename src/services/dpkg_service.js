@@ -1,3 +1,18 @@
+/**
+ * Simulates the Debian package manager (dpkg) to install or remove network service packages
+ * on a network object.
+ *
+ * Maps package names to their corresponding service attributes and delegates to the appropriate
+ * installer or uninstaller helper. Throws if the package name is unrecognised, if an already-
+ * installed package is installed again, or if an uninstalled package is removed.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object to install/remove the package on.
+ * @param {string} option - Action to perform: "install" or "remove".
+ * @param {string} package - Package name. One of: "apache2", "bind9", "isc-dhcp-server",
+ *   "isc-dhcp-relay", "isc-dhcp-client", "amin-search".
+ * @returns {void}
+ * @throws {Error} If the package is unknown, already installed (on install), or not installed (on remove).
+ */
 function dpkg(networkObjectId, option, package) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -13,16 +28,22 @@ function dpkg(networkObjectId, option, package) {
         "amin-search": "browser",
     }
 
-    if (!availablePackages.includes(package)) throw new Error(`Error: No se ha podido localizar el paquete ${package}.`);
+    if (!availablePackages.includes(package)) throw new Error(`Error: Unable to locate package ${package}.`);
 
     const service = packagesToServices[package];
     const isServiceInstalled = $networkObject.getAttribute(service) !== null;
 
-    if (option === "install" && isServiceInstalled) throw new Error(`${package} ya está en su versión más reciente.`);
-    if (option === "remove" && !isServiceInstalled) throw new Error(`Error: El paquete ${package} no está instalado, no se eliminará.`);
+    if (option === "install" && isServiceInstalled) throw new Error(`${package} is already at its newest version.`);
+    if (option === "remove" && !isServiceInstalled) throw new Error(`Error: Package ${package} is not installed, so it will not be removed.`);
     if (option === "install") dpkgInstaller(package);
     if (option === "remove") dpkgUninstaller(package);
 
+    /**
+     * Calls the appropriate install function for the given package.
+     *
+     * @param {string} package - The package name to install.
+     * @returns {void}
+     */
     function dpkgInstaller(package) {
 
         const installFunctions = {
@@ -38,6 +59,12 @@ function dpkg(networkObjectId, option, package) {
 
     }
 
+    /**
+     * Calls the appropriate uninstall function for the given package.
+     *
+     * @param {string} package - The package name to remove.
+     * @returns {void}
+     */
     function dpkgUninstaller(package) {
 
         const uninstallFunctions = {

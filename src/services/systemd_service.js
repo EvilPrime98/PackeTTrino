@@ -1,11 +1,24 @@
+/**
+ * Simulates the systemd service manager to control network services on a network object.
+ *
+ * Supports the "start", "restart", "stop", and "status" options for the known services.
+ * "restart" stops then starts the service; "status" prints the current state to the terminal.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object whose service is managed.
+ * @param {string} service - Service name. One of: "dhcpd", "apache2", "dhclient", "dhcrelay",
+ *   "resolved", "named".
+ * @param {string} option - Action to perform: "start", "restart", "stop", or "status".
+ * @returns {void}
+ * @throws {Error} If the service name is unknown or the service is not installed on the device.
+ */
 function systemd(networkObjectId, service, option) {
 
-    const $networkObject = document.getElementById(networkObjectId);   
+    const $networkObject = document.getElementById(networkObjectId);
     const currentServices = ["dhcpd", "apache2", "dhclient", "dhcrelay", "resolved", "named"];
     const isServiceInstalled = $networkObject.getAttribute(service) !== null;
 
-    if (!currentServices.includes(service)) throw new Error(`Error: Servicio "${service}" desconocido.`);
-    if (!isServiceInstalled) throw new Error(`Error: Servicio "${service}" no instalado.`);
+    if (!currentServices.includes(service)) throw new Error(`Error: Service "${service}" unknown.`);
+    if (!isServiceInstalled) throw new Error(`Error: Service "${service}" not installed.`);
 
     const stateFunctions = {
 
@@ -22,7 +35,7 @@ function systemd(networkObjectId, service, option) {
 
         "status": () => {
             const serviceStatus = $networkObject.getAttribute(service) === "true";
-            let daemonMessage = (serviceStatus) ? "<span style='color:#4ade80;'> Activo (running)</span>" : "<span style='color:red;'> Inactivo (dead) </span>";
+            const daemonMessage = (serviceStatus) ? "<span style='color:#4ade80;'> Active (running)</span>" : "<span style='color:red;'> Inactive (dead) </span>";
             terminalMessage(`${service}.service`, networkObjectId);
             terminalMessage(`Status: ${daemonMessage}`, networkObjectId);
         },
@@ -33,6 +46,16 @@ function systemd(networkObjectId, service, option) {
 
 }
 
+/**
+ * Lists all installed services on a network object and prints their status to the terminal,
+ * mimicking `systemctl list-units --type=service`.
+ *
+ * Only services whose attribute exists on the element are listed. Each line shows the service
+ * unit name, load state, active/inactive status, and a short description.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object whose services are listed.
+ * @returns {void}
+ */
 function listallServices(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -45,13 +68,13 @@ function listallServices(networkObjectId) {
         "named": "",
     };
 
-    for (let service in availableServices) {
+    for (const service in availableServices) {
 
-        let isServiceAvailable = $networkObject.getAttribute(service) !== null;
+        const isServiceAvailable = $networkObject.getAttribute(service) !== null;
 
         if (isServiceAvailable) {
-            let isServiceActive = $networkObject.getAttribute(service) === "true";
-            let status = (isServiceActive) ? "active running" : "inactive dead";
+            const isServiceActive = $networkObject.getAttribute(service) === "true";
+            const status = (isServiceActive) ? "active running" : "inactive dead";
             terminalMessage(`${(service + ".service").padEnd(20, " ")} loaded ${status.padEnd(20, " ")} ${availableServices[service]}`, networkObjectId);
         }
 
@@ -59,11 +82,19 @@ function listallServices(networkObjectId) {
 
 }
 
+/**
+ * Returns the list of service names that are currently installed on a network object.
+ *
+ * A service is considered installed when its corresponding DOM attribute exists (regardless of value).
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object to inspect.
+ * @returns {Array<string>} Array of installed service name strings.
+ */
 function getAvailableServices(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
-    let availableServices = ["dhcpd", "apache2", "dhclient", "dhcrelay", "resolved", "named"];
-    let response = [];
+    const availableServices = ["dhcpd", "apache2", "dhclient", "dhcrelay", "resolved", "named"];
+    const response = [];
 
     availableServices.forEach(service => {
         if ($networkObject.getAttribute(service) !== null) response.push(service);
@@ -72,12 +103,28 @@ function getAvailableServices(networkObjectId) {
     return response;
 }
 
+/**
+ * Starts a specific service on a network object by setting its attribute to "true" and
+ * executing any associated initialization logic (e.g. parsing configuration files).
+ *
+ * Each service has its own start routine:
+ * - `dhcpd`: reads `/etc/default/isc-dhcp-server` and `/etc/dhcp/dhcpd.conf`.
+ * - `dhclient`: simply enables the service flag.
+ * - `apache2`: enables the service flag and parses virtual-host configuration.
+ * - `dhcrelay`: reads `/etc/default/isc-dhcp-relay`.
+ * - `named`: enables the service flag.
+ * - `resolved`: enables the service flag and flushes the DNS cache.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object on which the service is started.
+ * @param {string} service - The service name to start.
+ * @returns {void}
+ */
 function startService(networkObjectId, service) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkElementFileSystem = new FileSystem($networkObject);
 
-    const startFunctions = {        
+    const startFunctions = {
 
         "dhcpd": () => {
             $networkObject.setAttribute("dhcpd", "true");
@@ -107,7 +154,7 @@ function startService(networkObjectId, service) {
             $networkObject.setAttribute("resolved", "true");
             flushDnsCache(networkObjectId);
         },
-        
+
     }
 
     startFunctions[service]();
