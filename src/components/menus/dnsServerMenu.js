@@ -1,3 +1,26 @@
+/**
+ * Builds and returns the DNS server configuration form.
+ *
+ * The form has two tab sections toggled via a nav panel:
+ * - **basic-section**: optional network settings (`#network-section`, shown only
+ *   for pure DNS servers) with interface/IP/netmask/gateway inputs, plus
+ *   toggles for recursive and cache DNS modes.
+ * - **records-section**: DNS record management (domain, type A/CNAME/NS/SOA,
+ *   value, and SOA-specific serial/TTL fields) with add/remove buttons and a
+ *   live `#records-table`.
+ *
+ * Event listeners wired up:
+ * - `submit` → `saveDnsServerMenu`
+ * - `.window-frame` mousedown → `dragModal`
+ * - `#close-btn` click → `closeDnsMenu`
+ * - All `.nav-panel` buttons click → `showDnsGraphicTab`
+ * - `#btn-add-record` click → `addDnsRecordHandler`
+ * - `#btn-del-record` click → `removeDnsRecordHandler`
+ * - `#type` change → `recordTypeHandler`
+ * - `#iface` change → `interfaceHandler(..., "dns-form")`
+ *
+ * @returns {HTMLFormElement} The assembled DNS server configuration form element.
+ */
 function dns_server_menu() {
 
     const $menu = document.createElement("form");
@@ -9,31 +32,31 @@ function dns_server_menu() {
         <div class="window-frame"> <p class="frame-title"></p> </div>
 
         <div class="nav-panel">
-            <button class="btn-modern-blue dark active" id="btn-basic-tab" data-tab="basic-section">Básico</button>
-            <button class="btn-modern-blue dark" id="btn-records" data-tab="records-section">Registros</button>
+            <button class="btn-modern-blue dark active" id="btn-basic-tab" data-tab="basic-section">Basic</button>
+            <button class="btn-modern-blue dark" id="btn-records" data-tab="records-section">Records</button>
         </div>
 
         <section id="basic-section">
-            
+
             <section id="network-section" class="hidden">
 
                 <div class="form-item">
-                    <label for="iface">Interfaz:</label>
+                    <label for="iface">Interface:</label>
                     <select id="iface" name="iface"></select>
                 </div>
 
                 <div class="form-item">
-                    <label for="ip">Dirección IP (IPv4):</label>
+                    <label for="ip">IP Address (IPv4):</label>
                     <input type="text" id="ip" name="ip">
                 </div>
 
                 <div class="form-item">
-                    <label for="netmask">Máscara de Red:</label>
+                    <label for="netmask">Netmask:</label>
                     <input type="text" id="netmask" name="netmask">
                 </div>
 
                 <div class="form-item">
-                    <label for="gateway">Puerta de Enlace:</label>
+                    <label for="gateway">Gateway:</label>
                     <input type="text" id="gateway" name="gateway">
                 </div>
 
@@ -42,20 +65,20 @@ function dns_server_menu() {
             <section id ="dns-server-section">
 
                 <div class="form-item">
-                    <label for="dns-recursive">Servidor DNS Recursivo:</label>
+                    <label for="dns-recursive">Recursive DNS Server:</label>
                     <input class="btn-toggle" type="checkbox" id="dns-recursive" name="dns-recursive">
                 </div>
 
                 <div class="form-item">
-                    <label for="dns-cache">Servidor DNS Caché:</label>
+                    <label for="dns-cache">Cache DNS Server:</label>
                     <input class="btn-toggle" type="checkbox" id="dns-cache" name="dns-cache">
                 </div>
 
             </section>
 
             <div class="button-wrapper">
-                <button class="btn-modern-blue dark" type="submit">Guardar</button>
-                <button class="btn-modern-red dark" id="close-btn">Cerrar</button>
+                <button class="btn-modern-blue dark" type="submit">Save</button>
+                <button class="btn-modern-red dark" id="close-btn">Close</button>
             </div>
 
         </section>
@@ -63,12 +86,12 @@ function dns_server_menu() {
         <section id="records-section" class="hidden">
 
             <div class="form-item">
-                <label for="domain">Dominio:</label>
+                <label for="domain">Domain:</label>
                 <input type="text" id="domain" name="domain">
             </div>
 
             <div class="form-item">
-                <label for="type">Tipo de Registro:</label>
+                <label for="type">Record Type:</label>
                 <select id="type" name="type">
                     <option value="A">A</option>
                     <option value="CNAME">CNAME</option>
@@ -78,29 +101,29 @@ function dns_server_menu() {
             </div>
 
             <div class="form-item">
-                <label for="value">Valor:</label>
+                <label for="value">Value:</label>
                 <input type="text" id="value" name="value">
             </div>
 
             <div class="soa-record-wrapper hidden">
 
                 <div class="form-item">
-                    <label for="serial">Número de Serie:</label>
+                    <label for="serial">Serial Number:</label>
                     <input type="text" id="serial" name="serial">
-                </div> 
+                </div>
 
                 <div class="form-item">
-                    <label for="cache-ttl">TTL de Caché:</label>
+                    <label for="cache-ttl">Cache TTL:</label>
                     <input type="text" id="cache-ttl" name="cache-ttl">
                 </div>
 
             </div>
 
             <div class="button-wrapper">
-                <button class="btn-modern-blue dark" id="btn-add-record" style="padding: 5px;">Añadir Registro</button>
-                <button class="btn-modern-red dark" id="btn-del-record" style="padding: 5px;">Eliminar Registro</button>
+                <button class="btn-modern-blue dark" id="btn-add-record" style="padding: 5px;">Add Record</button>
+                <button class="btn-modern-red dark" id="btn-del-record" style="padding: 5px;">Delete Record</button>
             </div>
-            
+
             <div class="table-wrapper">
                 <table id="records-table" class="inner-table"></table>
             </div>
@@ -117,18 +140,32 @@ function dns_server_menu() {
     $menu.querySelector("#btn-del-record").addEventListener("click", removeDnsRecordHandler);
     $menu.querySelector("#type").addEventListener("change", recordTypeHandler);
     $menu.querySelector("#iface").addEventListener("change", (event) => interfaceHandler(event, "dns-form"));
-    
+
     return $menu;
 
 }
 
+/**
+ * Opens the DNS server configuration menu for the network device that triggered
+ * the event and pre-populates all fields with its current attributes.
+ *
+ * - If `quickPingToggle` is active, performs a quick ping instead and returns.
+ * - Reveals `#network-section` only for pure DNS servers
+ *   (id starts with `"dns-server-"`).
+ * - Copies the current DNS records table from the device's `.dns-table` into
+ *   the form's `#records-table`.
+ * - Closes the advanced-options popover before displaying the menu.
+ *
+ * @param {Event} event - The click event originating from inside an `.item-dropped` element.
+ * @returns {void}
+ */
 function showDnsServerMenu(event) {
 
     event.stopPropagation();
-    
+
     const $networkObject = event.target.closest(".item-dropped");
 
-    if (quickPingToggle) { //<-- comprobamos si estamos en modo icmptryout
+    if (quickPingToggle) { //<-- check if we are in quick ping mode
         quickPing($networkObject.id);
         return;
     }
@@ -139,12 +176,12 @@ function showDnsServerMenu(event) {
     const isDnsServer = $networkObject.id.startsWith("dns-server-");
     const isRecursive = $networkObject.getAttribute("recursion");
     const isCache = $networkObject.getAttribute("resolved");
-    
-    //cargamos las interfaces disponibles
+
+    //load available interfaces
 
     loadInterfaces("dns-form");
-    
-    //atributos del equipo
+
+    //device attributes
     if (isDnsServer) {
         $menu.querySelector("#ip").value = $networkObject.getAttribute(`ip-${networkObjectInterface}`);
         $menu.querySelector("#netmask").value = $networkObject.getAttribute(`netmask-${networkObjectInterface}`);
@@ -152,17 +189,32 @@ function showDnsServerMenu(event) {
         $menu.querySelector("#network-section").classList.remove("hidden");
     }
 
-    //atributos del servicio
+    //service attributes
     $menu.querySelector("#dns-recursive").checked = isRecursive === "true";
     $menu.querySelector("#dns-cache").checked = isCache === "true";
     $menu.querySelector("#records-table").innerHTML = $networkObject.querySelector(".dns-table").querySelector("table").innerHTML;
     $menu.querySelector(".frame-title").innerHTML = $networkObject.id;
 
-    //mostramos el menú
+    //display the menu
     event.target.closest(".item-dropped").querySelector(".advanced-options-modal").style.display = "none";
     $menu.style.display = "flex";
 }
 
+/**
+ * Handles form submission for the DNS server menu, validating inputs and
+ * persisting the configuration to the network-object DOM element.
+ *
+ * For pure DNS servers (`id` starts with `"dns-server"`):
+ * - If both IP and netmask are provided, validates them as IPv4 addresses.
+ * - Gateway may be empty or must be a valid IPv4.
+ * - Calls `configureInterface` and `setDefaultGateway`.
+ *
+ * Always updates the `recursion` and `resolved` attributes on the device.
+ * On success renders a success popup; on failure renders the error and returns.
+ *
+ * @param {Event} event - The form submit event.
+ * @returns {void}
+ */
 function saveDnsServerMenu(event) {
 
     event.preventDefault();
@@ -184,11 +236,11 @@ function saveDnsServerMenu(event) {
         if (isDnsServer) {
 
             if (!isEmptyForm) {
-                if (!isValidIp(ip)) throw new Error(`Error: La IP "${ip}" no es válida.`);
-                if (!isValidIp(netmask)) throw new Error(`Error: La máscara de red "${netmask}" no es válida.`);
+                if (!isValidIp(ip)) throw new Error(`Error: IP "${ip}" is not valid.`);
+                if (!isValidIp(netmask)) throw new Error(`Error: Netmask "${netmask}" is not valid.`);
             }
 
-            if (gateway !== "" && !isValidIp(gateway)) throw new Error(`Error: La puerta de enlace "${gateway}" no es válida.`);
+            if (gateway !== "" && !isValidIp(gateway)) throw new Error(`Error: Gateway "${gateway}" is not valid.`);
 
             configureInterface($serverObject.id, ip, netmask, networkObjectInterface);
             setDefaultGateway($serverObject.id, gateway);
@@ -198,7 +250,7 @@ function saveDnsServerMenu(event) {
         $serverObject.setAttribute("recursion", isRecursive);
         $serverObject.setAttribute("resolved", isCache);
 
-        bodyComponent.render(popupMessage(`Los cambios se han guardado correctamente.`));
+        bodyComponent.render(popupMessage(`Changes have been saved successfully.`));
 
     } catch (error) {
 
@@ -209,6 +261,13 @@ function saveDnsServerMenu(event) {
 
 }
 
+/**
+ * Closes the DNS server menu, hides the network and SOA sub-sections,
+ * resets the form, and hides the modal.
+ *
+ * @param {Event} event - The click event fired by the close button.
+ * @returns {void}
+ */
 function closeDnsMenu(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -219,6 +278,13 @@ function closeDnsMenu(event) {
     $menu.style.display = "none";
 }
 
+/**
+ * Switches the visible section in the DNS form to the tab whose `data-tab`
+ * attribute matches the clicked button, updating the active button highlight.
+ *
+ * @param {Event} event - The click event fired by a nav-panel tab button.
+ * @returns {void}
+ */
 function showDnsGraphicTab(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -233,6 +299,18 @@ function showDnsGraphicTab(event) {
     $targetSection.classList.remove("hidden");
 }
 
+/**
+ * Handles the "Añadir Registro" button click.
+ * Reads domain, record type, value, serial, and cache-TTL from the form,
+ * validates the record via the appropriate type-specific validator, creates a
+ * `dnsRecord` instance, adds it to the device via `addDnsEntry`, and refreshes
+ * `#records-table`. Renders an error popup on validation failure.
+ *
+ * SOA records additionally receive `serial` and `cacheTTL` properties.
+ *
+ * @param {Event} event - The click event fired by the add-record button.
+ * @returns {void}
+ */
 function addDnsRecordHandler(event) {
 
     event.stopPropagation();
@@ -240,7 +318,7 @@ function addDnsRecordHandler(event) {
 
     const $menu = document.querySelector(".dns-form");
     const serverObjectId = $menu.dataset.id;
-    const $serverObject = document.getElementById(serverObjectId);   
+    const $serverObject = document.getElementById(serverObjectId);
     const domain = $menu.querySelector("#domain").value;
     const recordType = $menu.querySelector("#type").value;
     const value = $menu.querySelector("#value").value;
@@ -257,11 +335,11 @@ function addDnsRecordHandler(event) {
     try {
 
         dnsRecordTypes[recordType.toUpperCase()](); //<-- validamos el registro
-        
-        let record = new dnsRecord(domain, recordType, value);
+
+        const record = new dnsRecord(domain, recordType, value);
 
         if (recordType === "SOA") {
-            record.serial = serial; 
+            record.serial = serial;
             record.cacheTTL = cacheTTL;
         }
 
@@ -277,6 +355,14 @@ function addDnsRecordHandler(event) {
 
 }
 
+/**
+ * Handles the "Eliminar Registro" button click.
+ * Reads domain and record type from the form, removes the matching entry from
+ * the device via `delDnsEntry`, and refreshes `#records-table`.
+ *
+ * @param {Event} event - The click event fired by the remove-record button.
+ * @returns {void}
+ */
 function removeDnsRecordHandler(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -289,12 +375,20 @@ function removeDnsRecordHandler(event) {
     $menu.querySelector("#records-table").innerHTML = $serverObject.querySelector(".dns-table").querySelector("table").innerHTML;
 }
 
+/**
+ * Responds to changes in the `#type` record-type selector.
+ * Auto-fills `#serial` with the current Unix timestamp (ms) and toggles the
+ * visibility of `.soa-record-wrapper`: shown for SOA records, hidden otherwise.
+ *
+ * @param {Event} event - The change event fired by the record-type select element.
+ * @returns {void}
+ */
 function recordTypeHandler(event) {
     const $menu = document.querySelector(".dns-form");
     const $recordType = $menu.querySelector("#type");
     const $serial = $menu.querySelector("#serial");
     const $soaRecordWrapper = $menu.querySelector(".soa-record-wrapper");
-    $serial.value = (new Date()).getTime(); //generamos un numero de serie 
+    $serial.value = (new Date()).getTime(); //generate a serial number
     if ($recordType.value === "SOA") $soaRecordWrapper.classList.remove("hidden");
     else $soaRecordWrapper.classList.add("hidden");
 }
