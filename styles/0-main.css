@@ -16,7 +16,7 @@
     --dark-mode-red: #c60300;
 }
 
-/*ESTILOS GENERALES */
+/*GENERAL STYLES */
 
 body {
     margin: 0px;
@@ -66,7 +66,7 @@ img {
     display: none !important;
 }
 
-/* BOTONES */
+/* BUTTONS */
 
 .btn-yellow {
     width: fit-content;
@@ -353,7 +353,7 @@ img {
 
 }
 
-/*** ANIMACIONES ***/
+/*** ANIMATIONS ***/
 
 @keyframes fadeIn {
     from {
@@ -714,7 +714,7 @@ img {
     }
 }
 
-/**PANTALLA DE CARGA*/
+/**LOADING SCREEN*/
 
 #loading-screen {
     position: fixed;
@@ -786,7 +786,7 @@ img {
 
 }
 
-/*CURSORES*/
+/*CURSORS*/
 
 .pack-cursor {
     position: absolute;
@@ -805,7 +805,7 @@ img {
     object-fit: contain;
 }
 
-/*** MODALES ***/
+/*** MODALS ***/
 
 .modal-overlay {
     position: fixed;
@@ -1070,7 +1070,7 @@ img {
 
 }
 
-/**ANOTACIONES DE TEXTO */
+/**TEXT ANNOTATIONS */
 
 .text-annotation {
     position: absolute;
@@ -1096,7 +1096,7 @@ img {
     }
 }
 
-/*ESPACIO DE TRABAJO*/
+/*WORKSPACE*/
 
 .board {
     width: 100dvw;
@@ -1185,7 +1185,7 @@ circle:hover {
     cursor: pointer;
 }
 
-/*NAVEGADOR DE INTERNET*/
+/*INTERNET BROWSER*/
 
 .browser-component {
     position: fixed;
@@ -2801,7 +2801,7 @@ circle:hover {
 
 }
 
-/*MENSAJES EMERGENTES*/
+/*POPUP MESSAGES*/
 
 .popup-content {
     position: fixed;
@@ -2981,7 +2981,7 @@ circle:hover {
 
 }
 
-/*EDITOR DE TEXTO*/
+/*TEXT EDITOR*/
 
 .file-editor {
     position: absolute;
@@ -3081,7 +3081,7 @@ circle:hover {
 
 }
 
-/*ICONOS DEL PANEL*/
+/*PANEL ICONS*/
 
 .dynrouting {
 
@@ -3173,7 +3173,7 @@ circle:hover {
 
 }
 
-/**GESTION DE ARCHIVOS*/
+/**FILE MANAGEMENT*/
 
 .file-upload-container {
     width: 40px;
@@ -3340,7 +3340,7 @@ circle:hover {
 }
 
 
-/*ESTILOS PARA EL TUTORIAL*/
+/*TUTORIAL STYLES*/
 
 .slide-presentation {
     position: fixed;
