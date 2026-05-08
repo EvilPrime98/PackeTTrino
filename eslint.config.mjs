@@ -10,8 +10,12 @@ export default defineConfig([
     rules: {
       'no-unused-vars': 'off',
       'no-undef': 'off',
+      'prefer-const': 'warn',
     },
-    languageOptions: { globals: globals.browser }
+    languageOptions: {
+      ecmaVersion: "latest",
+      globals: { ...globals.browser, ...globals.node },
+    }
   },
   { files: ["**/*.js"], languageOptions: { sourceType: "commonjs" } },
 ]);
