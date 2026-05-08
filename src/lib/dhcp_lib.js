@@ -1,14 +1,18 @@
-/**ESTA FUNCION DEVUELVE UNA IP ALEATORIA VÁLIDA DENTRO DEL RANGO DE IPS DE SERVICIO DE UN SERVIDOR DHCP PARA UNA OFERTA */
+/**
+ * @description Returns a random valid IP address from within the DHCP server's configured range
+ * that is not already leased or reserved. If the server has no range/netmask configured, returns
+ * a random IP without availability checking.
+ * @param {string} serverObjectId - DOM id of the DHCP server element.
+ * @returns {string} A random available IP address in dotted-decimal notation.
+ */
 function getRandomIPfromDhcp(serverObjectId) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const rangeStart = $serverObject.getAttribute("data-range-start");
-
     const rangeEnd = $serverObject.getAttribute("data-range-end");
     const offerNetmask = $serverObject.getAttribute("dhcp-offer-netmask");
-
-    let startInt = parseInt(ipToBinary(rangeStart), 2);
-    let endInt = parseInt(ipToBinary(rangeEnd), 2);
+    const startInt = parseInt(ipToBinary(rangeStart), 2);
+    const endInt = parseInt(ipToBinary(rangeEnd), 2);
     let randomInt = Math.floor(Math.random() * (endInt - startInt + 1)) + startInt;
     let randomBinary = randomInt.toString(2).padStart(32, '0');
     let randomIp = binaryToIp(randomBinary);
@@ -25,7 +29,13 @@ function getRandomIPfromDhcp(serverObjectId) {
 
 }
 
-/**ESTA FUNCION DEVUELVE TRUE SI LA IP ES VÁLIDA PARA OFERTA DE UN SERVIDOR DHCP */
+/**
+ * @description Returns `true` if the given IP is available (not currently leased and not reserved
+ * for another MAC) in the DHCP server's lease table.
+ * @param {string} serverObjectId - DOM id of the DHCP server element.
+ * @param {string} newip - IP address to check for availability.
+ * @returns {boolean} `true` if the IP is available for a new offer, `false` if it is already taken.
+ */
 function checkIpinDhcp(serverObjectId, newip) {
 
     const $serverObject = document.getElementById(serverObjectId);
@@ -35,12 +45,12 @@ function checkIpinDhcp(serverObjectId, newip) {
     let response = true;
 
     $leases.forEach(lease => {
-        let $fields = lease.querySelectorAll("td");
+        const $fields = lease.querySelectorAll("td");
         if ($fields.length < 1) return;
         if ($fields[0].innerHTML === newip) response = false;
     });
 
-    for (let reservation in $reservations) {
+    for (const reservation in $reservations) {
         if ($reservations[reservation] === newip) response = false;
     }
 
@@ -48,7 +58,15 @@ function checkIpinDhcp(serverObjectId, newip) {
 
 }
 
-/**ESTA FUNCION AÑADE UNA NUEVA ENTRADA DE ALQUILER A LA BASE DE DATOS DE UN SERVIDOR DHCP */
+/**
+ * @description Adds a new lease entry to the DHCP server's lease table and starts (or reuses)
+ * the server's lease countdown interval.
+ * @param {string} serverObjectId - DOM id of the DHCP server element.
+ * @param {string} newip - IP address being leased.
+ * @param {string} newmac - MAC address of the client receiving the lease.
+ * @param {string} newhostname - Hostname of the client receiving the lease.
+ * @returns {void}
+ */
 function addDhcpEntry(serverObjectId, newip, newmac, newhostname) {
 
     const $serverObject = document.getElementById(serverObjectId);
@@ -67,19 +85,25 @@ function addDhcpEntry(serverObjectId, newip, newmac, newhostname) {
     if (!serverLeaseTimers[serverObjectId]) serverLeaseTimers[serverObjectId] = setInterval(() => updateServerLeaseTimes(serverObjectId), 1000);
 }
 
-/**ESTA FUNCION ELIMINA UNA ENTRADA DE ALQUILER DE UN SERVIDOR DHCP */
+/**
+ * @description Removes the lease entry for the target IP from the DHCP server's lease table and
+ * stops the lease countdown interval if no leases remain.
+ * @param {string} serverObjectId - DOM id of the DHCP server element.
+ * @param {string} targetip - IP address of the lease to remove.
+ * @returns {void}
+ */
 function deleteDhcpEntry(serverObjectId, targetip) {
     const serverObject = document.getElementById(serverObjectId);
     const table = serverObject.querySelector(".dhcp-table").querySelector("table");
     const rows = table.querySelectorAll("tr");
 
     for (let i = 1; i < rows.length; i++) {
-        let row = rows[i];
-        let cells = row.querySelectorAll("td");
-        let ip = cells[0].innerHTML;
+        const $row = rows[i];
+        const $cells = $row.querySelectorAll("td");
+        const ip = $cells[0].innerHTML;
         if (ip === targetip) {
-            row.remove();
-            if (table.querySelectorAll("tr").length === 1) { // Solo queda la cabecera
+            $row.remove();
+            if (table.querySelectorAll("tr").length === 1) { // only the header row remains
                 clearInterval(window.leaseTimer);
                 serverObject.setAttribute("data-interval", "false");
             }
@@ -88,7 +112,16 @@ function deleteDhcpEntry(serverObjectId, targetip) {
     }
 }
 
-/**ESTA FUNCION ACTUALIZA EL TIEMPO DE ALQUILER DE LOS ALQUILERES DE UN SERVIDOR DHCP */
+/**
+ * @description Renews the lease time and updates the IP and hostname for a client that matches
+ * the MAC address in the renew packet.
+ * @param {string} serverObjectId - DOM id of the DHCP server element.
+ * @param {Object} renewPacket - DHCP packet containing the renewal information.
+ * @param {string} renewPacket.chaddr - Client hardware (MAC) address to match.
+ * @param {string} renewPacket.ciaddr - New client IP to record.
+ * @param {string} renewPacket.hostname - New hostname to record.
+ * @returns {boolean} `true` if a matching lease was found and updated, `false` otherwise.
+ */
 function updateDhcpEntry(serverObjectId, renewPacket) {
 
     const $serverObject = document.getElementById(serverObjectId);
@@ -99,11 +132,11 @@ function updateDhcpEntry(serverObjectId, renewPacket) {
 
     $leases.forEach( $lease => {
 
-        let $fields = $lease.querySelectorAll("td");
+        const $fields = $lease.querySelectorAll("td");
 
         if ($fields.length < 1) return;
-         
-        let mac = $fields[1].innerHTML;
+
+        const mac = $fields[1].innerHTML;
 
         if (mac === renewPacket.chaddr) {
             $fields[0].innerHTML = renewPacket.ciaddr;
@@ -118,7 +151,14 @@ function updateDhcpEntry(serverObjectId, renewPacket) {
 
 }
 
-/**ESTA FUNCION INICIA/REINICIA EL TIEMPO DE ALQUILER DHCP DE UN EQUIPO*/
+/**
+ * @description Starts (or resets) the client-side DHCP lease countdown for the given interface.
+ * Resets the elapsed lease time and the T1/T2 renewal flags. If a timer already exists for this
+ * interface it is left running (idempotent).
+ * @param {string} networkObjectId - DOM id of the DHCP client element.
+ * @param {string} iface - Interface name (e.g. "enp0s3") whose lease timer to (re)start.
+ * @returns {Promise<void>}
+ */
 async function updateClientLeaseTimer(networkObjectId, iface) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -129,14 +169,22 @@ async function updateClientLeaseTimer(networkObjectId, iface) {
 
     if (Object.hasOwn(clientLeaseTimers, `${networkObjectId}-${iface}`)) return;
 
-    const clientLeaseTimer = setInterval( async () => { 
+    const clientLeaseTimer = setInterval( async () => {
         await reduceClientLeaseTime(networkObjectId, iface)
     }, 1000 );
 
     clientLeaseTimers[`${networkObjectId}-${iface}`] = clientLeaseTimer;
-  
+
 }
 
+/**
+ * @description Called every second by the client lease interval. Increments the elapsed lease
+ * time and triggers DHCP renewal (T1 unicast, then T2 broadcast) or a full rediscover when the
+ * lease expires.
+ * @param {string} networkObjectId - DOM id of the DHCP client element.
+ * @param {string} iface - Interface name whose lease countdown to decrement.
+ * @returns {Promise<void>}
+ */
 async function reduceClientLeaseTime(networkObjectId, iface) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -148,12 +196,12 @@ async function reduceClientLeaseTime(networkObjectId, iface) {
     const T2 = leaseTime * 0.875;
 
     $networkObject.setAttribute(
-        `data-dhcp-current-lease-time-${iface}`, 
+        `data-dhcp-current-lease-time-${iface}`,
         parseInt($networkObject.getAttribute(`data-dhcp-current-lease-time-${iface}`)) + 1
     );
 
     const currentLeaseTime = parseInt($networkObject.getAttribute(`data-dhcp-current-lease-time-${iface}`));
-    
+
     if (currentLeaseTime > T1 && flagT1 === "false") {
         $networkObject.setAttribute(`data-dhcp-flag-t1-${iface}`, "true");
         await dhcpRenewHandler(networkObjectId, "T1", iface);
@@ -178,20 +226,28 @@ async function reduceClientLeaseTime(networkObjectId, iface) {
 
 }
 
-/**ESTA FUNCION AÑADE UNA NUEVA RESERVA DE ALQUILER A LA BASE DE DATOS DE UN SERVIDOR DHCP */
+/**
+ * @description Adds a static IP reservation (MAC → IP mapping) to the DHCP server's reservation
+ * store. Validates that the IP is valid, belongs to the server's subnet, and the MAC is valid.
+ * @param {string} networkObjectId - DOM id of the DHCP server element.
+ * @param {string} mac - Client MAC address to reserve for (uppercase or lowercase accepted).
+ * @param {string} ip - IP address to reserve for that MAC.
+ * @returns {void}
+ * @throws {Error} If the IP is invalid, out of the server's subnet range, or the MAC is invalid.
+ */
 function addDhcpReservation(networkObjectId, mac, ip) {
-    
+
     const $networkObject = document.getElementById(networkObjectId);
     const rangeStart = $networkObject.getAttribute("data-range-start");
     const offerNetmask = $networkObject.getAttribute("dhcp-offer-netmask");
     const reservations = JSON.parse($networkObject.getAttribute("dhcp-reservations"));
 
-    if (!isValidIp(ip)) throw new Error("Error: La IP introducida no es valida.");
+    if (!isValidIp(ip)) throw new Error("Error: The entered IP is not valid.");
 
-    if (getNetwork(ip, offerNetmask) !== getNetwork(rangeStart, offerNetmask)) 
-        throw new Error("Error: La IP introducida no pertenece al rango de servicio del servidor DHCP.");
+    if (getNetwork(ip, offerNetmask) !== getNetwork(rangeStart, offerNetmask))
+        throw new Error("Error: The entered IP does not belong to the DHCP server's service range.");
 
-    if (!isValidMac(mac)) throw new Error("Error: La MAC introducida no es valida.");
+    if (!isValidMac(mac)) throw new Error("Error: The entered MAC address is not valid.");
 
     reservations[mac] = ip;
 
@@ -199,7 +255,12 @@ function addDhcpReservation(networkObjectId, mac, ip) {
 
 }
 
-/**ESTA FUNCION ELIMINA UNA RESERVA DE ALQUILER DE LA BASE DE DATOS DE UN SERVIDOR DHCP */
+/**
+ * @description Removes the static IP reservation for the given MAC address from the DHCP server.
+ * @param {string} networkObjectId - DOM id of the DHCP server element.
+ * @param {string} mac - MAC address whose reservation to remove.
+ * @returns {void}
+ */
 function removeDhcpReservation(networkObjectId, mac) {
     const $networkObject = document.getElementById(networkObjectId);
     const reservations = JSON.parse($networkObject.getAttribute("dhcp-reservations"));
@@ -207,16 +268,36 @@ function removeDhcpReservation(networkObjectId, mac) {
     $networkObject.setAttribute("dhcp-reservations", JSON.stringify(reservations));
 }
 
-/**ESTA FUNCION DEVUELVE LA IP RESERVADA DE UN DISPOSITIVO PARA UNA DIRECCION MAC */
+/**
+ * @description Returns the statically reserved IP address for the given MAC address on a DHCP
+ * server, or `false` if no reservation exists.
+ * @param {string} serverObjectId - DOM id of the DHCP server element.
+ * @param {string} mac - MAC address to look up (trimmed and uppercased internally).
+ * @returns {string|false} The reserved IP address string, or `false` if not found.
+ */
 function getReservedIp(serverObjectId, mac) {
     const $serverObject = document.getElementById(serverObjectId);
     const reservations = JSON.parse($serverObject.getAttribute("dhcp-reservations"));
-    let filteredMac = mac.trim().toUpperCase();
+    const filteredMac = mac.trim().toUpperCase();
     if (reservations[filteredMac]) return reservations[filteredMac];
     return false;
 }
 
-/**ESTA FUNCION ACTUALIZA LA INFORMACION DE RED DE UNA INTERFAZ DE UN EQUIPO EN DHCP */
+/**
+ * @description Applies the network configuration received in a DHCP ACK packet to the specified
+ * interface of a client device: sets IP/netmask, default gateway, DHCP server reference, lease
+ * time, and DNS servers.
+ * @param {string} networkObjectId - DOM id of the DHCP client element.
+ * @param {Object} packet - DHCP ACK packet object.
+ * @param {string} packet.yiaddr - IP address assigned to the client.
+ * @param {string} packet.netmask - Subnet mask offered.
+ * @param {string} packet.gateway - Default gateway offered.
+ * @param {string} packet.siaddr - DHCP server IP address.
+ * @param {string} packet.dns - Comma-separated list of DNS server IPs.
+ * @param {string|number} packet.leasetime - Lease duration in seconds.
+ * @param {string} networkObjectInterface - Interface name to configure (e.g. "enp0s3").
+ * @returns {void}
+ */
 function setDhcpInfo(networkObjectId, packet, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -227,27 +308,34 @@ function setDhcpInfo(networkObjectId, packet, networkObjectInterface) {
     const newDnsServers = (packet.dns).split(",").map(item => item.trim()).filter(item => item !== "");
     const newLeaseTime = packet.leasetime;
 
-    //configuramos la interfaz
+    //configure the interface
     configureInterface(networkObjectId, newIp, newNetmask, networkObjectInterface);
     setDefaultGateway(networkObjectId, newGateway);
 
-    //configuramos la informacion DHCP del equipo
+    //store the device's DHCP information
     $networkObject.setAttribute(`data-dhcp-server-${networkObjectInterface}`, newServer);
     $networkObject.setAttribute(`data-dhcp-lease-time-${networkObjectInterface}`, newLeaseTime);
     setDnsServers(networkObjectId, newDnsServers);
 
 }
 
-/**ESTA FUNCION ELIMINA LA INFORMACION DE RED DE UNA INTERFAZ (POR DEFECTO ENP0S3) DE UN EQUIPO EN DHCP */
+/**
+ * @description Removes DHCP-assigned network configuration from the specified interface of a
+ * client device: deconfigures the interface, clears DNS servers, resets all DHCP state attributes,
+ * and cancels the client's lease countdown interval.
+ * @param {string} networkObjectId - DOM id of the DHCP client element.
+ * @param {string} networkObjectInterface - Interface name to deconfigure (e.g. "enp0s3").
+ * @returns {void}
+ */
 function deleteDhcpInfo(networkObjectId, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
 
-    //deconfiguramos la interfaz y eliminamos la entrada de la tabla de enrutamiento
+    //deconfigure the interface and remove the routing table entry
     deconfigureInterface($networkObject.id, networkObjectInterface);
     setDnsServers($networkObject.id, [""]);
 
-    //eliminamos la informacion DHCP del equipo
+    //clear the device's DHCP information
     $networkObject.setAttribute("data-dhcp-server", "");
     $networkObject.setAttribute("data-dhcp-server", "");
     $networkObject.setAttribute("data-dhcp-lease-time", "");
@@ -255,16 +343,23 @@ function deleteDhcpInfo(networkObjectId, networkObjectInterface) {
     $networkObject.setAttribute("data-dhcp-flag-t1", "false");
     $networkObject.setAttribute("data-dhcp-flag-t2", "false");
 
-    //eliminamos el timer de alquiler de cliente
+    //cancel the client lease timer
     clearInterval(clientLeaseTimers[`${networkObjectId}-${networkObjectInterface}`]);
     delete clientLeaseTimers[`${networkObjectId}-${networkObjectInterface}`];
 }
 
-/**ESTA FUNCION INICIA DE NUEVO LA ACTUALIZACION DE LOS TIEMPOS DE ALQUILER DE LOS ALQUILERES DE UN SERVIDOR DHCP AL CARGAR UNA NUEVA RED*/
+/**
+ * @description Resumes all DHCP lease timers after loading a saved workspace. Restarts server
+ * lease countdown intervals for any DHCP server that has active leases, and client lease countdown
+ * intervals for any DHCP client that has a non-empty lease time on its first interface.
+ * @returns {void}
+ */
 function startLeaseTimers() {
 
-    const $dhcpServers = Array.from(document.querySelectorAll(".item-dropped")).filter($networkObject => $networkObject.getAttribute("dhcpd") !== null);
-    const $dhcpClients = Array.from(document.querySelectorAll(".item-dropped")).filter($networkObject => $networkObject.getAttribute("dhclient") !== null);
+    const $dhcpServers = Array.from(document.querySelectorAll(".item-dropped"))
+    .filter($networkObject => $networkObject.getAttribute("dhcpd") !== null);
+    const $dhcpClients = Array.from(document.querySelectorAll(".item-dropped"))
+    .filter($networkObject => $networkObject.getAttribute("dhclient") !== null);
 
     $dhcpServers.forEach(server => {
         const serverObjectId = server.id;
@@ -286,48 +381,70 @@ function startLeaseTimers() {
 
 }
 
-/**ESTA FUNCION VALIDA LA CONFIGURACIÓN DE UN SERVIDOR DHCP */
+/**
+ * @description Validates a DHCP server configuration object. Throws a descriptive error for any
+ * invalid field (interfaces, IP range, netmask, gateway, DNS servers, or lease time).
+ * @param {string} networkObjectId - DOM id of the DHCP server element.
+ * @param {Object} configObject - Configuration object to validate.
+ * @param {string[]} configObject.dhcpListenOnInterfaces - Interface names the server should listen on.
+ * @param {string} configObject.rangeStart - First IP of the assignable range.
+ * @param {string} configObject.rangeEnd - Last IP of the assignable range.
+ * @param {string} configObject.dhcpOfferGateway - Default gateway to offer (may be empty string).
+ * @param {string} configObject.dhcpOfferNetmask - Subnet mask to offer.
+ * @param {string[]} configObject.dhcpOfferDnsServers - DNS server IPs to offer.
+ * @param {number} configObject.dhcpOfferLeaseTime - Lease duration in seconds (120–86400).
+ * @returns {void}
+ * @throws {Error} If any field fails validation.
+ */
 function validateDhpcConfiguration(networkObjectId, configObject) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableInterfaces = getInterfaces($networkObject.id);
 
-    //desglosamos el objeto de configuración
+    //destructure the configuration object
 
-    const dhcpListenOnInterfaces = configObject.dhcpListenOnInterfaces; //interfaces como array
+    const dhcpListenOnInterfaces = configObject.dhcpListenOnInterfaces; //interfaces as array
     const rangeStart = configObject.rangeStart;
     const rangeEnd = configObject.rangeEnd;
     const dhcpOfferGateway = configObject.dhcpOfferGateway;
     const dhcpOfferNetmask = configObject.dhcpOfferNetmask;
-    const dhcpOfferDnsServers = configObject.dhcpOfferDnsServers; //servidores como array
+    const dhcpOfferDnsServers = configObject.dhcpOfferDnsServers; //servers as array
     const dhcpOfferLeaseTime = configObject.dhcpOfferLeaseTime;
 
-    //validamos los campos
+    //validate the fields
 
-    if (!dhcpListenOnInterfaces.every(item => availableInterfaces.includes(item))) {
-        throw new Error(`Error: alguna de las interfaces de escucha no son válidas.`);
-    }
+    if (!dhcpListenOnInterfaces.every(item => availableInterfaces.includes(item))) 
+        throw new Error(`Error: one or more of the listen interfaces are not valid.`);
 
-    if (!isValidIp(rangeStart)) throw new Error(`Error: se esperaba una ip inicial válida en vez de "${rangeStart}".`);
+    if (!isValidIp(rangeStart)) 
+        throw new Error(`Error: expected a valid start IP instead of "${rangeStart}".`);
+
+    if (!isValidIp(rangeEnd)) 
+        throw new Error(`Error: expected a valid end IP instead of "${rangeEnd}".`);
+
+    if (!isValidIp(dhcpOfferNetmask)) 
+        throw new Error(`Error: expected a valid subnet mask instead of "${dhcpOfferNetmask}".`);
+
+    if (getNetwork(rangeStart, dhcpOfferNetmask) !== getNetwork(rangeEnd, dhcpOfferNetmask)) 
+        throw new Error(`Error: the IP range is not valid.`);
+
+    if (ipToBinary(rangeStart) >= ipToBinary(rangeEnd)) 
+        throw new Error(`Error: the IP range is not valid.`);
+
+    if (dhcpOfferGateway !== "" && !isValidIp(dhcpOfferGateway)) 
+        throw new Error(`Error: expected a valid gateway instead of "${dhcpOfferGateway}".`);
     
-    if (!isValidIp(rangeEnd)) throw new Error(`Error: se esperaba una ip final válida en vez de "${rangeEnd}".`);
 
-    if (!isValidIp(dhcpOfferNetmask)) throw new Error(`Error: se esperaba una máscara de red válida en vez de "${dhcpOfferNetmask}".`);
+    if (!dhcpOfferDnsServers.every(item => isValidIp(item))) 
+        throw new Error(`Error: one or more of the DNS servers are not valid.`);
 
-    if (getNetwork(rangeStart, dhcpOfferNetmask) !== getNetwork(rangeEnd, dhcpOfferNetmask)) throw new Error(`Error: el rango de IPs no es válido.`);
+    if (isNaN(dhcpOfferLeaseTime)) 
+        throw new Error(`Error: expected a valid lease time instead of "${dhcpOfferLeaseTime}".`);
 
-    if (ipToBinary(rangeStart) >= ipToBinary(rangeEnd)) throw new Error(`Error: el rango de IPs no es válido.`);
+    if (dhcpOfferLeaseTime < 120) 
+        throw new Error(`Error: the lease time must be greater than 120 seconds.`);
 
-    if (dhcpOfferGateway !== "" && !isValidIp(dhcpOfferGateway)) {
-        throw new Error(`Error: se esperaba una puerta de enlace válida en vez de "${dhcpOfferGateway}".`);
-    }
-
-    if (!dhcpOfferDnsServers.every(item => isValidIp(item))) throw new Error(`Error: alguna de los servidores DNS no son válidos.`);
-
-    if (isNaN(dhcpOfferLeaseTime)) throw new Error(`Error: se esperaba un tiempo de alquiler válido en vez de "${dhcpOfferLeaseTime}".`);
-
-    if (dhcpOfferLeaseTime < 120) throw new Error(`Error: el tiempo de alquiler debe ser mayor a 120 segundos.`);
-
-    if (dhcpOfferLeaseTime > 86400) throw new Error(`Error: el tiempo de alquiler debe ser menor a 86400 segundos.`);
+    if (dhcpOfferLeaseTime > 86400) 
+        throw new Error(`Error: the lease time must be less than 86400 seconds.`);
 
 }

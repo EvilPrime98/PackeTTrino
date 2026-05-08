@@ -1,3 +1,10 @@
+/**
+ * @description Prints an ICMP echo-reply success line to the terminal output and then starts a
+ * repeating interval that prints additional reply lines every 500 ms, simulating a continuous
+ * ping. Does nothing if the terminal component is hidden.
+ * @param {string} origin - IP address of the replying host to display in the output.
+ * @returns {void}
+ */
 function pingSuccess(origin) {
     const terminal = document.querySelector(".terminal-component");
     if (window.getComputedStyle(terminal).display === "none") return;
@@ -11,6 +18,13 @@ function pingSuccess(origin) {
 
 }
 
+/**
+ * @description Prints an ICMP "Destination Host Unreachable" failure line to the terminal output
+ * and then starts a repeating interval that prints additional failure lines every 500 ms,
+ * simulating a continuous failing ping. Does nothing if the terminal component is hidden.
+ * @param {string} origin - IP address of the source host to display in the output.
+ * @returns {void}
+ */
 function pingFailure(origin) {
     const terminal = document.querySelector(".terminal-component");
     if (window.getComputedStyle(terminal).display === "none") return;

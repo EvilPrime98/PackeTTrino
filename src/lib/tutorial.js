@@ -1,4 +1,13 @@
-class slide { 
+/**
+ * @description Represents a single slide in a tutorial presentation, containing a title, media
+ * asset URL, and HTML content text.
+ */
+class slide {
+    /**
+     * @param {string} [title=""] - Slide title displayed as an `<h1>`.
+     * @param {string} [media=""] - URL of the image to display in the slide.
+     * @param {string} [text=""] - HTML content string for the slide body.
+     */
     constructor(title, media, text ) {
         this.title = title || "";
         this.media = media || "";
@@ -9,6 +18,10 @@ class slide {
     }
 }
 
+/**
+ * @description Manages a modal slide-show presentation. Slides are added via `addSlide`, rendered
+ * into the DOM by `startPresentation`, navigated with `render`, and dismissed with `endPresentation`.
+ */
 class slidePresentation {
 
     constructor() {
@@ -17,20 +30,30 @@ class slidePresentation {
         this.isRendered = false;
     }
 
+    /**
+     * @description Appends one or more `slide` instances to the presentation's slide list.
+     * @param {...slide} slides - Slides to add.
+     * @returns {void}
+     */
     addSlide(...slides) {
         this.slides.push(...slides);
     }
 
+    /**
+     * @description Builds and injects the full slide-presentation HTML into the DOM, shows the
+     * modal overlay, and displays the first slide.
+     * @returns {void}
+     */
     startPresentation() {
 
         const $slidePresentationHTML = document.createElement('div');
-        
+
         $slidePresentationHTML.classList.add('slide-presentation');
 
         $slidePresentationHTML.innerHTML = `
             ${
                 this.slides.map((slide, index) => {
-                    
+
                     const slideStyle = `
                         height: ${slide.mediaHeight};
                         background-color: ${slide.mediaBackgroundColor};
@@ -55,7 +78,7 @@ class slidePresentation {
                     }).join('')
                 }
                 <img class="next-slide-btn" src="./assets/tutorial/next.svg" alt="next" onclick="tutorial.render(tutorial.currentSlide + 1);">
-                <button class="end-presentation btn-modern-blue" onclick="tutorial.endPresentation();">Listo!</button>
+                <button class="end-presentation btn-modern-blue" onclick="tutorial.endPresentation();">Done!</button>
             </div>
             <div class="links">
                 <a href="https://github.com/EvilPrime98/PackeTTrino" target="_blank">
@@ -76,6 +99,13 @@ class slidePresentation {
         this.isRendered = true;
     }
 
+    /**
+     * @description Transitions to the given slide number with a short hide animation. Does nothing
+     * if the presentation is not rendered, the slide number equals the current slide, or the slide
+     * index is out of range.
+     * @param {number} slideNumber - Zero-based index of the slide to navigate to.
+     * @returns {void}
+     */
     render(slideNumber) {
 
         if (!this.isRendered) return;
@@ -100,10 +130,21 @@ class slidePresentation {
         this.currentSlide = slideNumber;
     }
 
+    /**
+     * @description TODO: Clarify intent.
+     * @param {Element} element - Element to highlight.
+     * @returns {void}
+     */
     highlight(element) {
-        
+
     }
 
+    /**
+     * @description Dismisses the presentation with a hide animation, removes it from the DOM,
+     * hides the modal overlay, and persists a flag in `localStorage` so the tutorial is not shown
+     * again automatically.
+     * @returns {void}
+     */
     endPresentation() {
         document.querySelector(".slide-presentation").classList.add('hiding');
         document.querySelector(".modal-overlay").style.display = "none";
@@ -118,70 +159,70 @@ class slidePresentation {
 
 
 const introductionSlide = new slide(
-  'Bienvenido a PackeTTrino 🥳',
+  'Welcome to PackeTTrino 🥳',
   './assets/favicon.svg',
-  `PackeTTrino es una herramienta gráfica e interactiva para aprender redes de forma intuitiva.
-    En este tutorial, aprenderás a crear dispositivos, conectarlos y simular una red completa. ¡Empecemos!`
+  `PackeTTrino is a graphical and interactive tool for learning networking in an intuitive way.
+    In this tutorial, you will learn how to create devices, connect them, and simulate a complete network. Let's get started!`
 );
 
 introductionSlide.mediaShadow = "none";
 
 const createAndConnectDevicesSlide = new slide(
-  'Crear y conectar dispositivos 💻',
+  'Create and connect devices 💻',
   './assets/tutorial/slide1.gif',
-  `Para crear un dispositivo, arrástralo desde el panel inferior a la mesa de trabajo. 
-  Puedes soltar ordenadores, switches, routers, y más. Cada uno tiene un menú propio para configurarlo.
-  Prueba a conectar PCs a switches, switches a routers, etc. Los cables aparecerán visualmente sobre la mesa.`
+  `To create a device, drag it from the bottom panel onto the workspace.
+  You can drop computers, switches, routers, and more. Each one has its own menu for configuration.
+  Try connecting PCs to switches, switches to routers, etc. Cables will appear visually on the workspace.`
 );
 
 const configureDevicesSlide = new slide(
-  'Opciones de dispositivos ⚙️',
+  'Device options ⚙️',
   './assets/tutorial/slideDeviceSettings.gif',
-  `Haz clic derecho sobre un dispositivo para acceder a sus opciones de configuración.
-  Verás distintas opciones dependiendo del dispositivo y de los paquetes instalados.`
+  `Right-click on a device to access its configuration options.
+  You will see different options depending on the device and the installed packages.`
 );
 
 const testNetworkSlide = new slide(
-  'Prueba de Conectividad 📡',
+  'Connectivity Test 📡',
   './assets/tutorial/slidePing.gif',
-  `Una vez conectados y configurados los dispositivos, 
-  prueba la red con <code>ping</code> entre equipos. Si todo está bien configurado, verás respuestas exitosas y sabrás que la red funciona.`
+  `Once the devices are connected and configured,
+  test the network with <code>ping</code> between hosts. If everything is properly set up, you will see successful replies and know the network is working.`
 );
 
 const nowItsYourTurnSlide = new slide(
-  '¡Ahora te toca a ti! 🚀',
+  'Now it\'s your turn! 🚀',
   './assets/tutorial/lastSlide.jpg',
-  `Cierra este tutorial y prueba crear 
-  tu propia topología de red. Explora las opciones, experimenta y si te pierdes… siempre puedes volver a este tutorial 
-  o consultar la documentación oficial en GitHub. ¡Buena suerte, futuro experto en redes!`
+  `Close this tutorial and try building
+  your own network topology. Explore the options, experiment, and if you get lost… you can always come back to this tutorial
+  or check the official documentation on GitHub. Good luck, future networking expert!`
 );
 
 const creditsSlide = new slide(
-  'Créditos 👨‍💻',
+  'Credits 👨‍💻',
   './assets/tutorial/ies.png',
-  `Este aplicación fue desarrollada íntegramente por <br><a href="https://www.linkedin.com/in/josé-amín-pérez-alconchel-2191b430b" target="_blank">José Amín Pérez Alconchel</a> 
-  como Proyecto de Fin de Grado en Administración de Sistemas Informáticos en Red en IES Mar de Cádiz.
+  `This application was developed entirely by <br><a href="https://www.linkedin.com/in/josé-amín-pérez-alconchel-2191b430b" target="_blank">José Amín Pérez Alconchel</a>
+  as a Final Degree Project in Network Computer Systems Administration at IES Mar de Cádiz.
   <br><br>
-  Si te gusta el mundo de las redes también puedes encontrar información sobre los distintos protocolos y herramientas
-  en <a href="https://www.fpgenred.es" target="_blank">www.fpgenred.es</a>`
+  If you enjoy the world of networking you can also find information about various protocols and tools
+  at <a href="https://www.fpgenred.es" target="_blank">www.fpgenred.es</a>`
 );
 
 creditsSlide.mediaShadow = "none";
 
 const terminalSlide = new slide(
-  'Terminal Integrada 🗔',
+  'Integrated Terminal 🗔',
   './assets/tutorial/slideTerminal.gif',
-  `La terminal integrada es una herramienta de comandos para interactuar con tu dispositivo. 
-  Puedes usar comandos como <code>ping</code>, <code>curl</code>, <code>ifup</code> o configurar IPs y máscaras.
-  Puedes hacer operaciones sobre el sistema de ficheros con comandos como <code>ls</code>, <code>cat</code> o <code>nano</code>.`
+  `The integrated terminal is a command tool for interacting with your device.
+  You can use commands like <code>ping</code>, <code>curl</code>, <code>ifup</code>, or configure IPs and subnet masks.
+  You can perform filesystem operations with commands like <code>ls</code>, <code>cat</code>, or <code>nano</code>.`
 );
 
 terminalSlide.mediaHeight = "250px";
 
 const installPackagesSlide = new slide(
-  'Instalar paquetes 📦',
+  'Install packages 📦',
   './assets/tutorial/slidePaquetes.gif',
-  `Para instalar paquetes, puedes usar el comando <code>apt</code> desde la terminal integrada o arrastrar y soltar el paquete sobre el dispositivo.`
+  `To install packages, you can use the <code>apt</code> command from the integrated terminal or drag and drop the package onto the device.`
 );
 
 installPackagesSlide.mediaHeight = "250px";
@@ -191,14 +232,18 @@ const tutorial = new slidePresentation();
 tutorial.addSlide(
     introductionSlide,
     createAndConnectDevicesSlide,
-    configureDevicesSlide, 
+    configureDevicesSlide,
     terminalSlide,
     testNetworkSlide,
-    installPackagesSlide, 
+    installPackagesSlide,
     nowItsYourTurnSlide,
     creditsSlide
 );
 
+/**
+ * @description Starts the tutorial slide presentation.
+ * @returns {void}
+ */
 function startTutorial() {
     tutorial.startPresentation();
 }
