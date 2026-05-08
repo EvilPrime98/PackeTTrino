@@ -1,14 +1,33 @@
+/**
+ * Handles the `dig` terminal command to perform a DNS query from a network object.
+ *
+ * Supported options:
+ * - `-x`: performs a reverse (PTR) lookup on the given IP address.
+ * - `-t <type>`: specifies the record type (A, SOA, PTR, NS, AAAA, MX).
+ * - `@ <ip>`: queries a specific DNS server instead of the configured one.
+ *
+ * The first non-option argument is treated as the domain name or IP to query.
+ * Validation errors are printed to the terminal. On success, the DNS reply is
+ * formatted and printed via `generateDnsOuput`. The terminal is minimised during
+ * the operation when visual animations are enabled.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object running the command.
+ * @param {Array<string>} args - Tokenised command arguments.
+ *   Format: ["dig", ["-x"], ["-t", "<type>"], ["@", "<ip>"], "<domain|ip>"]
+ * @returns {Promise<void>}
+ */
 async function command_dig(networkObjectId, args) {
 
     let opt_x = false;
     let opt_t = false;
     let opt_server = false;
-    let domain;
+    // eslint-disable-next-line no-useless-assignment
+    let domain = '';
     let dnsServer = "";
     let query_type = "A";
     const validRecordTypes = ["A", "SOA", "PTR", "NS", "AAAA", "MX"];
 
-    let $OPTS = catchopts(["-x", "-t:", "@:"], args);
+    const $OPTS = catchopts(["-x", "-t:", "@:"], args);
 
     const optionsHandler = {
         "-x": () => { opt_x = true; query_type = "PTR"; },
@@ -18,32 +37,32 @@ async function command_dig(networkObjectId, args) {
 
     for (option in $OPTS) if (optionsHandler[option]) optionsHandler[option]();
 
-    args = args.slice($OPTS['IND'] + 1) //<-- saltamos a los argumentos que no son opciones
+    args = args.slice($OPTS['IND'] + 1) //<-- skip to non-option arguments
 
     if (args.length === 0) {
-        terminalMessage("Error: falta el argumento dominio o ip.", networkObjectId);
+        terminalMessage("Error: missing domain or ip argument.", networkObjectId);
         return;
     }
 
-    domain = args[0]; //<-- el primer argumento es el dominio
+    domain = args[0]; //<-- the first argument is the domain
 
-    if (opt_t && !validRecordTypes.includes(query_type)) { //<-- si se especifica el tipo de consulta, se comprueba que sea un tipo válido
-        terminalMessage("Error: tipo de registro desconocido.", networkObjectId);
+    if (opt_t && !validRecordTypes.includes(query_type)) { //<-- if the query type is specified, it is checked to be a valid type
+        terminalMessage("Error: unknown record type.", networkObjectId);
         return;
     }
 
-    if (!opt_x && !isValidDomain(domain)) { //<-- si no se especifica el tipo de consulta, se asume que debe ser un dominio válido
-        terminalMessage("Error: el dominio no es válido.", networkObjectId);
+    if (!opt_x && !isValidDomain(domain)) { //<-- if no query type is specified, it is assumed to be a valid domain
+        terminalMessage("Error: the domain is not valid.", networkObjectId);
         return;
     }
 
-    if (opt_x && !isValidIp(domain)) { //<-- si se especifica el tipo de consulta como PTR, se comprueba que sea una ip válida
-        terminalMessage("Error: ip no válida para la consulta inversa.", networkObjectId);
+    if (opt_x && !isValidIp(domain)) { //<-- if the query type is specified as PTR, the IP is checked to be valid
+        terminalMessage("Error: invalid ip for reverse lookup.", networkObjectId);
         return;
     }
 
-    if (opt_server && !isValidIp(dnsServer)) { //<-- si se especifica un servidor dns, se comprueba que sea una ip válida
-        terminalMessage("Error: ip del servidor no válida.", networkObjectId);
+    if (opt_server && !isValidIp(dnsServer)) { //<-- if a DNS server is specified, it is checked to be a valid IP
+        terminalMessage("Error: invalid server ip.", networkObjectId);
         return;
     }
 
@@ -53,11 +72,11 @@ async function command_dig(networkObjectId, args) {
 
             const dnsReply = await getDomainFromServer(
                 networkObjectId,
-                domain, //dominio
-                dnsServer, //ip del servidor
-                query_type, //tipo de registro
+                domain, //domain
+                dnsServer, //server ip
+                query_type, //record type
             );
-            
+
             generateDnsOuput(dnsReply, networkObjectId);
 
         } catch (error) {

@@ -1,4 +1,15 @@
-/**ESTA FUNCION GESTIONA LA UTILIDAD DHCP DISCOVER DE UN EQUIPO CLIENTE */
+/**
+ * Handles the DHCP discover flow for a DHCP client on the given interface.
+ *
+ * Verifies the dhclient service is active, prints status messages to the terminal, then
+ * triggers a DHCPDISCOVER broadcast via `dhcpDiscoverGenerator`. Prints an error when no
+ * DHCP server responds. The terminal is minimised during the operation when visual animations
+ * are enabled.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object acting as the DHCP client.
+ * @param {string} networkObjectInterface - The interface name from which the discover is sent.
+ * @returns {Promise<void>}
+ */
 async function dhcpDiscoverHandler(networkObjectId, networkObjectInterface) {
 
     console.log(networkObjectId, networkObjectInterface);
@@ -7,7 +18,7 @@ async function dhcpDiscoverHandler(networkObjectId, networkObjectInterface) {
     const networkObjectMac = $networkObject.getAttribute(`mac-${networkObjectInterface}`);
 
     if ($networkObject.getAttribute("dhclient") !== "true") {
-        terminalMessage("dhclient: El servicio DHCP Client no está activado.", networkObjectId);
+        terminalMessage("dhclient: The DHCP Client service is not active.", networkObjectId);
         return;
     }
 
@@ -19,7 +30,7 @@ async function dhcpDiscoverHandler(networkObjectId, networkObjectInterface) {
     if (visualToggle) await minimizeTerminal();
 
         try {
-            
+
             dhcpDiscoverFlag[networkObjectId] = false;
             dhcpRequestFlag[networkObjectId] = false;
             dhcpOfferBuffer[networkObjectId] = false;
@@ -27,12 +38,12 @@ async function dhcpDiscoverHandler(networkObjectId, networkObjectInterface) {
             await dhcpDiscoverGenerator(networkObjectId, networkObjectInterface);
 
             if (dhcpDiscoverFlag[networkObjectId] === false || dhcpRequestFlag[networkObjectId] === false) {
-                terminalMessage("\ndhclient: No se ha podido conectar con ningún servidor DHCP.", networkObjectId);
+                terminalMessage("\ndhclient: Could not connect to any DHCP server.", networkObjectId);
             }
 
         }catch (error) {
 
-            terminalMessage("dhclient: No se ha podido ha podido conectar con ningún servidor DHCP.", networkObjectId);
+            terminalMessage("dhclient: Could not connect to any DHCP server.", networkObjectId);
             console.log(error);
 
         }
@@ -41,7 +52,18 @@ async function dhcpDiscoverHandler(networkObjectId, networkObjectInterface) {
 
 }
 
-/**ESTA FUNCION GESTIONA LA UTILIDAD DHCP RENEW DE UN EQUIPO CLIENTE */
+/**
+ * Handles a DHCP lease renewal request for a client on the given interface.
+ *
+ * Validates that the interface has IP, netmask, and DHCP server attributes set, then sends a
+ * DHCPREQUEST via `dhcpRequestGenerator`. The `renewPhase` parameter controls whether the
+ * request is unicast (normal) or broadcast (T2 fallback).
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object renewing its lease.
+ * @param {string} renewPhase - Renewal phase: "T1" for unicast or "T2" for broadcast fallback.
+ * @param {string} networkObjectInterface - The interface whose lease is being renewed.
+ * @returns {Promise<void>}
+ */
 async function dhcpRenewHandler(networkObjectId, renewPhase, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -50,15 +72,15 @@ async function dhcpRenewHandler(networkObjectId, renewPhase, networkObjectInterf
     const networkObjectDhcpServer = $networkObject.getAttribute("data-dhcp-server");
 
     if (!networkObjectIp || !networkObjectNetmask || !networkObjectDhcpServer) {
-        terminalMessage("dhclient: Error en la configuración de red.", networkObjectId);
+        terminalMessage("dhclient: Network configuration error.", networkObjectId);
         return;
     }
 
     terminalMessage(`DHCPREQUEST on ${networkObjectInterface} to ${networkObjectDhcpServer} port 67`, networkObjectId);
 
     try {
-        
-        dhcpRequestFlag[networkObjectId] = false;     
+
+        dhcpRequestFlag[networkObjectId] = false;
         await dhcpRequestGenerator(networkObjectId, renewPhase, networkObjectInterface);
 
     } catch (error) {
@@ -66,10 +88,20 @@ async function dhcpRenewHandler(networkObjectId, renewPhase, networkObjectInterf
         terminalMessage("Error: " + error, networkObjectId);
 
     }
-    
+
 }
 
-/**ESTA FUNCION GESTIONA LA UTILIDAD DHCP RELEASE DE UN EQUIPO CLIENTE */
+/**
+ * Handles a DHCP lease release for a client on the given interface.
+ *
+ * Prints a status message and calls `dhcpReleaseGenerator` to send the DHCPRELEASE packet and
+ * clear the interface configuration. The terminal is minimised during the operation when visual
+ * animations are enabled.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object releasing its lease.
+ * @param {string} networkObjectInterface - The interface whose lease is being released.
+ * @returns {Promise<void>}
+ */
 async function dhcpReleaseHandler(networkObjectId, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);

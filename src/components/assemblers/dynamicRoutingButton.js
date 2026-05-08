@@ -1,3 +1,7 @@
+/**
+ * Returns the dynamic routing button.
+ * @returns {HTMLElement}
+ */
 function dynamicRoutingButton() {
 
     const $dynamicRouting = document.createElement("div");

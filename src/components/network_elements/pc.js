@@ -1,3 +1,16 @@
+/**
+ * Creates and returns a PC network element as an `<article>` DOM node.
+ * The element is positioned on the board at `(x, y)`, clipped to board boundaries,
+ * and given a unique id based on the global `itemIndex`. It includes an icon, an ARP
+ * table, a DNS cache table, a routing table, and advanced-options controls. The element
+ * is pre-configured with a single network interface (`enp0s3`), a random MAC address,
+ * an empty virtual filesystem, IPv4 forwarding disabled, the DNS resolver enabled,
+ * and the `dhclient`, `iptables`, and browser packages installed.
+ *
+ * @param {number} x - Desired left position in pixels relative to the board.
+ * @param {number} y - Desired top position in pixels relative to the board.
+ * @returns {HTMLElement} The configured PC `<article>` element.
+ */
 function PcObject(x, y) {
 
     const $networkObject = document.createElement("article");
@@ -35,7 +48,7 @@ function PcObject(x, y) {
         }
     };
 
-    //añadimos los atributos básicos
+    //add basic attributes
     attr("ip-enp0s3", "");
     attr("netmask-enp0s3", "");
     attr("mac-enp0s3", getRandomMac());
@@ -43,15 +56,15 @@ function PcObject(x, y) {
     attr("filesystem", JSON.stringify(filesystem));
     attr("ipv4-forwarding", "false");
 
-    //añadimos el resolver
+    //add the resolver
     attr("resolved", "true");
 
-    //instalamos paquetes
+    //install packages
     installDhclient($networkObject);
     installIptables($networkObject);
     installBrowser($networkObject);
 
-    //añadimos eventos
+    //add events
     attr("onclick", "showPcMenu('" + $networkObject.id + "')");
     attr("oncontextmenu", "showAdvancedOptions(event)");
     attr("ondragstart", "BoardItemDragStart(event)");

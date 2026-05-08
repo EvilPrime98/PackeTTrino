@@ -1,4 +1,13 @@
-function igniteFire(networkObjectId) {
+/**
+ * Creates a fire effect on a network object.
+ * @param {string} networkObjectId - DOM ID of the network object.
+ * @param {number} [duration=2000] - Duration of the fire effect in milliseconds.
+ * @returns {void}
+ */
+function igniteFire(
+    networkObjectId,
+    duration = 2000
+) {
     const $networkObject = document.getElementById(networkObjectId);
     const $fire = document.createElement("div");
     $fire.classList.add("fire-container");
@@ -7,8 +16,7 @@ function igniteFire(networkObjectId) {
         <img src="./assets/fire.svg" class="fire-img" alt="Animated fire">
     `;
     $networkObject.appendChild($fire);
-
     setTimeout(() => {
         $fire.remove();
-    }, 2000);
+    }, duration);
 }

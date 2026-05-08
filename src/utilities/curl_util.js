@@ -1,6 +1,20 @@
+/**
+ * Handles the `curl` terminal command to send an HTTP request from a network object.
+ *
+ * Parses the `-m` (method) and `-h` (show headers) options, then performs an HTTP GET request
+ * (or the specified method) to the given URL. The response is printed to the terminal.
+ * When `-h` is specified the status code, method, host, content-type, keep-alive, and user-agent
+ * headers are included before the body. The terminal is minimised during the request when visual
+ * animations are enabled.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object running the command.
+ * @param {Array<string>} args - Tokenised command arguments.
+ *   Format: ["curl", ["-m", "<METHOD>"], ["-h"], "<url>"]
+ * @returns {Promise<void>}
+ */
 async function command_curl(networkObjectId, args) {
 
-    //comprobación de opciones
+    //option check
 
     const $OPTS = catchopts([
         "-m:",
@@ -19,12 +33,12 @@ async function command_curl(networkObjectId, args) {
 
     args = args.slice($OPTS['IND'] + 1)
 
-    //comprobación de argumentos
+    //argument check
 
     const url = args[0];
 
     if (!url) {
-        terminalMessage("Error: No se ha especificado la URL.", networkObjectId);
+        terminalMessage("Error: No URL has been specified.", networkObjectId);
         return;
     }
 
@@ -45,10 +59,10 @@ async function command_curl(networkObjectId, args) {
                 }
             };
 
-            if (!requestFunctions[search.protocol]) throw new Error(`Protocolo ${search.protocol} no válido.`); 
+            if (!requestFunctions[search.protocol]) throw new Error(`Protocol ${search.protocol} is not valid.`);
 
             const httpReply = await requestFunctions[search.protocol]();
-            
+
             let message = `URL:\n ${search.protocol}://${search.address}:${search.port}\n\n`;
 
             if (showHeaders) {

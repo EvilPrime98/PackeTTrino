@@ -1,3 +1,14 @@
+/**
+ * Returns an HTML element representing the **Items Panel**, where the user can pick and drag items from.
+ * Panel items are rendered as `<article>` elements with the class `item`. Each item is also 
+ * rendered with event listeners. The list of panel items is defined in the `panelItems` array.
+ * The `panelItems` array contains objects with the following properties:
+ * - `name`: The name of the item.
+ * - `image`: The path to the image file for the item.
+ * - `draggable`: Whether the item is draggable or not.
+ * - `tooltip`: The tooltip text for the item.
+ * @returns {HTMLElement}
+ */
 async function itemPanel() {
 
     const $panel = document.createElement("section");
@@ -14,19 +25,19 @@ async function itemPanel() {
             "name": "upload",
             "image": "./assets/panel/upload.svg",
             "draggable": false,
-            "tooltip": "Subir Archivo de Red"
+            "tooltip": "Upload Network File"
         },
         {
             "name": "load",
             "image": "./assets/panel/load.svg",
             "draggable": false,
-            "tooltip": "Cargar archivo"
+            "tooltip": "Load File"
         },
         {
             "name": "download",
             "image": "./assets/panel/download.svg",
             "draggable": false,
-            "tooltip": "Descargar Archivo de Red"
+            "tooltip": "Download Network File"
         },
         {
             "name": "pc",
@@ -50,19 +61,19 @@ async function itemPanel() {
             "name": "dhcpserver",
             "image": "./assets/panel/dhcpserver.svg",
             "draggable": true,
-            "tooltip": "Servidor DHCP"
+            "tooltip": "DHCP Server"
         },
         {
             "name": "dhcprelay",
             "image": "./assets/panel/dhcprelay.svg",
             "draggable": true,
-            "tooltip": "Agente DHCP"
+            "tooltip": "DHCP Agent"
         },
         {
             "name": "dnsserver",
             "image": "./assets/panel/dnsserver.svg",
             "draggable": true,
-            "tooltip": "Servidor DNS"
+            "tooltip": "DNS Server"
         },
         {
             "name": "isc-dhcp-server",
@@ -98,42 +109,42 @@ async function itemPanel() {
             "name": "text",
             "image": "./assets/panel/annotation.svg",
             "draggable": true,
-            "tooltip": "Anotación"
+            "tooltip": "Annotation"
         },
         {
             "name": "traffic",
             "image": "./assets/panel/traffic.svg",
             "draggable": false,
-            "tooltip": "Tráfico de Red"
+            "tooltip": "Network Traffic"
         },
         {
             "name": "ping",
             "image": "./assets/panel/bus.svg",
             "draggable": false,
-            "tooltip": "Simulador de Ping"
+            "tooltip": "Ping Simulator"
         },
         {
             "name": "animation-controls",
             "image": "./assets/panel/animationControls.svg",
             "draggable": false,
-            "tooltip": "Controles de Animación"
+            "tooltip": "Animation Controls"
         },
         {
             "name": "settings",
             "image": "./assets/panel/settings.svg",
             "draggable": false,
-            "tooltip": "Opciones Avanzadas"
+            "tooltip": "Advanced Options"
         },
         {
             "name": "hide-panel",
             "image": "./assets/panel/hide-panel.svg",
             "draggable": false,
-            "tooltip": "Ocultar el panel"
+            "tooltip": "Hide panel"
         }
     ]
 
 
-    //agregamos los items del panel
+    //add the items to the panel
     panelItems.forEach(panelItem => {
         const $itemElement = document.createElement("article");
         $itemElement.classList.add("item", "hidden", panelItem.name);
@@ -149,7 +160,7 @@ async function itemPanel() {
         $itemsContainer.appendChild($itemElement);
     });
 
-    //agregamos eventos
+    //add eventlisteners
     $panel.querySelector("#fileInput").addEventListener("change", fileInputChangeHandler);
     $panel.querySelector(".ping").addEventListener("click", quickPingStart);
     $panel.querySelector(".dynrouting").addEventListener("click", () => bodyComponent.render(DynamicRoutingMenu()));
@@ -165,28 +176,25 @@ async function itemPanel() {
 
 }
 
+/**
+ * Manages the hide-panel button logic.
+ * @returns {void}
+ */
 function hidePanel() {
 
-    const $panel = document.querySelector("#item-panel");
-    const $hideButton = $panel.querySelector(".hide-panel");
-    const $panelItems = $panel.querySelectorAll(".item");
+    const $panel = $("#item-panel");
+    const $hideButton = $('.hide-panel', $panel);
+    const $panelItems = $$('.item', $panel);
+    const isActive = $hideButton.classList.contains("active");
 
-    if (!$hideButton.classList.contains("active")) {
+    $panelItems.forEach($item => {
+        if (!$item.classList.contains("hide-panel")) $item.style.display = !isActive ? "none" : "flex";
+    });
 
-        $panelItems.forEach($item => {
-            if (!$item.classList.contains("hide-panel")) $item.style.display = "none";
-        });
-
-        $panel.querySelector(".hide-panel").classList.add("active");
-    
+    if (!isActive) {
+        $hideButton.classList.add("active");
     } else {
-
-        $panelItems.forEach($item => {
-            if (!$item.classList.contains("hide-panel")) $item.style.display = "flex";
-        });
-
-        $panel.querySelector(".hide-panel").classList.remove("active");
-
+        $hideButton.classList.remove("active");
     }
 
 }

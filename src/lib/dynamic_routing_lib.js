@@ -1,3 +1,9 @@
+/**
+ * @description Rebuilds the global `nodes`, `nodesIp`, and `nodesNetmask` maps by scanning all
+ * network objects on the board that have IPv4 forwarding enabled. Each router's interfaces are
+ * iterated and their network addresses, IPs, and netmasks are recorded.
+ * @returns {void}
+ */
 function getNodes() {
 
     nodes = {};
@@ -18,9 +24,9 @@ function getNodes() {
             if (!nodesIp[$router.id]) nodesIp[$router.id] = [];
             if (!nodesNetmask[$router.id]) nodesNetmask[$router.id] = [];
 
-            let ip = $router.getAttribute("ip-" + iface);
-            let netmask = $router.getAttribute("netmask-" + iface);
-            let network = getNetwork(ip, netmask);
+            const ip = $router.getAttribute("ip-" + iface);
+            const netmask = $router.getAttribute("netmask-" + iface);
+            const network = getNetwork(ip, netmask);
 
             if (ip) {
                 nodes[$router.id].push(network);
@@ -34,17 +40,31 @@ function getNodes() {
 
 }
 
+/**
+ * @description Returns a deduplicated list of all network addresses reachable by any router on
+ * the board. Internally calls `getNodes` to refresh the routing topology.
+ * @returns {string[]} Array of unique network address strings (e.g. ["192.168.1.0", "10.0.0.0"]).
+ */
 function getAllNetworks() {
     let networks = [];
     getNodes();
     for (const routerId in nodes) {
         networks = networks.concat(nodes[routerId]);
     }
-    //eliminar duplicados
+    //remove duplicates
     networks = networks.filter((item, index) => networks.indexOf(item) === index);
     return networks;
 }
 
+/**
+ * @description Finds the shortest hop-count path between two network addresses using Dijkstra's
+ * algorithm on the router topology graph. Returns the sequence of router interface IPs that form
+ * the path.
+ * @param {string} startNetwork - Network address of the source (e.g. "192.168.1.0").
+ * @param {string} endNetwork - Network address of the destination (e.g. "10.0.0.0").
+ * @returns {string[]} Ordered array of interface IP addresses forming the path from source to
+ *   destination. Empty if no path exists.
+ */
 function findShortestPath(startNetwork, endNetwork) {
 
     getNodes();
@@ -55,12 +75,12 @@ function findShortestPath(startNetwork, endNetwork) {
     const previous = {};
     const unvisited = new Set();
 
-    // Normalizar entrada: si startNetwork o endNetwork son interfaces
-    // de un mismo router, elegir una interfaz consistente
+    // Normalize input: if startNetwork or endNetwork are interfaces
+    // on the same router, pick a consistent interface
     const startRouters = getRoutersForNetwork(startNetwork);
     const endRouters = getRoutersForNetwork(endNetwork);
 
-    // Inicialización de Dijkstra
+    // Dijkstra initialization
     for (const node in graph) {
         distances[node] = Infinity;
         previous[node] = null;
@@ -71,7 +91,7 @@ function findShortestPath(startNetwork, endNetwork) {
 
     while (unvisited.size > 0) {
 
-        // Encontrar el nodo no visitado con la menor distancia
+        // Find the unvisited node with the smallest distance
         let current = null;
         let minDistance = Infinity;
 
@@ -82,17 +102,17 @@ function findShortestPath(startNetwork, endNetwork) {
             }
         }
 
-        // Si no hay camino posible o hemos llegado al destino
+        // No path exists or we have reached the destination
         if (current === null || current === endNetwork) {
             break;
         }
 
-        // Marcar como visitado
+        // Mark as visited
         unvisited.delete(current);
 
-        // Actualizar distancias de los vecinos
+        // Update neighbor distances
         for (const neighbor of graph[current]) {
-            const distance = distances[current] + 1; // Cada salto tiene un peso de 1
+            const distance = distances[current] + 1; // each hop has a weight of 1
 
             if (distance < distances[neighbor]) {
                 distances[neighbor] = distance;
@@ -101,7 +121,7 @@ function findShortestPath(startNetwork, endNetwork) {
         }
     }
 
-    // Reconstruir el camino con los identificadores
+    // Reconstruct the path with identifiers
     const pathNodes = [];
     let current = endNetwork;
 
@@ -110,13 +130,19 @@ function findShortestPath(startNetwork, endNetwork) {
         current = previous[current];
     }
 
-    // Convertir el camino de nodos a IPs
+    // Convert the node path to IPs
     const pathIPs = mapPathToIPs(pathNodes);
 
     return pathIPs;
 
 }
 
+/**
+ * @description Returns the list of router DOM ids that have the given network address in their
+ * interface list (as recorded in the global `nodes` map).
+ * @param {string} network - Network address to search for (e.g. "192.168.1.0").
+ * @returns {string[]} Array of router DOM ids that are directly connected to `network`.
+ */
 function getRoutersForNetwork(network) {
     const routers = [];
     for (const routerId in nodes) {
@@ -127,6 +153,13 @@ function getRoutersForNetwork(network) {
     return routers;
 }
 
+/**
+ * @description Converts an ordered array of network-address path nodes into the corresponding
+ * router interface IP addresses. For each consecutive pair of nodes the function selects the
+ * interface IP of the router that connects both networks.
+ * @param {string[]} pathNodes - Ordered array of network addresses forming the path.
+ * @returns {string[]} Array of interface IP addresses (one per hop transition).
+ */
 function mapPathToIPs(pathNodes) {
     const pathIPs = [];
 
@@ -140,33 +173,40 @@ function mapPathToIPs(pathNodes) {
             const index = nodes[routerId].indexOf(currentNode);
             if (index !== -1 && nodes[routerId].includes(nextNode)) {
                 chosenIp = nodesIp[routerId][index];
-                break; // Tomamos la IP que realmente conecta con el siguiente nodo del camino
+                break; // take the IP that actually connects to the next path node
             }
         }
 
         if (chosenIp) {
             pathIPs.push(chosenIp);
         } else {
-            console.warn(`No se encontró IP para la conexión ${currentNode} -> ${nextNode}`);
+            console.warn(`No IP found for connection ${currentNode} -> ${nextNode}`);
         }
     }
 
     return pathIPs;
 }
 
+/**
+ * @description Builds an adjacency-list graph where each node is a network address and edges
+ * connect networks that share a common router.
+ * @param {Object.<string, string[]>} networkTopology - Map of routerId → array of network addresses.
+ * @returns {Object.<string, string[]>} Adjacency list where each key is a network address and the
+ *   value is an array of directly reachable network addresses.
+ */
 function buildGraphFromNetwork(networkTopology) {
 
     const graph = {};
-    const routerMap = {}; // Para mapear redes a sus routers
+    const routerMap = {}; // map networks to their routers
 
-    // Inicializar el grafo con todas las redes
+    // Initialize the graph with all networks
     for (const router in networkTopology) {
         for (const network of networkTopology[router]) {
             if (!graph[network]) {
                 graph[network] = [];
             }
 
-            // Registrar qué router maneja esta red
+            // Record which router handles this network
             if (!routerMap[network]) {
                 routerMap[network] = [];
             }
@@ -174,12 +214,12 @@ function buildGraphFromNetwork(networkTopology) {
         }
     }
 
-    // Conectar redes entre diferentes routers
+    // Connect networks across different routers
     for (const network in routerMap) {
         const routers = routerMap[network];
 
         for (const router of routers) {
-            // Obtener todas las otras redes accesibles desde este router
+            // Get all other networks reachable from this router
             const routerNetworks = networkTopology[router];
 
             for (const connectedNetwork of routerNetworks) {
@@ -193,6 +233,13 @@ function buildGraphFromNetwork(networkTopology) {
     return graph;
 }
 
+/**
+ * @description Computes the next-hop entries that a router reachable from `startNetwork` should
+ * use to reach every other known network. Returns a matrix where each row is
+ * `[targetNetwork, netmask, nextHopIp]`.
+ * @param {string} startNetwork - Network address of the router whose next-hops to compute.
+ * @returns {Array<[string, string, string]>} Array of [destination, netmask, nextHop] tuples.
+ */
 function getNextHop(startNetwork) {
 
     const networks = getAllNetworks();
@@ -221,9 +268,17 @@ function getNextHop(startNetwork) {
     return nextHop;
 }
 
+/**
+ * @description Computes the full set of remote routing rules for the given router by combining
+ * shortest-path next-hops with the router's direct routes to verify reachability, then groups the
+ * result using the default-route heuristic.
+ * @param {string} routerId - DOM id of the router element.
+ * @returns {Array<Array<string>>} Matrix of route rows, each containing
+ *   [destination, netmask, nextHop, gateway, interface].
+ */
 function getRoutes(routerId) {
 
-    const $router = document.getElementById(routerId); //obtengo el router
+    const $router = document.getElementById(routerId); //get the router element
     const validNetworks = [];
     const routingTable = $router.querySelector('.routing-table').querySelector('table');
     const $directRoutingRules = routingTable.querySelectorAll(".direct-route");
@@ -235,25 +290,26 @@ function getRoutes(routerId) {
         const netmask = $fields[1].innerText;
         const iface = $fields[3].innerText;
         const gateway = $fields[2].innerText;
-        validNetworks.push([destination, netmask, gateway, iface]); //guardamos las redes a las que el router está conectado de forma directa
+        validNetworks.push([destination, netmask, gateway, iface]); //store the networks directly connected to this router
         matrix.push(getNextHop(destination));
     });
 
     matrix = matrix.reduce((a, b) => a.concat(b), []); //juntamos las matrices de todas las redes
 
-    //compruebo que los siguientes saltos formen parte de alguna de las redes
+    //verify that each next-hop belongs to one of the directly connected networks
 
+    // eslint-disable-next-line no-useless-assignment
     let flag = false;
 
     for (let i = 0; i < matrix.length; i++) {
 
-        let nextHop = matrix[i][2];
+        const nextHop = matrix[i][2];
         flag = false;
 
         for (let j = 0; j < validNetworks.length; j++) {
-            let network = validNetworks[j][0];
-            let netmask = validNetworks[j][1];
-            if (getNetwork(nextHop, netmask) === network) { //el siguiente salto es parte de la red, lo damos por bueno, y añadimos la interfaz y gateway a esa fila
+            const network = validNetworks[j][0];
+            const netmask = validNetworks[j][1];
+            if (getNetwork(nextHop, netmask) === network) { //next-hop is on this network; add the interface and gateway to the row
                 flag = true;
                 matrix[i].push(validNetworks[j][2]);
                 matrix[i].push(validNetworks[j][3]);
@@ -272,6 +328,11 @@ function getRoutes(routerId) {
 
 }
 
+/**
+ * @description Removes duplicate rows from a matrix by comparing JSON-serialised row values.
+ * @param {Array<Array<string>>} matrix - Matrix of route rows.
+ * @returns {Array<Array<string>>} Matrix with duplicate rows removed.
+ */
 function removeDuplicateRows(matrix) {
 
     if (!matrix.length) return [];
@@ -291,31 +352,45 @@ function removeDuplicateRows(matrix) {
     return uniqueMatrix;
 }
 
+/**
+ * @description Inserts the remote routing rules computed by `getRoutes` into the given router's
+ * routing table via `setRemoteRoutingRule`.
+ * @param {string} $routerObjectId - DOM id of the router element.
+ * @returns {void}
+ */
 function autoInputRules($routerObjectId) {
 
     const matrix = getRoutes($routerObjectId);
 
     for (let i = 0; i < matrix.length; i++) {
-        let destination = matrix[i][0];
-        let netmask = matrix[i][1];
-        let nexthop = matrix[i][2];
-        let gateway = matrix[i][3];
-        let iface = matrix[i][4];
+        const destination = matrix[i][0];
+        const netmask = matrix[i][1];
+        const nexthop = matrix[i][2];
+        const gateway = matrix[i][3];
+        const iface = matrix[i][4];
         setRemoteRoutingRule($routerObjectId, destination, netmask, gateway, iface, nexthop);
     }
 
 }
 
+/**
+ * @description Condenses the route matrix by replacing the most-used next-hop (or the
+ * pre-configured `defaultNetwork` next-hop) with a single default route (`0.0.0.0/0.0.0.0`).
+ * When `defaultNetwork` is set, that network's next-hop is always promoted to the default route
+ * regardless of count.
+ * @param {Array<Array<string>>} matrix - Route matrix rows: [destination, netmask, nextHop, gateway, interface].
+ * @returns {Array<Array<string>>} Condensed matrix with a default route entry appended where applicable.
+ */
 function groupByDefaultRules(matrix) {
 
     const hopCounter = {};
-    let newMatrix = [];
+    const newMatrix = [];
     let nextHopDefault;
 
-    if (defaultNetwork === "") { //agrupamos por mayor numero de reglas para cada siguiente salto
+    if (defaultNetwork === "") { //group by the next-hop with the most rules
 
         for (let i = 0; i < matrix.length; i++) {
-            let nextHop = matrix[i][2];
+            const nextHop = matrix[i][2];
             hopCounter[nextHop] = {
                 count: hopCounter[nextHop] ? hopCounter[nextHop].count + 1 : 1,
                 gateway: matrix[i][3],
@@ -323,17 +398,17 @@ function groupByDefaultRules(matrix) {
             };
         }
 
-        let maxCount = Math.max(...Object.values(hopCounter).map(hop => hop.count));
-        let maxInst = Object.keys(hopCounter).filter(key => hopCounter[key].count === maxCount);
+        const maxCount = Math.max(...Object.values(hopCounter).map(hop => hop.count));
+        const maxInst = Object.keys(hopCounter).filter(key => hopCounter[key].count === maxCount);
 
-        if (maxCount > 1) { //hemos encontrado un canditato a regla por defecto
+        if (maxCount > 1) { //found a candidate for the default route
 
-            let maxInstGateway = hopCounter[maxInst[0]].gateway;
-            let maxInstInterface = hopCounter[maxInst[0]].interface;
+            const maxInstGateway = hopCounter[maxInst[0]].gateway;
+            const maxInstInterface = hopCounter[maxInst[0]].interface;
             let j = 0;
 
             for (let i = 0; i < matrix.length; i++) {
-                let nextHop = matrix[i][2];
+                const nextHop = matrix[i][2];
                 if (nextHop !== maxInst[0]) {
                     newMatrix[j] = matrix[i];
                     j++;
@@ -348,15 +423,15 @@ function groupByDefaultRules(matrix) {
 
         return matrix;
 
-    } else { //agrupamos por mayor numero de reglas para cada siguiente salto, PERO teniendo en cuenta que una red que siempre será la por defecto
+    } else { //group by most rules per next-hop, but always promote the pre-configured default network
 
         let defaultInterface;
         let defaultGateway;
 
         for (let i = 0; i < matrix.length; i++) {
-            let network = matrix[i][0];
-            let nextHop = matrix[i][2];
-            if (network === defaultNetwork) {//guardamos el siguiente salto para la regla por defecto
+            const network = matrix[i][0];
+            const nextHop = matrix[i][2];
+            if (network === defaultNetwork) { //save the next-hop for the default route
                 nextHopDefault = nextHop;
                 defaultInterface = matrix[i][4];
                 defaultGateway = matrix[i][3];
@@ -366,7 +441,7 @@ function groupByDefaultRules(matrix) {
         let j = 0;
 
         for (let i = 0; i < matrix.length; i++) {
-            let nextHop = matrix[i][2];
+            const nextHop = matrix[i][2];
             if (nextHop !== nextHopDefault) {
                 newMatrix[j] = matrix[i];
                 j++;
@@ -382,6 +457,12 @@ function groupByDefaultRules(matrix) {
 
 }
 
+/**
+ * @description Runs the full dynamic routing update cycle: clears all remote (non-direct) routing
+ * rules from every IPv4-forwarding-enabled router on the board and recomputes them via
+ * `autoInputRules`.
+ * @returns {void}
+ */
 function dynamicRouting() {
 
     const $routers = Array.from(document.querySelectorAll(".item-dropped"))

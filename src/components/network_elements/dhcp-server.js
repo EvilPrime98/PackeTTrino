@@ -1,3 +1,16 @@
+/**
+ * Creates and returns a DHCP server network element as an `<article>` DOM node.
+ * The element is positioned on the board at `(x, y)`, clipped to board boundaries,
+ * and given a unique id based on the global `itemIndex`. It includes an icon, an ARP
+ * table, a routing table, and advanced-options controls. The element is pre-configured
+ * with a single network interface (`enp0s3`), a random MAC address, an empty virtual
+ * filesystem, IPv4 forwarding disabled, and the `dhcpd` and `iptables` packages
+ * installed.
+ *
+ * @param {number} x - Desired left position in pixels relative to the board.
+ * @param {number} y - Desired top position in pixels relative to the board.
+ * @returns {HTMLElement} The configured DHCP server `<article>` element.
+ */
 function DhcpServerObject(x, y) {
 
     const $networkObject = document.createElement("article");
@@ -39,14 +52,14 @@ function DhcpServerObject(x, y) {
     attr("mac-enp0s3", getRandomMac());
     attr("data-switch-enp0s3", "");
     attr("ipv4-forwarding", "false");
-    attr("filesystem", JSON.stringify(filesystem));  
+    attr("filesystem", JSON.stringify(filesystem));
     attr("ondragstart", "BoardItemDragStart(event)");
     attr("oncontextmenu", "showAdvancedOptions(event)");
     attr("onclick", "showDhcpMenu(event)");
 
     installDhcpd($networkObject);
     installIptables($networkObject);
-      
+
     return $networkObject;
 
 }

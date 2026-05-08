@@ -1,4 +1,9 @@
-const $APACHEDEFAULTCONTENT = `           
+/**
+ * @description Default Apache2 welcome page HTML served when no virtual host content is
+ * configured. Displayed to confirm that the simulated Apache2 server is running correctly.
+ * @type {string}
+ */
+const $APACHEDEFAULTCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -119,22 +124,22 @@ margin-bottom: 12px;
 <div class="page_header floating_element">
 <img src="./assets/favicon.svg" alt="Ubuntu Logo" class="floating_element"/>
 <span class="floating_element">
-Página por Defecto de Apache2 PackeTTrino
+Apache2 PackeTTrino Default Page
 </span>
 </div>
 <div class="content_section floating_element">
 <div class="section_header section_header_red">
 <div id="about"></div>
-¡Funciona!
+It works!
 </div>
 <div class="content_section_text">
 <p>
-Esta es la página de bienvenida predeterminada que se utiliza para comprobar el correcto
-funcionamiento del servidor Apache2 PackeTTrino tras su instalación.
-Está basada en la página equivalente de Debian, de la cual se deriva el paquete de Apache en Ubuntu.
-Si puedes leer esta página, significa que el servidor HTTP Apache PackeTTrino instalado en este sitio está funcionando correctamente.
-Deberías <b>reemplazar este archivo</b> (ubicado en
-<tt>/var/www/html/index.html</tt>) antes de continuar usando tu servidor HTTP.
+This is the default welcome page used to verify that the Apache2 PackeTTrino server is
+working correctly after installation.
+It is based on the equivalent Debian page, from which the Apache package in Ubuntu is derived.
+If you can read this page, the Apache PackeTTrino HTTP server installed at this site is working correctly.
+You should <b>replace this file</b> (located at
+<tt>/var/www/html/index.html</tt>) before continuing to use your HTTP server.
 </p>
 </div>
 </div>
@@ -142,8 +147,13 @@ Deberías <b>reemplazar este archivo</b> (ubicado en
 </body>
 </html>`;
 
+/**
+ * @description Example Apache2 virtual-host configuration template written to the server's
+ * filesystem when the Apache2 package is installed.
+ * @type {string}
+ */
 const $APACHECONFIGCONTENT = `
-#Ejemplo de configuración de Apache
+#Example Apache configuration
 <VirtualHost ip="*" port="80">
    <DocumentRoot value="/var/www/html"/>
    <DirectoryIndex value="index.html"/>
@@ -151,12 +161,17 @@ const $APACHECONFIGCONTENT = `
    <ServerName value=""/>
 </VirtualHost>`;
 
+/**
+ * @description HTML page returned by the simulated Apache2 server when access to the requested
+ * resource is denied (HTTP 403 Forbidden — firewall/access-control rejection).
+ * @type {string}
+ */
 const $APACHEREJECTCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Conexión Rechazada - Acceso Denegado</title>
+<title>Connection Rejected - Access Denied</title>
 <style type="text/css" media="screen">
 :root {
 --primary-color: #dc2626;
@@ -318,39 +333,39 @@ margin-bottom: 12px;
 <div class="page_header floating_element">
 <div class="warning-icon">⚠</div>
 <span class="floating_element">
-Servidor Apache2 PackeTTrino
+Apache2 PackeTTrino Server
 </span>
 </div>
 <div class="content_section floating_element">
 <div class="section_header section_header_red">
 <div id="error"></div>
-Conexión Rechazada
+Connection Rejected
 </div>
 <div class="error-code">
-Error 403 - Acceso Denegado
+Error 403 - Access Denied
 </div>
 <div class="content_section_text">
 <p>
-Lo sentimos, pero tu solicitud de conexión ha sido <b>rechazada</b> por el servidor.
-No tienes permisos suficientes para acceder a este recurso en 
+We're sorry, but your connection request has been <b>rejected</b> by the server.
+You do not have sufficient permissions to access this resource on
 <tt>Apache2 PackeTTrino</tt>.
 </p>
 <p>
-Este mensaje indica que el servidor web está funcionando correctamente, pero el acceso
-a la página o directorio solicitado está <b>restringido</b> por configuración de seguridad.
+This message indicates that the web server is working correctly, but access
+to the requested page or directory is <b>restricted</b> by the security configuration.
 </p>
 <p>
-Si crees que deberías tener acceso a este contenido, por favor contacta con el
-<b>administrador del sistema</b> para verificar los permisos de acceso.
+If you believe you should have access to this content, please contact the
+<b>system administrator</b> to verify your access permissions.
 </p>
 </div>
 
 <div class="recommendations">
-<h3>Posibles causas:</h3>
+<h3>Possible causes:</h3>
 <ul>
-<li>Permisos de archivo o directorio insuficientes</li>
-<li>Configuración de acceso restrictiva en <tt>apache2.conf</tt></li>
-<li>Restricciones de IP o dominio configuradas</li>
+<li>Insufficient file or directory permissions</li>
+<li>Restrictive access configuration in <tt>apache2.conf</tt></li>
+<li>Configured IP or domain restrictions</li>
 </ul>
 </div>
 </div>
@@ -358,12 +373,17 @@ Si crees que deberías tener acceso a este contenido, por favor contacta con el
 </body>
 </html>`;
 
+/**
+ * @description HTML page returned when the requested path is forbidden by Apache2 directory
+ * permissions (HTTP 403 Forbidden — directory-level restriction).
+ * @type {string}
+ */
 const $FORBIDDENCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Conexión Rechazada - Acceso Denegado</title>
+<title>Connection Rejected - Access Denied</title>
 <style type="text/css" media="screen">
 :root {
 --primary-color: #dc2626;
@@ -525,30 +545,30 @@ margin-bottom: 12px;
 <div class="page_header floating_element">
 <div class="warning-icon">⚠</div>
 <span class="floating_element">
-Servidor Apache2 PackeTTrino
+Apache2 PackeTTrino Server
 </span>
 </div>
 <div class="content_section floating_element">
 <div class="section_header section_header_red">
 <div id="error"></div>
-Prohibido
+Forbidden
 </div>
 <div class="error-code">
-No tienes acceso a este recurso.
+You do not have access to this resource.
 </div>
 <div class="content_section_text">
 <p>
-Lo sentimos, pero tu solicitud de conexión ha sido <b>rechazada</b> por el servidor.
-No tienes permisos suficientes para acceder a este recurso en 
+We're sorry, but your connection request has been <b>rejected</b> by the server.
+You do not have sufficient permissions to access this resource on
 <tt>Apache2 PackeTTrino</tt>.
 </p>
 <p>
-Este mensaje indica que el servidor web está funcionando correctamente, pero el acceso
-a la página o directorio solicitado está <b>restringido</b> por configuración de seguridad.
+This message indicates that the web server is working correctly, but access
+to the requested page or directory is <b>restricted</b> by the security configuration.
 </p>
 <p>
-Si crees que deberías tener acceso a este contenido, por favor contacta con el
-<b>administrador del sistema</b> para verificar los permisos de acceso.
+If you believe you should have access to this content, please contact the
+<b>system administrator</b> to verify your access permissions.
 </p>
 </div>
 </div>
@@ -556,12 +576,17 @@ Si crees que deberías tener acceso a este contenido, por favor contacta con el
 </body>
 </html>`;
 
+/**
+ * @description HTML page shown in the simulated browser when the destination device actively
+ * rejects the TCP connection (no HTTP server listening, or port closed — HTTP 503 equivalent).
+ * @type {string}
+ */
 const $DEVICEREJECTIONCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Conexión Rechazada - Servidor No Disponible</title>
+<title>Connection Rejected - Server Unavailable</title>
 <style type="text/css" media="screen">
 :root {
 --primary-color: #dc2626;
@@ -736,32 +761,32 @@ margin-bottom: 0;
 <div class="page_header floating_element">
     <div class="error-icon">✕</div>
     <span class="floating_element">
-        Conexión Rechazada por el Servidor
+        Connection Rejected by Server
     </span>
 </div>
 <div class="content_section floating_element">
     <div class="section_header section_header_red">
         <div id="error"></div>
-        Servicio No Disponible
+        Service Unavailable
     </div>
     <div class="error-code">
-        Error 503 - Servidor Temporalmente No Disponible
+        Error 503 - Server Temporarily Unavailable
     </div>
     <div class="content_section_text">
         <p>
-            El servidor ha <b>rechazado tu conexión</b> en este momento. Esto puede deberse a que
-            el servicio está temporalmente sobrecargado, en mantenimiento, o experimentando
-            dificultades técnicas.
+            The server has <b>rejected your connection</b> at this time. This may be because
+            the service is temporarily overloaded, under maintenance, or experiencing
+            technical difficulties.
         </p>
         <p>
-            Este tipo de error indica que el servidor está <b>funcionando</b> pero no puede
-            procesar tu solicitud en este momento. La situación es generalmente temporal
-            y el servicio debería restablecerse automáticamente.
+            This type of error indicates that the server is <b>running</b> but cannot
+            process your request at this time. The situation is generally temporary
+            and the service should restore automatically.
         </p>
         <p>
-            Te recomendamos <b>intentar nuevamente</b> en unos minutos. Si el problema persiste,
-            es posible que el servidor esté experimentando problemas más serios que requieren
-            intervención técnica.
+            We recommend <b>trying again</b> in a few minutes. If the problem persists,
+            the server may be experiencing more serious issues that require
+            technical intervention.
         </p>
     </div>
 </div>
@@ -769,12 +794,17 @@ margin-bottom: 0;
 </body>
 </html>`;
 
+/**
+ * @description HTML page returned by the simulated Apache2 server when the requested resource
+ * does not exist on the server (HTTP 404 Not Found).
+ * @type {string}
+ */
 const $404ERRORCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Error 404 - No Encontrado</title>
+<title>Error 404 - Not Found</title>
 <style type="text/css" media="screen">
 :root {
 --primary-color:rgb(0, 0, 0);
@@ -937,7 +967,7 @@ margin-bottom: 12px;
 <div class="page_header floating_element">
 <div class="warning-icon">⚠</div>
 <span class="floating_element">
-Servidor Apache2 PackeTTrino
+Apache2 PackeTTrino Server
 </span>
 </div>
 <div class="content_section floating_element">
@@ -946,11 +976,11 @@ Servidor Apache2 PackeTTrino
 Error 404
 </div>
 <div class="error-code">
-El recurso solicitado no se encuentra en este servidor.
+The requested resource was not found on this server.
 </div>
 <div class="content_section_text">
 <p>
-Lo sentimos, pero el recurso solicitado no se encuentra en este servidor.
+We're sorry, but the requested resource was not found on this server.
 <tt>Apache2 PackeTTrino</tt>.
 </p>
 </div>
@@ -959,12 +989,18 @@ Lo sentimos, pero el recurso solicitado no se encuentra en este servidor.
 </body>
 </html>`;
 
+/**
+ * @description Generates an animated loading-screen HTML page shown in the simulated browser
+ * while a connection is being established.
+ * @param {string} site - Hostname or IP address being connected to, displayed in the status line.
+ * @returns {string} Full HTML document string for the loading page.
+ */
 const $LOADERCONTENT = (site) => {
 return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cargando - PackeTTrino</title>
+<title>Loading - PackeTTrino</title>
 <style type="text/css" media="screen">
 :root {
 --primary-color: rgb(59, 130, 246);
@@ -1139,7 +1175,7 @@ font-size: 20px;
 }
 }
 
-/* Animación de pulso para el contenedor principal */
+/* Pulse animation for the main container */
 .main_page {
 animation: pulse-glow 3s ease-in-out infinite;
 }
@@ -1164,15 +1200,15 @@ transform: scale(1.02);
 
             <div class="loader-container">
                 <div class="spinner"></div>
-                <div class="loading-text">Cargando<span class="loading-dots"></span></div>
-                <div class="loading-subtitle">Por favor espere mientras procesamos su solicitud</div>
+                <div class="loading-text">Loading<span class="loading-dots"></span></div>
+                <div class="loading-subtitle">Please wait while we process your request</div>
                 <div class="progress-bar">
                     <div class="progress-fill"></div>
                 </div>
             </div>
 
             <div class="server-info">
-                <strong>Estado:</strong> Conectando a ${site}<br>
+                <strong>Status:</strong> Connecting to ${site}<br>
             </div>
 
         </div>
@@ -1183,12 +1219,19 @@ transform: scale(1.02);
 
 </html>`};
 
+/**
+ * @description Generates an Apache-style directory listing HTML page when `Options Indexes` is
+ * enabled and no index file is found at the requested path.
+ * @param {string} documentRoot - Absolute path of the document root being listed (e.g. "/var/www/html").
+ * @param {string[]} directoryIndexFiles - Array of filenames to display in the directory listing.
+ * @returns {string} Full HTML document string for the directory index page.
+ */
 const $DIRECTORYINDEXCONTENT = (documentRoot, directoryIndexFiles) => {
 return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>Índice del Directorio</title>
+        <title>Directory Index</title>
         <style type="text/css" media="screen">
             :root {
                 --primary-color: #2563eb;
@@ -1427,7 +1470,7 @@ return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://w
             <div class="page_header floating_element">
                 <div class="directory-icon">📁</div>
                 <span class="floating_element">
-                    Índice del Directorio
+                    Directory Index
                 </span>
             </div>
             <div class="content_section floating_element">

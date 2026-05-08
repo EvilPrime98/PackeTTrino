@@ -1,3 +1,17 @@
+/**
+ * Handles a browser address-bar search, performs the HTTP request, and renders the response.
+ *
+ * Reads the URL from the `.address-input` field of the active browser component, parses the
+ * protocol, address, port, and resource, then dispatches the appropriate request function
+ * (`http` or `ptt`). The response body is rendered into the browser's iframe-like content area.
+ * For the `ptt` protocol the content is first shown via a loader overlay before the real src is set.
+ *
+ * Port numbers 80 and 443 are hidden from the displayed address bar.
+ * The terminal is minimised during the request when visual animations are enabled.
+ * On any error the browser displays the global error page (`$BROWSERERRORPAGE`).
+ *
+ * @returns {Promise<void>}
+ */
 async function browserSearch() {
 
     const $networkObject = document.getElementById(document.querySelector(".browser-component").getAttribute("data-id"));
@@ -8,15 +22,15 @@ async function browserSearch() {
     if (visualToggle) await minimizeBrowser();
 
         try {
-            
+
             $browserContent.removeAttribute("src");
 
-            //variables y mapas
+            //variables and maps
 
             const search = parseSearch($addressInput.value.trim());
 
             const portsToHide = [80, 443];
-            
+
             const requestFunctions = {
                 "http": async () => {
                     return http($networkObject.id, {
@@ -49,7 +63,7 @@ async function browserSearch() {
                 }
             }
 
-            //actualizamos la barra de direcciones
+            //update the address bar
 
             $browser.querySelector(".address-input").value = [
                 `${search.protocol}://${search.address}`,
@@ -57,7 +71,7 @@ async function browserSearch() {
                 `/${search.resource}`
             ].join('');
 
-            //realizamos la solicitud
+            //perform the request
 
             const httpReply = await requestFunctions[search.protocol]();
             replyFunctions[search.protocol](httpReply);

@@ -1,16 +1,26 @@
-/**ESTE COMANDO CONFIGURA INTERFACES A PARTIR DEL ARCHIVO INTERFACES */
+/**
+ * Handles the `ifup` terminal command to configure network interfaces from `/etc/network/interfaces`.
+ *
+ * Reads the interfaces configuration file from the network object's virtual filesystem and
+ * delegates to `interfacesFileInterpreter`. The special argument `-a` configures all interfaces
+ * defined in the file; otherwise the named interface is configured.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object running the command.
+ * @param {string} interfaceInput - Interface name to bring up, or "-a" to bring up all interfaces.
+ * @returns {Promise<void>}
+ */
 async function command_ifup(networkObjectId, interfaceInput)  {
 
-    if (!interfaceInput) terminalMessage("Error: no se especificó una interfaz", networkObjectId);
-    if (interfaceInput !== "-a" && !getInterfaces(networkObjectId).includes(interfaceInput)) terminalMessage(`Error: no se reconoce la interfaz ${interfaceInput}`, networkObjectId);
+    if (!interfaceInput) terminalMessage("Error: no interface was specified", networkObjectId);
+    if (interfaceInput !== "-a" && !getInterfaces(networkObjectId).includes(interfaceInput)) terminalMessage(`Error: interface ${interfaceInput} is not recognized`, networkObjectId);
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkElementFileSystem = new FileSystem($networkObject);
-    let directoryPath = pathBuilder("/etc/network/interfaces");
-    let fileName = directoryPath.pop();
+    const directoryPath = pathBuilder("/etc/network/interfaces");
+    const fileName = directoryPath.pop();
 
     try {
-        let interfacesContent = networkElementFileSystem.read(fileName, directoryPath); 
+        const interfacesContent = networkElementFileSystem.read(fileName, directoryPath);
         await interfacesFileInterpreter(networkObjectId, interfacesContent, interfaceInput);
     } catch (e) {
         terminalMessage(`ifup: ${e.message}`, networkObjectId);
@@ -18,16 +28,26 @@ async function command_ifup(networkObjectId, interfaceInput)  {
 
 }
 
-/**ESTE COMANDO DESCONFIGURA INTERFACES (OJO, NO USA EL ARCHIVO INTERFACES)*/
+/**
+ * Handles the `ifdown` terminal command to deconfigure network interfaces.
+ *
+ * Iterates over all interfaces matching `interfaceInput` (or all interfaces when `-a` is used).
+ * If the dhclient service is active and the interface has an IP, sends a DHCP release first.
+ * Otherwise calls `deconfigureInterface` to remove IP and routing rules directly.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object running the command.
+ * @param {string} interfaceInput - Interface name to take down, or "-a" to take down all interfaces.
+ * @returns {void}
+ */
 function command_ifdown(networkObjectId, interfaceInput)  {
 
-    if (!interfaceInput) terminalMessage("Error: no se especificó una interfaz", networkObjectId);
-    
+    if (!interfaceInput) terminalMessage("Error: no interface was specified", networkObjectId);
+
     const $networkObject = document.getElementById(networkObjectId);
     const availableInterfaces = getInterfaces(networkObjectId);
 
     if (interfaceInput !== "-a" && !getInterfaces(networkObjectId).includes(interfaceInput)) {
-        terminalMessage(`Error: no se reconoce la interfaz ${interfaceInput}`, networkObjectId);
+        terminalMessage(`Error: interface ${interfaceInput} is not recognized`, networkObjectId);
     }
 
     availableInterfaces.forEach(availableInterface => {
@@ -41,7 +61,7 @@ function command_ifdown(networkObjectId, interfaceInput)  {
             }
 
             deconfigureInterface(networkObjectId, availableInterface);
-          
+
         }
 
     });

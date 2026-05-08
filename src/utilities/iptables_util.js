@@ -1,14 +1,32 @@
+/**
+ * Handles the `iptables` terminal command to manage firewall rules on a network object.
+ *
+ * Supports the following operations:
+ * - `-S`: prints current default policies and all firewall rules.
+ * - `-P <chain> <policy>`: sets the default policy for a chain.
+ * - `-F [chain]`: clears all rules in a chain (or all chains).
+ * - `-D <rule-number>`: deletes a specific rule by its index.
+ * - Any other combination: parses `-t`, `-A`, `-p`, `-i`, `-o`, `-s`, `-d`,
+ *   `--sport`, `--dport`, `-j`, `--to-destination`, `--to-source` into an
+ *   `iptablesRule` object, validates it, and appends it.
+ *
+ * Validation and rule-addition errors are caught and printed to the terminal.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object running the command.
+ * @param {Array<string>} args - Tokenised command arguments. First element is "iptables".
+ * @returns {void}
+ */
 function command_Iptables(networkObjectId, args) {
 
     if (args[1] === "-S") {
-        let defaultPolicies = getFirewallDefaultPolicy(networkObjectId);
-        let firewallRules = getFirewallTable(networkObjectId);
-        for (let policy in defaultPolicies) terminalMessage(`-P ${policy} ${defaultPolicies[policy]}`, networkObjectId);
+        const defaultPolicies = getFirewallDefaultPolicy(networkObjectId);
+        const firewallRules = getFirewallTable(networkObjectId);
+        for (const policy in defaultPolicies) terminalMessage(`-P ${policy} ${defaultPolicies[policy]}`, networkObjectId);
         firewallRules.forEach(rule => terminalMessage(rule.replace(/_/g, "-"), networkObjectId));
         return;
     }
 
-    if (args[1] === "-P") { 
+    if (args[1] === "-P") {
 
         try {
             setFirewallDefaultPolicy(networkObjectId, args[2], args[3]);
@@ -26,28 +44,28 @@ function command_Iptables(networkObjectId, args) {
 
     if (args[1] === "-D") {
         deleteFirewallRule(networkObjectId, args[2]);
-        terminalMessage("Se ha eliminado la regla correctamente.", networkObjectId);
+        terminalMessage("The rule has been successfully deleted.", networkObjectId);
         return;
     }
 
-    let rule = new iptablesRule();
+    const rule = new iptablesRule();
 
-    let $OPTS = catchopts([
-        "-t:", //tabla
-        "-A:", //cadena
+    const $OPTS = catchopts([
+        "-t:", //table
+        "-A:", //chain
         "-p:", //protocol
-        "-i:", //interfaz de entrada
-        "-o:", //interfaz de salida
-        "-s:", //ip de origen
-        "-d:", //ip de destino
-        "--sport:", //puerto de origen
-        "--dport:", //puerto de destino
-        "-j:", //salto
-        "--to-destination:", //salto a ip destino
-        "--to-source:"], //salto a ip origen
+        "-i:", //input interface
+        "-o:", //output interface
+        "-s:", //source ip
+        "-d:", //destination ip
+        "--sport:", //source port
+        "--dport:", //destination port
+        "-j:", //jump
+        "--to-destination:", //jump to destination ip
+        "--to-source:"], //jump to source ip
     args);
 
-    let optionHandlers = {
+    const optionHandlers = {
         "-t": () => rule.t = $OPTS["-t"],
         "-A": () => rule.A = $OPTS["-A"],
         "-p": () => rule.p = $OPTS["-p"],
@@ -61,7 +79,7 @@ function command_Iptables(networkObjectId, args) {
         "--to-destination": () => rule.to__destination = $OPTS["--to-destination"],
         "--to-source": () => rule.to__source = $OPTS["--to-source"]
     }
-   
+
     for (option in $OPTS) if (optionHandlers[option]) optionHandlers[option]();
 
     try {

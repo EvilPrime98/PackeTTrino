@@ -1,84 +1,96 @@
-/**ESTA FUNCIOÓN DEVUELVE LA TABLA DE ARP DE UN OBJETO DE RED COMO ARRAY DE ARRAYS*/
+/**
+ * @description Returns the ARP table of a network object as a 2-D array of strings.
+ * The first row contains headers; subsequent rows contain [ip, mac] pairs.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {string[][]} Matrix where each inner array represents one table row's cell values.
+ */
 function getARPTable(networkObjectId) {
-
-    let tabla = document.getElementById(networkObjectId).querySelector(".arp-table").querySelector("table");
-    let matriz = [];
-
-    for (let fila of tabla.rows) {
-        let filaArray = [];
-        for (let celda of fila.cells) {
-            filaArray.push(celda.innerText.trim());
+    const $table = document.querySelector(`#${networkObjectId} .arp-table table`);
+    if (!$table) return [];
+    const matrix = [];
+    for (const $row of $table.rows) {
+        const $rowArray = [];
+        for (const $cell of $row.cells) {
+            $rowArray.push($cell.innerText.trim());
         }
-        matriz.push(filaArray);
+        matrix.push($rowArray);
     }
-
-    return matriz;
-
+    return matrix;
 }
 
-/**ESTA FUNCIÓN AÑADE UNA ENTRADA A LA TABLA DE ARP DE UN OBJETO DE RED*/
+/**
+ * @description Adds or updates an ARP entry in the ARP table of the given network object.
+ * If the IP already exists, its MAC is updated. Otherwise a new row is appended and a TTL
+ * timer is started that will automatically delete the entry after `$ARPENTRYTTL` seconds.
+ * @param {string} networkObjectId - DOM id of the network object whose ARP table to modify.
+ * @param {string} ip - IP address to register.
+ * @param {string} mac - MAC address associated with the IP.
+ * @returns {void}
+ */
 function addARPEntry(networkObjectId, ip, mac) {
 
-    const $arpTable = document.getElementById(networkObjectId).querySelector(".arp-table").querySelector("table");
+    const $arpTable = document.querySelector(`#${networkObjectId} .arp-table table`);
     const $records = $arpTable.querySelectorAll("tr");
     let found = false;
 
     for (let i = 1; i < $records.length; i++) {
-
-        const $record = $records[i]; 
+        const $record = $records[i];
         const $fields = $record.querySelectorAll("td");
         const $recordIp = $fields[0];
         const $recordMac = $fields[1];
-
         if ($recordIp.innerText.trim() === ip) {
             $recordMac.innerText = mac;
             found = true;
             break;
         }
-
     }
 
     if (!found) {
-        
         const newRow = $arpTable.insertRow();
         newRow.insertCell().innerText = ip;
         newRow.insertCell().innerText = mac;
-        
-        console.log(`Se ha añadido el registro ARP de ${ip} a ${networkObjectId} durante ${$ARPENTRYTTL * 1000} MS`);
-        
-        arpEntryTimers[`${networkObjectId}-${ip}`] = setTimeout(() => { 
-            console.log(`Se ha agotado el registro ARP de ${ip} IN ${networkObjectId}`);
+        console.log(`ARP entry for ${ip} added to ${networkObjectId} for ${$ARPENTRYTTL * 1000} ms`);
+        arpEntryTimers[`${networkObjectId}-${ip}`] = setTimeout(() => {
+            console.log(`ARP entry for ${ip} in ${networkObjectId} has expired`);
             delARPEntry(networkObjectId, ip);
         }, $ARPENTRYTTL * 1000);
-
     }
 
 }
 
-/**ESTA FUNCIÓN ELIMINA UNA ENTRADA DE LA TABLA DE ARP DE UN OBJETO DE RED*/
+/**
+ * @description Removes the ARP entry for the given IP from the ARP table of the network object
+ * and cancels its associated TTL timer.
+ * @param {string} networkObjectId - DOM id of the network object whose ARP table to modify.
+ * @param {string} ip - IP address of the entry to remove.
+ * @returns {void}
+ */
 function delARPEntry(networkObjectId, ip) {
 
-    const $arpTable = document.getElementById(networkObjectId).querySelector(".arp-table").querySelector("table");
+    const $arpTable = document.querySelector(`#${networkObjectId} .arp-table table`);
     const $records = $arpTable.querySelectorAll("tr");
 
     for (let i = 1; i < $records.length; i++) {
-
         const $record = $records[i];
         const $fields = $record.querySelectorAll("td");
         const recordIp = $fields[0].innerText.trim();
-
         if (recordIp === ip) {
             clearTimeout(arpEntryTimers[`${networkObjectId}-${ip}`]);
             delete arpEntryTimers[`${networkObjectId}-${ip}`];
             $record.remove();
             break;
         }
-
     }
 
 }
 
-/**ESTA FUNCIÓN DEVUELVE LA DIRECCIÓN MAC DE UNA IP EN LA TABLA DE ARP DE UN OBJETO DE RED*/
+/**
+ * @description Looks up an IP address in the ARP table of a network object and returns its
+ * associated MAC address, or `false` if the IP is not found.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @param {string} ipAddress - IP address to look up.
+ * @returns {string|false} The MAC address string if found, otherwise `false`.
+ */
 function isIpInARPTable(networkObjectId, ipAddress) {
 
     const arpTable = getARPTable(networkObjectId);
@@ -97,17 +109,26 @@ function isIpInARPTable(networkObjectId, ipAddress) {
 
 }
 
-/**ESTA FUNCIÓN DEVUELVE EL HTML DE LA TABLA DE ARP DE UN OBJETO DE RED*/
+/**
+ * @description Returns the outer HTML of the ARP table element for the given network object.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {string} The `outerHTML` string of the ARP `<table>` element.
+ */
 function getcurrentARPTable(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
-    return $networkObject.querySelector(".arp-table").querySelector("table").outerHTML;
+    return $networkObject.querySelector(".arp-table table").outerHTML;
 }
 
-/**ESTA FUNCIÓN ELIMINA TODAS LAS ENTRADAS DE LA TABLA DE ARP DE UN OBJETO DE RED*/
+/**
+ * @description Removes all entries from the ARP table of the given network object and cancels
+ * all associated TTL timers.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {void}
+ */
 function clearARPTable(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
-    const $arpTable = $networkObject.querySelector(".arp-table").querySelector("table");
+    const $arpTable = $networkObject.querySelector(".arp-table table");
     const $entries = $arpTable.querySelectorAll("tr");
 
     for (let i = 1; i < $entries.length; i++) {
@@ -118,5 +139,5 @@ function clearARPTable(networkObjectId) {
         delete arpEntryTimers[`${networkObjectId}-${entryIp}`];
         $entries[i].remove();
     }
-    
+
 }

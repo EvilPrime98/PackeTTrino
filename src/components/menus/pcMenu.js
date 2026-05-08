@@ -1,3 +1,25 @@
+/**
+ * Builds and returns the PC network configuration form.
+ *
+ * The form exposes:
+ * - **basic-section**: interface selector, IPv4 address, netmask, gateway, and
+ *   DNS server inputs.
+ * - **modes-wrapper**: DHCP mode toggle (`#dhcp-toggle`) and an optionally
+ *   visible web-server toggle (`#web-server-mode`).
+ * - **button-container**: DHCP action buttons (Get/Renew/Release) and
+ *   basic Save/Close buttons — visibility is managed dynamically.
+ *
+ * Event listeners wired up:
+ * - `submit` → `pcMenuButtonsHandler`
+ * - `#dhcp-toggle` change → `dhcpToggleHandler`
+ * - `#web-server-toggle` change → `webServerHandler`
+ * - `.window-frame` mousedown → `dragModal`
+ * - `#iface` change → `interfaceHandler(..., "pc-form")` and `loadDhcpMenuConf`
+ *
+ * The form is initially hidden via the "hidden" CSS class.
+ *
+ * @returns {HTMLFormElement} The assembled PC configuration form element.
+ */
 function pc_menu() {
 
     const $menu = document.createElement("form");
@@ -13,27 +35,27 @@ function pc_menu() {
         <section class="basic-section">
 
             <div class="form-item">
-                <label for="iface">Interfaz:</label>
+                <label for="iface">Interface:</label>
                 <select id="iface" name="iface"></select>
             </div>
 
             <div class="form-item">
-                <label for="ip">Dirección IP (ipv4):</label>
+                <label for="ip">IP Address (IPv4):</label>
                 <input type="text" id="ip" name="ip">
             </div>
 
             <div class="form-item">
-                <label for="netmask">Máscara de Red:</label>
+                <label for="netmask">Netmask:</label>
                 <input type="text" id="netmask" name="netmask">
             </div>
 
             <div class="form-item">
-                <label for="gateway">Puerta de enlace:</label>
+                <label for="gateway">Gateway:</label>
                 <input type="text" id="gateway" name="gateway">
             </div>
-    
+
             <div class="form-item">
-                <label for="dns-server">Servidores DNS:</label>
+                <label for="dns-server">DNS Servers:</label>
                 <input type="text" id="dns-server" name="dns-server">
             </div>
 
@@ -42,12 +64,12 @@ function pc_menu() {
         <section class="modes-wrapper">
 
             <div class="form-item" id="dhcp-mode">
-                <label for="dhcp-toggle"> Modo DHCP: </label>
+                <label for="dhcp-toggle"> DHCP Mode: </label>
                 <input class="btn-toggle" type="checkbox" id="dhcp-toggle" name="dhcp-toggle">
             </div>
 
             <div class="form-item hidden" id="web-server-mode">
-                <label for="web-server-toggle"> Servidor Web: </label>
+                <label for="web-server-toggle"> Web Server: </label>
                 <input class="btn-toggle" type="checkbox" id="web-server-toggle" name="web-server-toggle">
             </div>
 
@@ -56,21 +78,21 @@ function pc_menu() {
         <section class="button-container">
 
             <div id="dhcp-buttons">
-                <button class="btn-modern-blue" type="submit" id="get-btn">Obtener IP</button>
-                <button class="btn-modern-blue" type="submit" id="renew-btn">Renovar IP</button>
-                <button class="btn-modern-blue" type="submit" id="release-btn">Liberar IP</button>
+                <button class="btn-modern-blue" type="submit" id="get-btn">Get IP</button>
+                <button class="btn-modern-blue" type="submit" id="renew-btn">Renew IP</button>
+                <button class="btn-modern-blue" type="submit" id="release-btn">Release IP</button>
             </div>
-            
+
             <div id="basic-buttons">
-                <button class="btn-modern-blue" type="submit" id="save-btn">Guardar</button>
-                <button class="btn-modern-red"  type="submit" id="close-btn">Cerrar</button>
+                <button class="btn-modern-blue" type="submit" id="save-btn">Save</button>
+                <button class="btn-modern-red"  type="submit" id="close-btn">Close</button>
             </div>
 
         </section>
 
     `;
 
-    $menu.addEventListener("submit", pcMenuButtonsHandler);   
+    $menu.addEventListener("submit", pcMenuButtonsHandler);
     $menu.querySelector("#dhcp-toggle").addEventListener("change", dhcpToggleHandler);
     $menu.querySelector("#web-server-toggle").addEventListener("change", webServerHandler);
     $menu.querySelector(".window-frame").addEventListener("mousedown", dragModal);
@@ -81,6 +103,18 @@ function pc_menu() {
 
 }
 
+/**
+ * Opens the PC configuration form for the given network device and populates
+ * its fields with the device's current attributes.
+ *
+ * - If `quickPingToggle` is active, performs a quick ping instead and returns.
+ * - Calls `loadDhcpMenuConf` if the `dhclient` service is active on the device.
+ * - Reveals `#web-server-mode` and sets the web-server toggle if `apache2` is
+ *   listed as an available service.
+ *
+ * @param {string} networkObjectId - The DOM id of the PC network device element.
+ * @returns {void}
+ */
 function showPcMenu(networkObjectId) {
 
     if (quickPingToggle) {
@@ -95,12 +129,12 @@ function showPcMenu(networkObjectId) {
     const $textInputs = $menu.querySelectorAll("input[type='text']");
     const $buttonSection = $menu.querySelector(".button-container");
     const activeServices = getAvailableServices(networkObjectId);
-    
-    //cargamos las interfaces disponibles
+
+    //load available interfaces
 
     loadInterfaces("pc-form");
 
-    //configuracion basica de red
+    //basic network configuration
 
     $menu.querySelector(".frame-title").innerHTML = networkObjectId;
     $menu.querySelector("#ip").value = $networkObject.getAttribute(`ip-${iface}`);
@@ -108,7 +142,7 @@ function showPcMenu(networkObjectId) {
     $menu.querySelector("#gateway").value = getDefaultGateway($networkObject.id);
     $menu.querySelector("#dns-server").value = (getDnsServers(networkObjectId) ?? "").join(",");
 
-    //comprobamos los servicios activos
+    //check active services
 
     if (activeServices.includes("dhclient")) loadDhcpMenuConf();
 
@@ -117,10 +151,33 @@ function showPcMenu(networkObjectId) {
         if ($networkObject.getAttribute("apache2") === "true") $menu.querySelector("#web-server-toggle").checked = true;
     }
 
-    //mostramos el menú
+    //display the menu
     $menu.classList.remove("hidden");
 }
 
+/**
+ * Unified submit handler for all buttons in the PC form.
+ * Dispatches to the appropriate action based on `event.submitter.id`.
+ *
+ * Available actions:
+ * - **save-btn**: Validates form fields (unless all are empty), calls
+ *   `configureInterface`, `setDefaultGateway`, and `setDnsServers`, then
+ *   renders a success popup.
+ * - **get-btn**: Closes the form if visual mode is active, then calls
+ *   `dhcpDiscoverHandler`.
+ * - **renew-btn**: Closes the form if visual mode is active, then calls
+ *   `dhcpRenewHandler` with `"T1"`.
+ * - **release-btn**: Closes the form if visual mode is active, then calls
+ *   `dhcpReleaseHandler`.
+ * - **close-btn**: Resets and hides the form.
+ *
+ * After any action other than close, refreshes the displayed IP fields and
+ * reloads the DHCP button state.
+ *
+ * @async
+ * @param {Event} event - The form submit event.
+ * @returns {Promise<void>}
+ */
 async function pcMenuButtonsHandler(event) {
 
     event.preventDefault();
@@ -139,15 +196,25 @@ async function pcMenuButtonsHandler(event) {
     const newDnsServers = ($menu.querySelector("#dns-server").value).split(",").map(ip => ip.trim()).filter(ip => ip !== "");
     const isEmptyForm = newIp === "" && newNetmask === "" && newGateway === "" && newDnsServers.length === 0;
 
-    //funciones del menú
+    //menu functions
 
+    /**
+     * Validates IP, netmask, gateway, and DNS server fields.
+     * @throws {Error} If any field contains an invalid IPv4 value.
+     * @returns {void}
+     */
     const validateForm = () => {
-        if (!isValidIp(newIp)) throw new Error(`Error: La IP "${newIp}" no es valida.`);
-        if (!isValidIp(newNetmask)) throw new Error(`Error: La máscara de red "${newNetmask}" no es valida.`);
-        if (newGateway !== "" && !isValidIp(newGateway)) throw new Error(`Error: La puerta de enlace "${newGateway}" no es valida.`);
-        if (newDnsServers.length !== 0 && !newDnsServers.every(isValidIp)) throw new Error(`Error: Servidores DNS no válidos.`);
+        if (!isValidIp(newIp)) throw new Error(`Error: IP "${newIp}" is not valid.`);
+        if (!isValidIp(newNetmask)) throw new Error(`Error: Netmask "${newNetmask}" is not valid.`);
+        if (newGateway !== "" && !isValidIp(newGateway)) throw new Error(`Error: Gateway "${newGateway}" is not valid.`);
+        if (newDnsServers.length !== 0 && !newDnsServers.every(isValidIp)) throw new Error(`Error: Invalid DNS servers.`);
     }
 
+    /**
+     * Refreshes the form's IP/netmask/gateway/DNS fields from the device's
+     * current DOM attributes after a configuration change.
+     * @returns {void}
+     */
     const updatePcFormFields = () => {
         $menu.querySelector("#ip").value = $networkObject.getAttribute(`ip-${networkInterface}`);
         $menu.querySelector("#netmask").value = $networkObject.getAttribute(`netmask-${networkInterface}`);
@@ -155,6 +222,11 @@ async function pcMenuButtonsHandler(event) {
         $menu.querySelector("#dns-server").value = (getDnsServers($networkObject.id) ?? "").join(",");
     }
 
+    /**
+     * Resets the form to its initial empty/hidden state, clearing all inputs,
+     * checkboxes, and button visibility.
+     * @returns {void}
+     */
     const restorePcForm = () => {
         const $textInputs = $menu.querySelectorAll("input[type='text']");
         const $checkBoxes = $menu.querySelectorAll("input[type='checkbox']");
@@ -163,7 +235,7 @@ async function pcMenuButtonsHandler(event) {
         $buttons.forEach(button => button.classList.add("hidden"));
         $basicButtons.forEach(button => button.classList.remove("hidden"));
         $checkBoxes.forEach(input => input.checked = false);
-        $textInputs.forEach(input => input.disabled = false); 
+        $textInputs.forEach(input => input.disabled = false);
         $menu.classList.add("hidden");
     }
 
@@ -174,7 +246,7 @@ async function pcMenuButtonsHandler(event) {
             configureInterface($networkObject.id, newIp, newNetmask, networkInterface);
             setDefaultGateway($networkObject.id, newGateway);
             setDnsServers($networkObject.id, newDnsServers);
-            bodyComponent.render(popupMessage("Los cambios se han aplicado correctamente."));
+            bodyComponent.render(popupMessage("Changes have been applied successfully."));
         },
 
         "get-btn": async () => {
@@ -193,8 +265,8 @@ async function pcMenuButtonsHandler(event) {
         }
 
     }
-    
-    //ejecutamos la función correspondiente
+
+    //execute the corresponding function
 
     try {
         if (buttonId in buttonFunctions) await buttonFunctions[buttonId]();
@@ -214,6 +286,13 @@ async function pcMenuButtonsHandler(event) {
 
 }
 
+/**
+ * Handles the DHCP mode toggle change in the PC form.
+ * Updates the `data-dhclient-<iface>` attribute on the device element and
+ * reloads the DHCP button configuration via `loadDhcpMenuConf`.
+ *
+ * @returns {void}
+ */
 function dhcpToggleHandler() {
     const $menu = document.querySelector(".pc-form");
     const iface = $menu.querySelector("#iface").value;
@@ -223,6 +302,14 @@ function dhcpToggleHandler() {
     loadDhcpMenuConf();
 }
 
+/**
+ * Handles the web server toggle change in the PC form.
+ * Sets the `apache2` attribute on the device element and swaps the device icon
+ * between the standard PC icon and the web-server icon.
+ *
+ * @param {Event} event - The change event fired by the web-server-toggle checkbox.
+ * @returns {void}
+ */
 function webServerHandler(event) {
 
     const $webServerToggle = event.target;
@@ -240,6 +327,21 @@ function webServerHandler(event) {
 
 }
 
+/**
+ * Synchronises the PC form's DHCP section with the current DHCP client state
+ * for the selected interface.
+ *
+ * Logic:
+ * - Always shows `#dhcp-mode`.
+ * - If DHCP client is **disabled** for the interface: hides DHCP buttons,
+ *   enables text inputs, and unchecks the toggle.
+ * - If DHCP client is **enabled**: checks the toggle, shows DHCP buttons,
+ *   and disables text inputs (IP is managed by the server).
+ *   - If the interface already has an IP: shows Renew and Release, hides Get.
+ *   - If no IP yet: shows Get, hides Renew and Release.
+ *
+ * @returns {void}
+ */
 function loadDhcpMenuConf() {
 
     const $menu = document.querySelector(".pc-form");
@@ -249,11 +351,11 @@ function loadDhcpMenuConf() {
     const $inputFields = $menu.querySelectorAll("input[type='text']");
     const iface = $menu.querySelector("#iface").value;
 
-    //mostramos el modo dhcp
+    //show dhcp mode
 
     $menu.querySelector("#dhcp-mode").classList.remove("hidden");
-    
-    //el dhcp client no está habilitado para esa interfaz
+
+    //the DHCP client is not enabled for that interface
 
     if ($networkObject.getAttribute(`data-dhclient-${iface}`) !== "true") {
         $dhcpButtons.classList.add("hidden");
@@ -262,13 +364,13 @@ function loadDhcpMenuConf() {
         return;
     }
 
-    //mostramos los botones
+    //show the buttons
 
     $dhcpToggle.checked = true;
     $dhcpButtons.classList.remove("hidden");
     $inputFields.forEach(input => input.disabled = true);
 
-    //si tiene una ip asignada, se muestran los botones de renovación y liberación
+    //if an IP is assigned, show the renewal and release buttons
 
     if ($networkObject.getAttribute(`ip-${iface}`) !== "") {
         $dhcpButtons.querySelector("#renew-btn").classList.remove("hidden");
@@ -277,7 +379,7 @@ function loadDhcpMenuConf() {
         return;
     }
 
-    //si no tiene una ip asignada, se muestran los botones de obtención
+    //if no IP is assigned, show the get button
 
     $dhcpButtons.querySelector("#get-btn").classList.remove("hidden");
     $dhcpButtons.querySelector("#renew-btn").classList.add("hidden");

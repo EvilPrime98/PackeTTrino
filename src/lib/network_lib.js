@@ -1,115 +1,158 @@
-/**ESTA FUNCION GENERA UNA DIRECCION MAC ALEATORIA */
+/**
+ * @description Generates a random 48-bit MAC address in colon-separated hexadecimal notation.
+ * @returns {string} MAC address string (e.g. "a1:b2:c3:d4:e5:f6").
+ */
 function getRandomMac() {
-    //genero los 48 bits aleatorios
+    //generate the random 48 bits
     let macString = "";
     for (let i = 1; i <= 48; i++) {
         macString += Math.floor(Math.random() * 2);
     }
-    //separamos los bloques de 8 bits
-    let macBlocks = macString.match(/.{1,8}/g) || [];
-    //transformamos cada bloque en hexadecimal
+    //split into 8-bit blocks
+    const macBlocks = macString.match(/.{1,8}/g) || [];
+    //convert each block to hexadecimal
     for (let i = 0; i < macBlocks.length; i++) {
         macBlocks[i] = (parseInt(macBlocks[i], 2).toString(16)).padStart(2, '0');
     }
-    //unimos los bloques en una cadena
-    let mac = macBlocks.join(':');
+    //join the blocks into a string
+    const mac = macBlocks.join(':');
     return mac;
 }
 
-/**ESTA FUNCION DEVUELVE UNA DIRECCION IP A PARTIR DE UN IP Y UN NETMASK */
+/**
+ * @description Computes the network address for a given IP and subnet mask by applying a
+ * bitwise AND between corresponding octets.
+ * @param {string} ip - IPv4 address in dotted-decimal notation.
+ * @param {string} netmask - Subnet mask in dotted-decimal notation.
+ * @returns {string} Network address in dotted-decimal notation.
+ */
 function getNetwork(ip, netmask) {
 
-    ip = ip.split('.'); //separamos cada octeto de la ip
-    netmask = netmask.split('.'); //separamos cada octeto de la netmask
-    let network = [];
+    ip = ip.split('.'); //split each IP octet
+    netmask = netmask.split('.'); //split each netmask octet
+    const network = [];
     for (let i = 0; i < 4; i++) {
-        network[i] = ip[i] & netmask[i]; //aplicamos el AND entre cada octeto de la ip y la netmask
+        network[i] = ip[i] & netmask[i]; //apply AND between each IP and netmask octet
     }
-    return network.join('.'); //juntamos los resultados 
+    return network.join('.'); //join the results
 }
 
-/**ESTA FUNCION DEVUELVE LA DIRECCION IP DE BROADCAST DE UN IP Y UN NETMASK */
-
+/**
+ * @description Computes the broadcast address for a given IP and subnet mask.
+ * @param {string} ip - IPv4 address in dotted-decimal notation.
+ * @param {string} netmask - Subnet mask in dotted-decimal notation.
+ * @returns {string} Broadcast address in dotted-decimal notation.
+ */
 function getBroadcast(ip, netmask) {
     return binaryToIp((ipToBinary(ip)).slice(0, ipToBinary(netmask).split("0")[0].length).padEnd(32, "1"))
 }
 
-/**ESTA FUNCION TRANSFORMA UNA IP(DECIMAL) A IP(BINARIO) */
+/**
+ * @description Converts a dotted-decimal IPv4 address to a 32-character binary string.
+ * @param {string} ip - IPv4 address in dotted-decimal notation.
+ * @returns {string} 32-character binary string (e.g. "11000000101010000000000000000001").
+ */
 function ipToBinary(ip) {
 
-    let blocks = ip.split(".");
-    let blocksBinary = [];
+    const blocks = ip.split(".");
+    const blocksBinary = [];
 
     for (let i = 0; i < blocks.length; i++) {
         blocksBinary[i] = parseInt(blocks[i]).toString(2).padStart(8, "0");
     }
 
-    let ipBinary = blocksBinary.join('')
+    const ipBinary = blocksBinary.join('')
 
     return ipBinary
 }
 
-/**ESTA FUNCION TRANSFORMA UNA IP(BINARIO) A IP(DECIMAL) */
+/**
+ * @description Converts a 32-character binary string to a dotted-decimal IPv4 address.
+ * @param {string} binary - 32-character binary string.
+ * @returns {string} IPv4 address in dotted-decimal notation.
+ */
 function binaryToIp(binary) {
 
-    let blocks = binary.match(/.{8}/g);
-    let blocksIp = [];
+    const blocks = binary.match(/.{8}/g);
+    const blocksIp = [];
 
     for (let i = 0; i < blocks.length; i++) {
         blocksIp[i] = parseInt(blocks[i], 2).toString(10)
     }
 
-    let ip = blocksIp.join(".")
+    const ip = blocksIp.join(".")
 
     return ip
 }
 
-/**ESTA FUNCION TRANSFORMA UNA MASCARA A SU NOTACION CIDR SIN '/' */
+/**
+ * @description Converts a dotted-decimal subnet mask to its CIDR prefix length (without the "/").
+ * @param {string} netmask - Subnet mask in dotted-decimal notation (e.g. "255.255.255.0").
+ * @returns {number} CIDR prefix length (e.g. 24).
+ */
 function netmaskToCidr(netmask) {
 
-    let octets = netmask.split("."); //separamos por octetos
+    const octets = netmask.split("."); //split into octets
 
     for (let i = 0; i < octets.length; i++) {
         octets[i] = parseInt(octets[i]).toString(2).padStart(8, "0");
     }
 
-    let cidr = octets.join("").split("0")[0].length;
+    const cidr = octets.join("").split("0")[0].length;
 
     return cidr;
 
 }
 
-/**ESTA FUNCION DEVUELVE UNA IP Y NETMASK A PARTIR DE UNA DIRECCION IP EN NOTACION CIDR */
+/**
+ * @description Parses a CIDR notation string (e.g. "192.168.0.0/24") and returns the base IP
+ * address and the corresponding subnet mask in dotted-decimal notation.
+ * @param {string} cidr - IP address with CIDR prefix (e.g. "192.168.1.0/24").
+ * @returns {[string, string]} Tuple of [ip, netmask] in dotted-decimal notation.
+ */
 function parseCidr(cidr) {
-    let ip = cidr.split("/")[0]; //192.168.0.0
-    let netmask = parseInt(cidr.split("/")[1]); //24
+    const ip = cidr.split("/")[0]; //192.168.0.0
+    const netmask = parseInt(cidr.split("/")[1]); //24
     let dummy = "";
     for (let i = 1; i <= netmask; i++) {
         dummy += "1"; //"11111111....1"
     }
     dummy = dummy.padEnd(32, "0"); //"1111111..100....0"
-    let dummy_octets = dummy.match(/.{8}/g) || []; //["11111111", ...,  "100....0"]
+    const dummy_octets = dummy.match(/.{8}/g) || []; //["11111111", ...,  "100....0"]
     for (let i = 0; i < dummy_octets.length; i++) {
         dummy_octets[i] = parseInt(dummy_octets[i], 2).toString(10); //[255, 255, ..., 0]
     }
-    let netmaskBinary = dummy_octets.join(".")
+    const netmaskBinary = dummy_octets.join(".")
 
     return [ip, netmaskBinary];
 }
 
-/**ESTA FUNCION DEVUELVE TRUE SI LA IP ES VALIDA */
+/**
+ * @description Returns `true` if the given string is a valid IPv4 address in dotted-decimal
+ * notation, with each octet in the range 0–255.
+ * @param {string} ip - String to validate.
+ * @returns {boolean} `true` if valid, `false` otherwise.
+ */
 function isValidIp(ip) {
     return /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/.test(ip);
 }
 
-/**ESTA FUNCION ACTUALIZA UNA ENTRADA DE LA TABLA DE MACS DE UN SWITCH*/
+/**
+ * @description Updates the MAC address cell for the given network object in a switch's MAC
+ * address table. Also resets (or starts) the MAC entry TTL timer so stale entries are eventually
+ * cleared.
+ * @param {string} switchObjectId - DOM id of the switch element.
+ * @param {string} networkObjectId - DOM id of the connected device whose MAC to update.
+ * @param {string} newMac - New MAC address string to record.
+ * @returns {void}
+ */
 function updateMacEntry(switchObjectId, networkObjectId, newMac) {
 
     const switchObject = document.getElementById(switchObjectId);
     const macTable = switchObject.querySelector("table");
     const rows = macTable.querySelectorAll("tr");
 
-    //añadimos el registro de la tabla MAC
+    //update the MAC table entry
 
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
@@ -121,7 +164,7 @@ function updateMacEntry(switchObjectId, networkObjectId, newMac) {
     }
 
 
-    //reiniciamos o inicamos el temporizador de MAC
+    //reset or start the MAC entry timer
 
     if (!macEntryTimers[`${switchObjectId}-${networkObjectId}`]) {
 
@@ -129,7 +172,7 @@ function updateMacEntry(switchObjectId, networkObjectId, newMac) {
             deleteMacEntry(switchObjectId, networkObjectId);
         }, $MACENTRYTTL * 1000);
 
-        console.log(`Temporizador de MAC iniciado para ${switchObjectId}-${networkObjectId}`);
+        console.log(`MAC timer started for ${switchObjectId}-${networkObjectId}`);
 
     } else {
 
@@ -138,13 +181,19 @@ function updateMacEntry(switchObjectId, networkObjectId, newMac) {
             deleteMacEntry(switchObjectId, networkObjectId);
         }, $MACENTRYTTL * 1000);
 
-        console.log(`Temporizador de MAC reiniciado para ${switchObjectId}-${networkObjectId}`);
+        console.log(`MAC timer reset for ${switchObjectId}-${networkObjectId}`);
 
     }
 
 }
 
-/**ESTA FUNCION ELIMINA UNA ENTRADA DE LA TABLA DE MACS DE UN SWITCH*/
+/**
+ * @description Clears the MAC address cell for the given device in the switch's MAC address table
+ * and cancels its TTL timer.
+ * @param {string} switchObjectId - DOM id of the switch element.
+ * @param {string} networkObjectId - DOM id of the connected device whose MAC entry to delete.
+ * @returns {void}
+ */
 function deleteMacEntry(switchObjectId, networkObjectId) {
 
     const $switchObject = document.getElementById(switchObjectId);
@@ -157,14 +206,20 @@ function deleteMacEntry(switchObjectId, networkObjectId) {
         if ($fields[0].innerHTML === networkObjectId) {
             $fields[1].innerHTML = "";
             delete macEntryTimers[`${switchObjectId}-${networkObjectId}`];
-            console.log(`Temporizador de MAC eliminado para ${switchObjectId}-${networkObjectId}`);
+            console.log(`MAC timer cleared for ${switchObjectId}-${networkObjectId}`);
             break;
         }
     }
 
 }
 
-/**ESTA FUNCION AÑADE UNA ENTRADA A LA TABLA DE MACS DE UN SWITCH*/
+/**
+ * @description Appends a new port row to the switch's MAC address table, assigning the next
+ * available FastEthernet port number.
+ * @param {string} switchId - DOM id of the switch element.
+ * @param {string} itemdId - DOM id of the device being connected to the switch.
+ * @returns {void}
+ */
 function addSwitchPort(switchId, itemdId) {
     const $switchObject = document.getElementById(switchId);
     const $macTable = $switchObject.querySelector("table");
@@ -179,7 +234,12 @@ function addSwitchPort(switchId, itemdId) {
     $macTable.appendChild($newMac);
 }
 
-/**ESTA FUNCION ELIMINA UNA ENTRADA DE LA TABLA DE MACS DE UN SWITCH*/
+/**
+ * @description Removes the MAC table row associated with the given device from the switch.
+ * @param {string} switchId - DOM id of the switch element.
+ * @param {string} networkObjectId - DOM id of the device whose port row to remove.
+ * @returns {void}
+ */
 function deleteSwitchPort(switchId, networkObjectId) {
     const switchObject = document.getElementById(switchId);
     const table = switchObject.querySelector("table");
@@ -195,34 +255,52 @@ function deleteSwitchPort(switchId, networkObjectId) {
     }
 }
 
-/**ESTA FUNCION DEVUELVE TRUE SI LA DIRECCION IP EN NOTACION CIDR ES VALIDA. TAMBIEN VALIDA SI LA DIRECCION IP ES VALIDA */
+/**
+ * @description Returns `true` if the given CIDR notation string represents a valid IPv4 address
+ * with a prefix length between 0 and 32.
+ * @param {string} cidr - String in the form "a.b.c.d/n" to validate.
+ * @returns {boolean} `true` if both the IP part and the prefix length are valid, `false` otherwise.
+ */
 function isValidCidrIp(cidr) {
-    let ip = cidr.split("/")[0];
-    let netmask = parseInt(cidr.split("/")[1]);
+    const ip = cidr.split("/")[0];
+    const netmask = parseInt(cidr.split("/")[1]);
     let response = true;
     if (!isValidIp(ip)) response = false;
     if (isNaN(netmask) || netmask < 0 || netmask > 32) response = false;
     return response;
 }
 
-/**ESTA FUNCION DEVUELVE TRUE SI EL DOMINIO ES VALIDO */
+/**
+ * @description Returns `true` if the given string is a syntactically valid DNS domain name.
+ * @param {string} domain - Domain name string to validate (may include a trailing dot for FQDNs).
+ * @returns {boolean} `true` if the domain is valid, `false` otherwise.
+ */
 function isValidDomain(domain) {
-    return /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])\.?$/.test(domain);
+    return /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])\.?$/.test(domain);
 }
 
-/**ESTA FUNCION DEVUELVE TRUE SI LA MAC ES VALIDA */
+/**
+ * @description Returns `true` if the given string is a valid colon-separated MAC address.
+ * @param {string} mac - MAC address string (e.g. "aa:bb:cc:dd:ee:ff").
+ * @returns {boolean} `true` if the MAC address format is valid, `false` otherwise.
+ */
 function isValidMac(mac) {
     return /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/.test(mac);
 }
 
-/**ESTA FUNCION LAS MACS ALMACENADAS EN UN SWITCH COMO ARRAY*/
+/**
+ * @description Returns the contents of the MAC address column for all port rows in a switch's
+ * MAC table as an array (including empty strings for ports that have not yet learned a MAC).
+ * @param {string} switchObjectId - DOM id of the switch element.
+ * @returns {string[]} Array of MAC address strings indexed by port row order.
+ */
 function getMACTable(switchObjectId) {
 
     const switchOriginObject = document.getElementById(switchObjectId);
 
     const macElements = switchOriginObject.querySelector("table").querySelectorAll(".mac-address");
 
-    let macs = [];
+    const macs = [];
 
     for (let i = 0; i < macElements.length; i++) {
         macs.push(macElements[i].innerHTML);
@@ -232,15 +310,20 @@ function getMACTable(switchObjectId) {
 
 }
 
-/**ESTA FUNCION DEVUELVE TRUE SI LA TABLA DE DIRECCIONES MACS DE UN SWITCH ESTA VACIA */
+/**
+ * @description Returns `true` if the switch's MAC address table contains no port rows (only the
+ * header row remains).
+ * @param {string} switchObjectId - DOM id of the switch element.
+ * @returns {boolean} `true` if the table has no device entries, `false` otherwise.
+ */
 function isMacTableEmpty(switchObjectId) {
 
-    let tabla = document.getElementById(switchObjectId).querySelector("table");
-    let matriz = [];
+    const tabla = document.getElementById(switchObjectId).querySelector("table");
+    const matriz = [];
 
-    for (let fila of tabla.rows) {
-        let filaArray = [];
-        for (let celda of fila.cells) {
+    for (const fila of tabla.rows) {
+        const filaArray = [];
+        for (const celda of fila.cells) {
             filaArray.push(celda.innerText.trim());
         }
         matriz.push(filaArray);
@@ -254,7 +337,13 @@ function isMacTableEmpty(switchObjectId) {
 
 }
 
-/**ESTA FUNCION DEVUELVE TRUE SI UNA DIRECCION MAC ESTA ALMACENADA EN UN SWITCH */
+/**
+ * @description Returns `true` if the given MAC address is already recorded in any port row of the
+ * switch's MAC address table.
+ * @param {string} switchObjectId - DOM id of the switch element.
+ * @param {string} macAddress - MAC address string to search for.
+ * @returns {boolean} `true` if the MAC is present, `false` otherwise.
+ */
 function isMacInMACTable(switchObjectId, macAddress) {
 
     const macs = getMACTable(switchObjectId);
@@ -273,7 +362,13 @@ function isMacInMACTable(switchObjectId, macAddress) {
 
 }
 
-/**ESTA FUNCION DEVUELVE EL DISPOSITIVO (PUERTO) QUE CORRESPONDE CON UNA DIRECCION MAC EN UN SWITCH */
+/**
+ * @description Returns the device (port) id associated with the given MAC address in a switch's
+ * MAC address table.
+ * @param {string} switchObjectId - DOM id of the switch element.
+ * @param {string} mac - MAC address to look up.
+ * @returns {string|undefined} The device id string if found, or `undefined` if not found.
+ */
 function getDeviceFromMac(switchObjectId, mac) {
 
     const switchObject = document.getElementById(switchObjectId);
@@ -291,14 +386,19 @@ function getDeviceFromMac(switchObjectId, mac) {
     }
 }
 
-/**ESTA FUNCION DEVUELVE LA TABLA DE DISPOSITIVOS (PUERTOS) ACTIVOS EN UN SWITCH */
+/**
+ * @description Returns the list of device ids connected to the switch as recorded in the
+ * device-name column of the MAC address table.
+ * @param {string} switchObjectId - DOM id of the switch element.
+ * @returns {string[]} Array of connected device DOM id strings.
+ */
 function getDeviceTable(switchObjectId) {
 
     const switchOriginObject = document.getElementById(switchObjectId);
 
     const devices = switchOriginObject.querySelector("table").querySelectorAll(".device-name");
 
-    let devicesArray = [];
+    const devicesArray = [];
 
     for (let i = 0; i < devices.length; i++) {
         devicesArray.push(devices[i].innerHTML);
@@ -308,7 +408,12 @@ function getDeviceTable(switchObjectId) {
 
 }
 
-/**ESTA FUNCION ESCAPEA EL HTML DE UN STRING */
+/**
+ * @description Escapes special HTML characters in a string to prevent XSS when inserting
+ * user-supplied content into the DOM via `innerHTML`.
+ * @param {string} str - Input string to escape.
+ * @returns {string} HTML-escaped string.
+ */
 function escapeHtml(str) {
     return str.replace(/[&<>"']/g, match => ({
         '&': '&amp;',
@@ -319,16 +424,24 @@ function escapeHtml(str) {
     }[match]));
 }
 
-/**ESTA FUNCION ACTUA COMO GETOPTS DE LINUX. DEVUELVE UN OBJECTO CON LAS OPCIONES VALIDAS COMO KEY Y EL VALOR */
+/**
+ * @description Parses a getopts-style option string and an argument string into an object of
+ * recognised option flags and their values. The `options` string must begin with ":" and follow
+ * the getopts format where a letter followed by ":" expects a value.
+ * @param {string} options - getopts-style option spec (e.g. ":ab:c" for flags -a, -b <val>, -c).
+ * @param {string} string - Space-separated argument string to parse (e.g. "-a -b foo").
+ * @returns {Object.<string, string>} Object keyed by recognised option flags (e.g. {"-a": "", "-b": "foo"}).
+ * @throws {Error} If `options` does not start with ":", or if an unrecognised option is encountered.
+ */
 function getopts(options, string) {
 
     options = options.replace(/ /g, "");
 
     if (options.charAt(0) !== ":") {
-        throw new Error("Error de sintaxis");
+        throw new Error("Syntax error");
     }
 
-    let optionsObject = {};
+    const optionsObject = {};
 
     for (let i = 0; i < options.length; i++) {
         if (options.charAt(i) !== ":") optionsObject["-" + options.charAt(i)] = (options.charAt(i + 1) === ":") ? "value" : "novalue";
@@ -346,16 +459,24 @@ function getopts(options, string) {
                 i++;
             }
         } else {
-            throw new Error("Opcion no reconocida");
+            throw new Error("Unrecognised option");
         }
     }
 
     return response;
 }
 
+/**
+ * @description Parses an argument array (starting from the second element, skipping the command
+ * name) using a provided options specification array. Stops at the first non-option argument and
+ * records the index of the last parsed option in the `IND` key.
+ * @param {string[]} options - Array of option names; names ending with ":" expect a following value argument.
+ * @param {string[]} args - Full argument array including the command as the first element.
+ * @returns {Object.<string, string>} Object keyed by matched option names plus `IND` (last parsed index).
+ */
 function catchopts(options, args) {
 
-    let optionsObject = {};
+    const optionsObject = {};
 
     for (let i = 0; i < options.length; i++) {
         if (options[i].endsWith(":")) {
@@ -368,7 +489,7 @@ function catchopts(options, args) {
     response = {};
     response["IND"] = 0;
 
-    for (let i = 1; i < args.length; i++) { //me salto el primer elemento, que es el comando
+    for (let i = 1; i < args.length; i++) { //skip the first element (the command name)
         if (optionsObject[args[i]]) {
             response["IND"] = i;
             response[args[i]] = "";
@@ -385,11 +506,16 @@ function catchopts(options, args) {
     return response;
 }
 
-/**ESTA FUNCION DEVUELVE LAS INTERFACES DE UN DISPOSITIVO COMO ARRAY [INTERFAZ1, INTERFAZ2, ...] */
+/**
+ * @description Returns the list of interface names available on a network device in order
+ * (enp0s3, enp0s8, enp0s9, …). Accepts either a DOM id string or the element itself.
+ * @param {string|Element} identifier - DOM id of the network object or the element itself.
+ * @returns {string[]} Array of interface name strings (e.g. ["enp0s3", "enp0s8"]).
+ */
 function getInterfaces(identifier) {
-    
+
     const $networkObject = (typeof identifier === "string") ? document.getElementById(identifier) : identifier;
-    let response = [];
+    const response = [];
     let index = 3;
     let networkInterface = $networkObject.getAttribute("ip-enp0s" + index);
 
@@ -404,7 +530,12 @@ function getInterfaces(identifier) {
 
 }
 
-/**ESTA FUNCION DEVUELVE TRUE SI EL DISPOSITIVO TIENE AL MENOS 1 CONEXION ACTIVA */
+/**
+ * @description Returns `true` if the device has at least one interface connected to a switch, or
+ * (for switches) if the device table has at least one entry.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {boolean} `true` if connected, `false` otherwise.
+ */
 function isConnected(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -424,7 +555,13 @@ function isConnected(networkObjectId) {
 
 }
 
-/**ESTA FUNCION DEVUELVE LA PRIMERA INTERFAZ LIBRE DEL DISPOSITIVO */
+/**
+ * @description Returns the name of the first interface on the device that has no switch connection
+ * (i.e. its `data-switch-<iface>` attribute is an empty string). Returns `false` if all interfaces
+ * are in use.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {string|false} Interface name (e.g. "enp0s3") if an available interface exists, otherwise `false`.
+ */
 function getAvailableInterface(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -441,19 +578,32 @@ function getAvailableInterface(networkObjectId) {
     return false;
 }
 
-/**ESTA FUNCION DEVUELVE LA INFORMACION DE UNA INTERFAZ COMO ARRAY [IP, NETMASK, MAC] */
+/**
+ * @description Returns the IP address, subnet mask, and MAC address for a given interface of a
+ * network device.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @param {string} iface - Interface name (e.g. "enp0s3").
+ * @returns {[string, string, string]} Tuple of [ip, netmask, mac].
+ */
 function getIfaceData(networkObjectId, iface) {
     const $networkObject = document.getElementById(networkObjectId);
     return [$networkObject.getAttribute("ip-" + iface), $networkObject.getAttribute("netmask-" + iface), $networkObject.getAttribute("mac-" + iface)];
 }
 
-/**ESTA FUNCION DEVUELVE LA INFORMACION DE UNA INTERFAZ QUE ESTE CONECTADA A UN SWITCH EN CONCRETO */
+/**
+ * @description Returns the IP address, subnet mask, and MAC address for the interface of a device
+ * that is connected to a specific switch.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @param {string} switchObjectId - DOM id of the switch to match against.
+ * @returns {[string, string, string]|[false, false, false]} Tuple of [ip, netmask, mac] for the
+ *   matching interface, or [false, false, false] if no interface is connected to that switch.
+ */
 function getInterfaceSwitchInfo(networkObjectId, switchObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let index = 3;
     let switchConn = $networkObject.getAttribute("data-switch-enp0s" + index);
-    let response = [];
+    const response = [];
 
     while (switchConn !== null) {
 
@@ -473,7 +623,13 @@ function getInterfaceSwitchInfo(networkObjectId, switchObjectId) {
 
 }
 
-/**ESTA FUNCION DEVUELVE LA INTERFAZ DE UN DISPOSITIVO QUE ESTÁ CONECTADA A UN SWITCH */
+/**
+ * @description Returns the interface name on the device that is connected to the given switch,
+ * or `false` if no interface is connected to that switch.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @param {string} switchId - DOM id of the switch to match.
+ * @returns {string|false} Interface name (e.g. "enp0s8") or `false`.
+ */
 function switchToInterface(networkObjectId, switchId) {
     const $networkObject = document.getElementById(networkObjectId);
     const interfaces = getInterfaces(networkObjectId);
@@ -482,13 +638,18 @@ function switchToInterface(networkObjectId, switchId) {
     return response;
 }
 
-/**ESTA FUNCION DEVUELVE LAS IPS DISPONIBLES EN UN DISPOSITIVO COMO ARRAY [IP1, IP2, ...] */
+/**
+ * @description Returns all non-empty IP addresses currently assigned to any interface of the
+ * given network device.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {string[]} Array of IP address strings.
+ */
 function getAvailableIps(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let index = 3;
     let networkObjectIp = $networkObject.getAttribute("ip-enp0s" + index);
-    let availableIps = [];
+    const availableIps = [];
 
     while (networkObjectIp !== null) {
         if (networkObjectIp !== "") availableIps.push(networkObjectIp);
@@ -501,11 +662,19 @@ function getAvailableIps(networkObjectId) {
 
 }
 
-/**ESTA FUNCION DEVUELVE LA INFORMACION DE UNA INTERFAZ COMO ARRAY [INTERFAZ, SWITCH AL QUE ESTÁ CONECTADA, DIRECCIÓN MAC ]*/
+/**
+ * @description Given an IP address assigned to one of the device's interfaces, returns the
+ * interface name, the switch id it is connected to, and the MAC address. Returns
+ * `[false, false, false]` if the IP is not found on any interface. If multiple interfaces share
+ * the same IP (unusual), the last match is returned.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @param {string} ip - IP address to search for.
+ * @returns {[string|false, string|false, string|false]} Tuple of [interfaceName, switchId, mac].
+ */
 function getInfoFromIp(networkObjectId, ip) {
 
     const $networkObject = document.getElementById(networkObjectId);
-    let response = [false, false, false];
+    const response = [false, false, false];
     let index = 3;
     let interfaceIp = $networkObject.getAttribute("ip-enp0s" + index);
 
@@ -528,13 +697,18 @@ function getInfoFromIp(networkObjectId, ip) {
 
 }
 
-/**ESTA FUNCION DEVUELVE UN ARRAY CON LAS DIRECCIONES MAC DE TODAS LAS INTERFAZ DE UN DISPOSITIVO */
+/**
+ * @description Returns the MAC addresses of all interfaces on a network device as an array,
+ * in interface order (enp0s3, enp0s8, enp0s9, …).
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {string[]} Array of MAC address strings.
+ */
 function getMacAddresses(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let index = 3;
     let mac = $networkObject.getAttribute("mac-enp0s" + index);
-    let macs = [];
+    const macs = [];
 
     while (mac !== null) {
         macs.push(mac);
@@ -547,28 +721,51 @@ function getMacAddresses(networkObjectId) {
 
 }
 
-/**ESTA FUNCIÓN DEVUELVE TRUE SI LA IP ES LOCAL PARA EL DISPOSITIVO */
+/**
+ * @description Returns `true` if the given IP is locally assigned to any interface of the device,
+ * or if it falls within the loopback range (`127.0.0.0/8`).
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @param {string} ip - IP address to check.
+ * @returns {boolean} `true` if the IP is local to the device, `false` otherwise.
+ */
 function isLocalIp(networkObjectId, ip) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const interfaces = getInterfaces(networkObjectId);
     let response = false;
 
-    //si forma parte de alguna interfaz
-    for (let iface of interfaces) if ($networkObject.getAttribute(`ip-${iface}`) === ip) response = true;
+    //check if it belongs to one of the device's interfaces
+    for (const iface of interfaces) if ($networkObject.getAttribute(`ip-${iface}`) === ip) response = true;
 
-    //si forma parte del bucle local
+    //check if it falls within the loopback range
     if (getNetwork(ip, "255.0.0.0") === "127.0.0.0") response = true;
 
     return response;
 }
 
-//FUNCIONES DE SIMULACION DE CONSTRUCCION DE REDES
+//NETWORK SIMULATION BUILD FUNCTIONS
+
+/**
+ * @description Returns the DOM element at the given position (negative indexing supported) from
+ * all elements matching the CSS selector. Useful for simulation scripts that need the last or
+ * second-to-last created element.
+ * @param {string} selector - CSS selector string.
+ * @param {number} [position=-1] - Offset from the end of the NodeList (e.g. -1 for last, -2 for second-to-last).
+ * @returns {Element|undefined} The element at the computed index, or `undefined` if out of range.
+ */
 function getLastElement(selector, position = -1) {
     const elements = document.querySelectorAll(selector);
     return elements[elements.length + position];
 }
 
+/**
+ * @description Programmatically simulates a drag-and-drop cable connection between two network
+ * objects by dispatching synthetic `dragstart` and `drop` events.
+ * @param {Element} elementoOrigen - Source network object element.
+ * @param {Element} elementoDestino - Destination network object element.
+ * @returns {{originElement: Element, targetElement: Element, dataTransfer: DataTransfer}} Object
+ *   with references to both elements and the shared DataTransfer instance.
+ */
 function createConn(elementoOrigen, elementoDestino) {
 
     const dragstartEvent = new DragEvent('dragstart', {
@@ -602,11 +799,20 @@ function createConn(elementoOrigen, elementoDestino) {
     };
 }
 
+/**
+ * @description Sets IP addresses for up to three router interfaces (enp0s3, enp0s8, enp0s9) using
+ * CIDR notation and updates the corresponding direct-route rows in the routing table.
+ * @param {Element} $router - Router DOM element.
+ * @param {string} ip1 - CIDR address for enp0s3 (e.g. "192.168.1.1/24").
+ * @param {string} [ip2=""] - CIDR address for enp0s8.
+ * @param {string} [ip3=""] - CIDR address for enp0s9.
+ * @returns {void}
+ */
 function setRouterIps($router, ip1, ip2 = "", ip3 = "") {
 
-    let [newIpEnp0s3, newNetmaskEnp0s3] = parseCidr(ip1);
-    let [newIpEnp0s8, newNetmaskEnp0s8] = parseCidr(ip2);
-    let [newIpEnp0s9, newNetmaskEnp0s9] = parseCidr(ip3);
+    const [newIpEnp0s3, newNetmaskEnp0s3] = parseCidr(ip1);
+    const [newIpEnp0s8, newNetmaskEnp0s8] = parseCidr(ip2);
+    const [newIpEnp0s9, newNetmaskEnp0s9] = parseCidr(ip3);
 
     $router.setAttribute("ip-enp0s3", newIpEnp0s3);
     $router.setAttribute("ip-enp0s8", newIpEnp0s8);
@@ -635,7 +841,13 @@ function setRouterIps($router, ip1, ip2 = "", ip3 = "") {
 
 }
 
-/**ESTA FUNCION PARSEA UNA DIRECCIÓN DE BÚSQUEDA EN [PROTOCOLO, IP, PUERTO] */
+/**
+ * @description Parses a browser-style URL or plain address into its constituent parts: protocol,
+ * host/IP, port, and resource path. Defaults to HTTP (port 80) when no protocol is specified.
+ * @param {string} input - URL or address string (e.g. "http://192.168.1.1:8080/index.html",
+ *   "example.com/page", or "192.168.1.1").
+ * @returns {{protocol: string, address: string, port: number, resource: string}} Parsed address object.
+ */
 function parseSearch(input) {
 
     let protocol;
@@ -645,7 +857,7 @@ function parseSearch(input) {
     let port;
     let resource;
 
-    //definimos los mapas
+    //define the maps
 
     const protocolMap = {
         http: 80,
@@ -693,7 +905,14 @@ function parseSearch(input) {
 
 }
 
-/**DEVUELVE EL INDICE MÁS ALTO DE INTERFAZ DE UN DISPOSITIVO (3, 8, 9, ...) */
+/**
+ * @description Returns the highest interface index number on a device. The interface naming
+ * convention uses enp0s3 as the first interface and enp0s8, enp0s9, … for additional ones, so
+ * the numeric suffix is what is compared.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {number|undefined} The highest interface index (e.g. 9 for "enp0s9"), or `undefined`
+ *   if the device has no interfaces.
+ */
 function maxIfaceIndex(networkObjectId) {
     return getInterfaces(networkObjectId)
         .map(iface => parseInt(iface.split("enp0s")[1]))
@@ -701,23 +920,30 @@ function maxIfaceIndex(networkObjectId) {
         .pop();
 }
 
-/**ESTA FUNCION ELIMINA UNA INTERFAZ DE UN DISPOSITIVO, JUNTO CON LAS CONFIGURACIONES RELACIONADAS */
+/**
+ * @description Removes all DOM attributes and routing-table rows associated with the given
+ * interface from a network device. Also removes any direct routing rule that references the
+ * interface.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @param {string} iface - Interface name to delete (e.g. "enp0s8").
+ * @returns {void}
+ */
 function deleteInterface(networkObjectId, iface) {
 
     const $networkObject = document.getElementById(networkObjectId);
 
-    //si la interfaz está configurada en dhcp, hacemos un release primero
+    //if the interface is configured with DHCP, release it first
 
-    //TODO -> hacer release de dhcp
+    //TODO -> release dhcp
 
-    //eliminamos los atributos del elemento de red
+    //remove the network element's attributes
 
     $networkObject.removeAttribute(`ip-${iface}`);
     $networkObject.removeAttribute(`netmask-${iface}`);
     $networkObject.removeAttribute(`mac-${iface}`);
     $networkObject.removeAttribute(`data-switch-${iface}`);
 
-    //eliminamos las reglas de enrutamiento que usen esa interfaz
+    //remove routing rules that use this interface
 
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
     const $routingRules = $routingTable.querySelectorAll("tr");
@@ -730,7 +956,14 @@ function deleteInterface(networkObjectId, iface) {
 
 }
 
-/**ESTA FUNCION AÑADE UNA INTERFAZ A UN DISPOSITIVO */
+/**
+ * @description Adds a new network interface to a device. The new interface is assigned the next
+ * available index (enp0s8 after enp0s3, then incrementing from there). Sets up all required DOM
+ * attributes including a random MAC address. If DHCP client mode is active, also adds the
+ * DHCP-related attributes for the new interface.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {void}
+ */
 function addInterface(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
@@ -738,16 +971,16 @@ function addInterface(networkObjectId) {
     const ifaceMaxIndex = maxIfaceIndex(networkObjectId);
     const newInterface = (ifaceMaxIndex === 3) ? "enp0s8" : `enp0s${ifaceMaxIndex + 1}`;
 
-    //añadimos los atributos de la nueva interfaz
+    //add the new interface's attributes
     $networkObject.setAttribute(`ip-${newInterface}`, "");
     $networkObject.setAttribute(`netmask-${newInterface}`, "");
     $networkObject.setAttribute(`mac-${newInterface}`, getRandomMac());
     $networkObject.setAttribute(`data-switch-${newInterface}`, "");
 
-    //habilitamos el drag and drop para la nueva interfaz
+    //enable drag and drop for the new interface
     $networkObject.querySelector("img").draggable = true;
 
-    //si el servicio dhclient está activo, añadimos la configuración de la nueva interfaz
+    //if the dhclient service is active, add the new interface's configuration
     if ($networkObject.getAttribute("dhclient") === "true") {
         $networkObject.setAttribute(`data-dhcp-server-${newInterface}`, "");
         $networkObject.setAttribute(`data-dhcp-lease-time-${newInterface}`, "");
@@ -758,14 +991,27 @@ function addInterface(networkObjectId) {
 
 }
 
-/**ESTA FUNCION DEVUELVE LA PUERTA DE ENLACE DE UN DISPOSITIVO */
+/**
+ * @description Returns the next-hop IP address from the device's default route row, or an empty
+ * string if no default route is configured.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @returns {string} Default gateway IP address, or `""` if absent.
+ */
 function getDefaultGateway(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
     const $defaultRule = $networkObject.querySelector(".routing-table table").querySelector(".default-route");
     return $defaultRule?.querySelectorAll("td")[4]?.innerHTML || "";
 }
 
-/**ESTA FUNCION CONFIGURA LA PUERTA DE ENLACE DE UN DISPOSITIVO */
+/**
+ * @description Configures the default gateway for a device by finding the direct-route row whose
+ * network contains `newGateway` and writing a corresponding default route (`0.0.0.0/0.0.0.0`)
+ * via `setRemoteRoutingRule`.
+ * @param {string} networkObjectId - DOM id of the network object.
+ * @param {string} newGateway - IP address of the default gateway to set.
+ * @returns {void}
+ * @throws {Error} If `newGateway` is not reachable through any directly connected network.
+ */
 function setDefaultGateway(networkObjectId, newGateway) {
 
     if (!newGateway) return;
@@ -794,6 +1040,6 @@ function setDefaultGateway(networkObjectId, newGateway) {
         }
     }
 
-    throw new Error("networkd: Error: Puerta de enlace inalcanzable.");
+    throw new Error("networkd: Error: Gateway unreachable.");
 
 }

@@ -1,4 +1,14 @@
+/**
+ * @description Base class for all simulated network packets. Holds layer-3/layer-2 addressing
+ * and a random transaction id (`xid`).
+ */
 class packet {
+    /**
+     * @param {string} origin_ip - Source IP address.
+     * @param {string} destination_ip - Destination IP address.
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac) {
         this.origin_ip = origin_ip;
         this.destination_ip = destination_ip;
@@ -8,7 +18,16 @@ class packet {
     }
 }
 
+/**
+ * @description Represents an ARP Request packet broadcast to `ff:ff:ff:ff:ff:ff` to discover
+ * the MAC address of the target IP.
+ */
 class ArpRequest extends packet {
+    /**
+     * @param {string} origin_ip - IP address of the requesting host.
+     * @param {string} destination_ip - IP address whose MAC is being requested.
+     * @param {string} origin_mac - MAC address of the requesting host.
+     */
     constructor(origin_ip, destination_ip, origin_mac) {
         super(origin_ip, destination_ip, origin_mac, "ff:ff:ff:ff:ff:ff");;
         this.protocol = "arp";
@@ -16,7 +35,17 @@ class ArpRequest extends packet {
     }
 }
 
+/**
+ * @description Represents an ARP Reply packet sent unicast back to the original requester with
+ * the resolved MAC address.
+ */
 class ArpReply extends packet {
+    /**
+     * @param {string} origin_ip - IP address of the replying host.
+     * @param {string} destination_ip - IP address of the original requester.
+     * @param {string} origin_mac - MAC address of the replying host.
+     * @param {string} destination_mac - MAC address of the original requester.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.protocol = "arp";
@@ -24,7 +53,16 @@ class ArpReply extends packet {
     }
 }
 
+/**
+ * @description Represents an ICMP Echo Request (ping) packet with a default TTL of 64.
+ */
 class IcmpEchoRequest extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address.
+     * @param {string} destination_ip - Destination IP address.
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.protocol = "icmp";
@@ -33,7 +71,16 @@ class IcmpEchoRequest extends packet {
     }
 }
 
+/**
+ * @description Represents an ICMP Echo Reply (ping response) packet with a default TTL of 64.
+ */
 class IcmpEchoReply extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address.
+     * @param {string} destination_ip - Destination IP address.
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.protocol = "icmp";
@@ -42,7 +89,17 @@ class IcmpEchoReply extends packet {
     }
 }
 
+/**
+ * @description Represents an ICMP Time Exceeded message, sent by a router when a packet's TTL
+ * reaches zero.
+ */
 class IcmpTimeExceeded extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address (the router dropping the packet).
+     * @param {string} destination_ip - Destination IP address (the original sender).
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.protocol = "icmp";
@@ -51,7 +108,14 @@ class IcmpTimeExceeded extends packet {
     }
 }
 
+/**
+ * @description Represents a DHCP Discover packet broadcast by a client that has no IP address.
+ * Source IP is `0.0.0.0`, destination is the broadcast `255.255.255.255`.
+ */
 class dhcpDiscover extends packet {
+    /**
+     * @param {string} origin_mac - MAC address of the DHCP client.
+     */
     constructor(origin_mac) {
         super("0.0.0.0", "255.255.255.255", origin_mac, "ff:ff:ff:ff:ff:ff");
         this.transport_protocol = "udp";
@@ -66,7 +130,23 @@ class dhcpDiscover extends packet {
     }
 }
 
+/**
+ * @description Represents a DHCP Offer packet sent by a server in response to a Discover,
+ * proposing an IP address and network configuration to the client.
+ */
 class dhcpOffer extends packet {
+    /**
+     * @param {string} origin_ip - IP address of the DHCP server.
+     * @param {string} origin_mac - MAC address of the DHCP server.
+     * @param {string} server_ip - IP address of the DHCP server (siaddr).
+     * @param {string} offer_ip - IP address being offered to the client (yiaddr).
+     * @param {string} destination_mac - MAC address of the client.
+     * @param {string} chaddr - Client hardware (MAC) address.
+     * @param {string} gateway - Default gateway offered to the client.
+     * @param {string} netmask - Subnet mask offered to the client.
+     * @param {string} dns - Comma-separated list of DNS server IPs offered to the client.
+     * @param {string|number} leasetime - Lease duration in seconds.
+     */
     constructor(origin_ip, origin_mac, server_ip, offer_ip, destination_mac, chaddr, gateway, netmask, dns, leasetime) {
         super(origin_ip, "255.255.255.255", origin_mac, destination_mac);
         this.transport_protocol = "udp";
@@ -88,7 +168,17 @@ class dhcpOffer extends packet {
     }
 }
 
+/**
+ * @description Represents a DHCP Request packet broadcast by a client to formally request the
+ * IP address offered in a DHCP Offer.
+ */
 class dhcpRequest extends packet {
+    /**
+     * @param {string} origin_mac - MAC address of the DHCP client.
+     * @param {string} requested_ip - IP address the client is requesting.
+     * @param {string} server_ip - IP address of the server whose offer is being accepted.
+     * @param {string} hostname - Hostname of the client device.
+     */
     constructor(origin_mac, requested_ip, server_ip, hostname) {
         super("0.0.0.0", "255.255.255.255", origin_mac, "ff:ff:ff:ff:ff:ff");
         this.transport_protocol = "udp";
@@ -111,7 +201,21 @@ class dhcpRequest extends packet {
     }
 }
 
+/**
+ * @description Represents a DHCP Acknowledgement packet sent by the server to confirm the IP
+ * assignment and deliver the full network configuration to the client.
+ */
 class dhcpAck extends packet {
+    /**
+     * @param {string} origin_mac - MAC address of the DHCP server.
+     * @param {string} assigned_ip - IP address assigned to the client (yiaddr).
+     * @param {string} server_ip - IP address of the DHCP server.
+     * @param {string} offergateway - Default gateway to assign to the client.
+     * @param {string} offernetmask - Subnet mask to assign to the client.
+     * @param {string} offerdns - Comma-separated list of DNS server IPs to assign.
+     * @param {string} hostname - Hostname of the client device.
+     * @param {string|number} leasetime - Lease duration in seconds.
+     */
     constructor(origin_mac, assigned_ip, server_ip, offergateway, offernetmask, offerdns, hostname, leasetime) {
         super(server_ip, "255.255.255.255", origin_mac, "ff:ff:ff:ff:ff:ff");
         this.transport_protocol = "udp";
@@ -133,7 +237,17 @@ class dhcpAck extends packet {
     }
 }
 
+/**
+ * @description Represents a DHCP Release packet sent by a client to voluntarily relinquish its
+ * leased IP address back to the server.
+ */
 class dhcpRelease extends packet {
+    /**
+     * @param {string} origin_ip - IP address of the client releasing the lease.
+     * @param {string} destination_ip - IP address of the DHCP server.
+     * @param {string} origin_mac - MAC address of the client.
+     * @param {string} destination_mac - MAC address of the DHCP server.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.transport_protocol = "udp";
@@ -150,7 +264,18 @@ class dhcpRelease extends packet {
     }
 }
 
+/**
+ * @description Represents a DNS Query packet sent by a client to a DNS server.
+ * Uses a random ephemeral source port (49152–65535).
+ */
 class dnsRequest extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address.
+     * @param {string} destination_ip - Destination DNS server IP address.
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     * @param {string} query - Domain name or IP being queried.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac, query) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.transport_protocol = "udp";
@@ -167,7 +292,18 @@ class dnsRequest extends packet {
     }
 }
 
+/**
+ * @description Represents a DNS Reply packet sent by a server back to the querying client.
+ */
 class dnsReply extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address (the DNS server).
+     * @param {string} destination_ip - Destination IP address (the querying client).
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     * @param {string} query - The original domain name or IP that was queried.
+     * @param {string|string[]} answer - The resolved answer(s).
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac, query, answer) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.transport_protocol = "udp";
@@ -182,7 +318,19 @@ class dnsReply extends packet {
     }
 }
 
+/**
+ * @description Represents a TCP SYN segment used to initiate a three-way handshake.
+ * The sequence number is randomised.
+ */
 class syn extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address.
+     * @param {string} destination_ip - Destination IP address.
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     * @param {string|number} sport - Source port.
+     * @param {string|number} dport - Destination port.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac, sport, dport) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.transport_protocol = "tcp";
@@ -196,7 +344,19 @@ class syn extends packet {
     }
 }
 
+/**
+ * @description Represents a TCP SYN-ACK segment sent by the server in response to a SYN.
+ * The sequence number is randomised.
+ */
 class synAck extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address.
+     * @param {string} destination_ip - Destination IP address.
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     * @param {string|number} sport - Source port.
+     * @param {string|number} dport - Destination port.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac, sport, dport) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.transport_protocol = "tcp";
@@ -210,7 +370,18 @@ class synAck extends packet {
     }
 }
 
+/**
+ * @description Represents a TCP ACK segment, the final step of the three-way handshake.
+ */
 class Ack extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address.
+     * @param {string} destination_ip - Destination IP address.
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     * @param {string|number} sport - Source port.
+     * @param {string|number} dport - Destination port.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac, sport, dport) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.transport_protocol = "tcp";
@@ -224,7 +395,22 @@ class Ack extends packet {
     }
 }
 
+/**
+ * @description Represents an HTTP Request packet carrying method, host, and resource information
+ * over a TCP connection.
+ */
 class httpRequest extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address.
+     * @param {string} destination_ip - Destination IP address.
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     * @param {string|number} sport - Source port.
+     * @param {string|number} dport - Destination port.
+     * @param {string} method - HTTP method (e.g. "GET", "POST").
+     * @param {string} host - HTTP Host header value.
+     * @param {string} resource - Requested URL path/resource.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac, sport, dport, method, host, resource) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.transport_protocol = "tcp";
@@ -233,7 +419,7 @@ class httpRequest extends packet {
         this.type = "request";
         this.sport = sport;
         this.dport = dport;
-        //cabeceras
+        //headers
         this.method = method;
         this.host = host;
         this.contentType = "text/html";
@@ -244,7 +430,20 @@ class httpRequest extends packet {
     }
 }
 
+/**
+ * @description Represents an HTTP Reply packet sent by a server in response to an HTTP Request.
+ */
 class httpReply extends packet {
+    /**
+     * @param {string} origin_ip - Source IP address (the HTTP server).
+     * @param {string} destination_ip - Destination IP address (the client).
+     * @param {string} origin_mac - Source MAC address.
+     * @param {string} destination_mac - Destination MAC address.
+     * @param {string|number} sport - Source port.
+     * @param {string|number} dport - Destination port.
+     * @param {string} method - HTTP method of the original request.
+     * @param {string} host - HTTP Host header value.
+     */
     constructor(origin_ip, destination_ip, origin_mac, destination_mac, sport, dport, method, host) {
         super(origin_ip, destination_ip, origin_mac, destination_mac);
         this.transport_protocol = "tcp";
@@ -253,7 +452,7 @@ class httpReply extends packet {
         this.sport = sport;
         this.dport = dport;
         this.type = "reply";
-        //cabeceras
+        //headers
         this.method = method;
         this.host = host;
         this.keepalive = true;

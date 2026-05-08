@@ -1,3 +1,16 @@
+/**
+ * Creates and returns a DHCP relay agent network element as an `<article>` DOM node.
+ * The element is positioned on the board at `(x, y)`, clipped to board boundaries,
+ * and given a unique id based on the global `itemIndex`. It includes an icon, an ARP
+ * table, a routing table, and advanced-options controls. The element is pre-configured
+ * with a single network interface (`enp0s3`), a random MAC address, an empty virtual
+ * filesystem, IPv4 forwarding disabled, and the `dhcprelay` and `iptables` packages
+ * installed.
+ *
+ * @param {number} x - Desired left position in pixels relative to the board.
+ * @param {number} y - Desired top position in pixels relative to the board.
+ * @returns {HTMLElement} The configured DHCP relay agent `<article>` element.
+ */
 function DhcpRelayObject(x, y) {
 
     const $networkObject = document.createElement("article");
@@ -47,7 +60,7 @@ function DhcpRelayObject(x, y) {
 
     installDhcprelay($networkObject);
     installIptables($networkObject);
- 
+
     return $networkObject;
 
 }

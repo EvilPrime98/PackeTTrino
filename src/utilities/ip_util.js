@@ -1,5 +1,27 @@
+/**
+ * Handles the `ip` terminal command to manage IP addresses and routing on a network object.
+ *
+ * Supports two main sub-commands:
+ *
+ * **`ip addr`**
+ * - (no sub-option): prints interface information via `showNetworkObjectInfo`.
+ * - `add <cidr> dev <iface>`: assigns an IP/netmask to an interface and adds the direct route.
+ * - `flush dev <iface>`: removes the IP from an interface and deletes its direct route.
+ *
+ * **`ip route`**
+ * - (no sub-option): prints the routing table via `printRouting`.
+ * - `add <cidr|default> via <nexthop> dev <iface>`: inserts a remote routing rule.
+ * - `del <cidr>`: removes a remote routing rule.
+ *
+ * Exactly one of `addr` or `route` must be provided. Conflicting sub-options (e.g.
+ * both `add` and `flush`) are rejected. Validation errors are printed to the terminal.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the network object running the command.
+ * @param {Array<string>} args - Tokenised command arguments. First element is "ip".
+ * @returns {void}
+ */
 function command_Ip(networkObjectId, args) {
-    
+
     let opt_addr = false;
     let opt_route = false;
     let opt_flush = false;
@@ -12,8 +34,8 @@ function command_Ip(networkObjectId, args) {
     let val_via;
     let val_dev;
 
-    let $OPTS = catchopts(["addr", "route", "add:", "flush", "del:", "via:", "dev:"], args);
-    
+    const $OPTS = catchopts(["addr", "route", "add:", "flush", "del:", "via:", "dev:"], args);
+
     const optionHandlers = {
 
         "addr": () => opt_addr = true,
@@ -49,14 +71,14 @@ function command_Ip(networkObjectId, args) {
     }
 
     if (opt_addr === opt_route) {
-        terminalMessage('Error de argumentos: ip [addr|route] [add|flush|del] [ip/netmask] [dev interface] ] [via ip].', networkObjectId);
+        terminalMessage('Argument error: ip [addr|route] [add|flush|del] [ip/netmask] [dev interface] ] [via ip].', networkObjectId);
         return;
     }
 
     if (opt_addr) { //ip addr [add|flush] [ip]/[netmask] dev [interface]
 
         if (opt_add && opt_flush) {
-            terminalMessage('Error de argumentos: ip [addr|route] [add|flush|del] [ip/netmask] [dev interface] [via ip]', networkObjectId);
+            terminalMessage('Argument error: ip [addr|route] [add|flush|del] [ip/netmask] [dev interface] [via ip]', networkObjectId);
             return;
         }
 
@@ -68,31 +90,31 @@ function command_Ip(networkObjectId, args) {
         if (opt_add) { //ip addr add [ip]/[netmask] dev [interface]
 
             if (!isValidCidrIp(val_add)) {
-                terminalMessage(`Se esperaba un prefijo válido cerca de ${val_add}.`, networkObjectId);
+                terminalMessage(`Expected a valid prefix near ${val_add}.`, networkObjectId);
                 return;
             }
 
             if (!getInterfaces(networkObjectId).includes(val_dev)) {
-                terminalMessage(`No se reconoce la interfaz ${val_dev}`, networkObjectId);	
+                terminalMessage(`Interface ${val_dev} not recognized`, networkObjectId);
                 return;
             }
 
-            let [ip, netmask] = parseCidr(val_add);
+            const [ip, netmask] = parseCidr(val_add);
             configureInterface(networkObjectId, ip, netmask, val_dev);
             setDirectRoutingRule(networkObjectId, ip, netmask, val_dev);
-            terminalMessage(`Se ha añadido la IP ${val_add} a la interfaz ${val_dev} con éxito.`, networkObjectId);
-        }        
+            terminalMessage(`IP ${val_add} has been successfully added to interface ${val_dev}.`, networkObjectId);
+        }
 
         if (opt_flush) { //ip addr flush dev [interface]
 
             if (!getInterfaces(networkObjectId).includes(val_dev)) {
-                terminalMessage(`No se reconoce la interfaz ${val_dev}`, networkObjectId);	
+                terminalMessage(`Interface ${val_dev} not recognized`, networkObjectId);
                 return;
             }
 
             deconfigureInterface(networkObjectId, val_dev);
             removeDirectRoutingRule(networkObjectId, val_dev);
-            terminalMessage(`Se ha ha desconfigurado la IP de la interfaz ${val_dev} con éxito.`, networkObjectId);
+            terminalMessage(`The IP of interface ${val_dev} has been successfully unconfigured.`, networkObjectId);
         }
 
     }
@@ -100,7 +122,7 @@ function command_Ip(networkObjectId, args) {
     if (opt_route) { //ip route [add|del] [ip]/[netmask] via [gateway] dev [interface]
 
         if (opt_add && opt_del) {
-            terminalMessage('Error de argumentos: ip [addr|route] [add|flush|del] [ip/netmask] [dev interface] [via ip]', networkObjectId);
+            terminalMessage('Argument error: ip [addr|route] [add|flush|del] [ip/netmask] [dev interface] [via ip]', networkObjectId);
             return;
         }
 
@@ -114,45 +136,45 @@ function command_Ip(networkObjectId, args) {
             if (!isValidCidrIp(val_add)) {
                 if (val_add === "default") val_add = "0.0.0.0/0";
                 else {
-                    terminalMessage(`Se esperaba un prefijo válido en vez de ${val_add}.`, networkObjectId);
+                    terminalMessage(`Expected a valid prefix instead of ${val_add}.`, networkObjectId);
                     return;
                 }
             }
 
             if (!isValidIp(val_via)) {
-                terminalMessage(`Se esperaba una ip válida en vez de ${val_via}.`, networkObjectId);
+                terminalMessage(`Expected a valid ip instead of ${val_via}.`, networkObjectId);
                 return;
             }
 
             if (!getInterfaces(networkObjectId).includes(val_dev)) {
-                terminalMessage(`No se reconoce la interfaz ${val_dev}`, networkObjectId);	
+                terminalMessage(`Interface ${val_dev} not recognized`, networkObjectId);
                 return;
             }
 
-            let [ip, netmask] = parseCidr(val_add);
+            const [ip, netmask] = parseCidr(val_add);
 
             setRemoteRoutingRule(networkObjectId,
-                ip, //red de destino
-                netmask, //mascara de red
+                ip, //destination network
+                netmask, //network mask
                 getIfaceData(networkObjectId, val_dev)[0], //gateway
-                val_dev, //interfaz
-                val_via //siguiente salto
+                val_dev, //interface
+                val_via //next hop
             );
 
-            terminalMessage(`Se ha añadido la ruta ${val_add} a la interfaz ${val_dev} con éxito.`, networkObjectId);
+            terminalMessage(`Route ${val_add} has been successfully added to interface ${val_dev}.`, networkObjectId);
 
         }
 
         if (opt_del) { //ip route del [ip]/[netmask]
 
             if (!isValidCidrIp(val_del)) {
-                terminalMessage(`Se esperaba un prefijo válido cerca de ${val_del}.`, networkObjectId);
+                terminalMessage(`Expected a valid prefix near ${val_del}.`, networkObjectId);
                 return;
             }
 
-            let [ip, netmask] = parseCidr(val_del);
+            const [ip, netmask] = parseCidr(val_del);
             removeRemoteRoutingRule(networkObjectId, getNetwork(ip, netmask), netmask);
-            terminalMessage(`Se ha eliminado la ruta ${val_del} con éxito.`, networkObjectId);
+            terminalMessage(`Route ${val_del} has been successfully deleted.`, networkObjectId);
 
         }
 

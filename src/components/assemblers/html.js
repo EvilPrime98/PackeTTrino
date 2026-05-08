@@ -1,55 +1,65 @@
-/**ESTA FUNCION OCULTA TODOS LOS MODALES DE OPCIONES AVANZADAS */
+/**
+ * Closes all advanced options modals.
+ */
 function closeAllAdvOptsModals() {
-    const modals = document.querySelectorAll(".advanced-options-modal");
-    for (let i = 0; i < modals.length; i++) {
-        modals[i].style.display = "none";
-    }
+    const modals = $$(".advanced-options-modal");
+    modals?.forEach(modal => modal.style.display = "none");
 }
 
-/**ESTA FUNCION GESTIONA LOS EVENTOS DE TECLADO EN EL DOCUMENTO */
+/**
+ * Manages keyboard events in the document.
+ * @param {KeyboardEvent} event 
+ */
 function documentKeyboardHandler(event) {
 
     const keyboardActions = {
         "Escape": () => closeEveryThing(event)
     }
 
-    keyboardActions[event.key] ? keyboardActions[event.key]() : null;
+    if (keyboardActions[event.key]) keyboardActions[event.key]();
 }
 
-/**ESTA FUNCION OCULTA TODOS LOS MODALES */
+/**
+ * Hides all modals and popups.
+ * @param {Event} event 
+ */
 function closeEveryThing(event) {
 
-    //cerramos todos los modales
-    document.querySelectorAll(".modal").forEach($modal => {
-        if (window.getComputedStyle($modal).display === "none") return; //parche, lo mejor es usar clases
-        const $closeBtn = $modal.querySelector("#close-btn");
+    //close all modals
+    $$(".modal")?.forEach($modal => {
+        if (window.getComputedStyle($modal).display === "none") return; //hacky, better use classes
+        const $closeBtn = $('#close-btn', $modal);
         if ($closeBtn) $closeBtn.click();
     });
 
-    //cerramos todos los mensajes emergentes
-    document.querySelectorAll(".popup-content").forEach($popup => {
-        const $closeBtn = $popup.querySelector("#btn-close");
-        const $cancelBtn = $popup.querySelector("#btn-cancel");
+    //close all popups
+    $$(".popup-content")?.forEach($popup => {
+        const $closeBtn = $('#btn-close', $popup);
+        const $cancelBtn = $('#btn-cancel', $popup);
         if ($closeBtn) $closeBtn.click();
         if ($cancelBtn) $cancelBtn.click();
     });
 
-    //cerramos las herramientas
+    //close all additional tools
     closeBrowser(event); 
     closeTraffic();
     closeTerminal(event);
 }
 
-/**ESTA FUNCION GESTIONA EL MODO OSCURO DE LA APLICACION */
+/**
+ * Manages the dark mode of the application.
+ * @returns {void}
+ */
 function activateDarkMode() {
 
-    const $checkbox = document.querySelector(".settings-modal").querySelector("#dark-mode");
-    const $board = document.querySelector(".board");
-    const $panel = document.querySelector("#item-panel");
-    const $modals = document.querySelectorAll(".modal");
-    const $innerTables = document.querySelectorAll(".inner-table");
-    const $svgBoard = document.querySelector("#svg-board");
-    const $packetTraffic = document.querySelector(".packet-traffic");
+    const $checkbox = $(".settings-modal #dark-mode");
+    const $board = $(".board");
+    const $panel = $("#item-panel");
+    const $modals = $$(".modal");
+    const $innerTables = $$(".inner-table");
+    const $svgBoard = $("#svg-board");
+    const $packetTraffic = $(".packet-traffic");
+    const isChecked = $checkbox.checked;
 
     if ($checkbox.checked) {
 
@@ -57,9 +67,9 @@ function activateDarkMode() {
         localStorage.setItem("dark-mode", "true");
         $board.classList.add("dark-mode");
         $panel.classList.add("dark-mode");
-        $modals.forEach(modal => modal.classList.add("modal-dark-mode"));
-        $svgBoard.querySelectorAll("line").forEach(line => line.setAttribute("stroke", "white"));
-        $board.querySelectorAll(".modal-table").forEach(modal => modal.classList.add("dark-mode"));
+        $modals?.forEach(modal => modal.classList.add("modal-dark-mode"));
+        $('line', $svgBoard)?.forEach(line => line.setAttribute("stroke", "white"));
+        $('.modal-table', $board)?.forEach(modal => modal.classList.add("dark-mode"));
         $packetTraffic.classList.add("dark-mode");
         $innerTables.forEach(table => table.classList.add("dark-mode"));
         changePanelIcons("dark");
@@ -70,18 +80,23 @@ function activateDarkMode() {
         localStorage.setItem("dark-mode", "false");
         $board.classList.remove("dark-mode");
         $panel.classList.remove("dark-mode");
-        $modals.forEach(modal => modal.classList.remove("modal-dark-mode"));
-        $svgBoard.querySelectorAll("line").forEach(line => line.setAttribute("stroke", "black"));
-        $board.querySelectorAll(".modal-table").forEach(modal => modal.classList.remove("dark-mode"));
+        $modals?.forEach(modal => modal.classList.remove("modal-dark-mode"));
+        $('line', $svgBoard)?.forEach(line => line.setAttribute("stroke", "black"));
+        $('.modal-table', $board)?.forEach(modal => modal.classList.remove("dark-mode"));
         $packetTraffic.classList.remove("dark-mode");
         $innerTables.forEach(table => table.classList.remove("dark-mode"));
         changePanelIcons("light");
         
     }
 
+    /**
+     * Changes the panel icons depending on the theme.
+     * @param {'dark' | 'light'} theme
+     * @returns {void}
+     */
     function changePanelIcons(theme) {
 
-        const $items = $panel.querySelectorAll(".item");
+        const $items = $$('.item', $panel);
     
         if (theme === "dark") {
             $items.forEach(item => {

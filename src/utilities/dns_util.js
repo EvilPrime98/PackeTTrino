@@ -1,3 +1,20 @@
+/**
+ * Handles the `dns` terminal command to manage DNS zone records on a DNS server network object.
+ *
+ * Only available when the `named` service is active. Supports:
+ * - `-s` / `--show`: prints the raw DNS records table HTML.
+ * - `-f` / `--flush`: resets the DNS table to headers only.
+ * - `add [<domain> <value>]`: adds a type-A record without the `-t` flag.
+ * - `add -t <type> <domain> <value> [<serial> <cacheTTL>]`: adds a typed record after validation.
+ * - `del <type> <domain>`: removes a specific DNS record.
+ *
+ * Validation errors and unsupported record types are printed to the terminal.
+ *
+ * @param {string} networkObjectId - The DOM element ID of the DNS server network object.
+ * @param {Array<string>} args - Tokenised command arguments.
+ *   Format: ["dns", <subcommand>, ...]
+ * @returns {void}
+ */
 function command_dns(networkObjectId, args) {
 
     const $serverObject = document.getElementById(networkObjectId);
@@ -5,10 +22,10 @@ function command_dns(networkObjectId, args) {
     const isNamedOn = $serverObject.getAttribute("named") === "true";
 
     if (!isNamedOn) {
-        terminalMessage("Error: Utilidad no disponible en este equipo.", networkObjectId);
+        terminalMessage("Error: Utility not available on this device.", networkObjectId);
         return;
     }
-    
+
     if (args[1] === "-s" || args[1] === "--show") {
         terminalMessage($dnsTable.outerHTML, networkObjectId);
         return;
@@ -18,34 +35,34 @@ function command_dns(networkObjectId, args) {
 
         $dnsTable.innerHTML = `
             <tr>
-                <th>Dominio</th>
-                <th>Tipo</th>
-                <th>Valor</th>
+                <th>Domain</th>
+                <th>Type</th>
+                <th>Value</th>
             </tr>
         `;
 
-        terminalMessage("La tabla de registros DNS ha sido limpiada correctamente.", networkObjectId);
+        terminalMessage("The DNS records table has been successfully cleared.", networkObjectId);
         return;
     }
 
     if (args[1] === "add") {
 
-        if (args[2] !== "-t"){ //<-- si no se especifica el tipo de registro, se asume que es A
+        if (args[2] !== "-t"){ //<-- if the record type is not specified, A is assumed
             const domain = args[2];
             const value = args[3];
-            let record = new dnsRecord(domain, "A", value);
+            const record = new dnsRecord(domain, "A", value);
             addDnsEntry(networkObjectId, record);
-            terminalMessage("Se ha añadido correctamente el registro DNS.", networkObjectId);
+            terminalMessage("The DNS record has been successfully added.", networkObjectId);
             return;
         }
 
-        if (args[2] === "-t") { //<-- si se especifica el tipo de registro, se valida primero
-            
-            let recordType = args[3] || "none";
-            let domain = args[4];
-            let value = args[5];
-            let serial = args[6];
-            let cacheTTL = args[7];
+        if (args[2] === "-t") { //<-- if the record type is specified, it is validated first
+
+            const recordType = args[3] || "none";
+            const domain = args[4];
+            const value = args[5];
+            const serial = args[6];
+            const cacheTTL = args[7];
 
             const dnsRecordTypes = {
                 "SOA": () => isValidSOARecord(networkObjectId, domain, value, serial, cacheTTL),
@@ -55,15 +72,15 @@ function command_dns(networkObjectId, args) {
                 "PTR": () => isValidPTRRecord(networkObjectId, domain, value)
             }
 
-            if (recordType.toUpperCase() in dnsRecordTypes) { //<-- si el tipo de registro existe
+            if (recordType.toUpperCase() in dnsRecordTypes) { //<-- if the record type exists
 
                 try {
 
-                    dnsRecordTypes[recordType.toUpperCase()](); //<-- validamos el registro
+                    dnsRecordTypes[recordType.toUpperCase()](); //<-- validate the record
 
-                    let record = new dnsRecord(
-                        domain, 
-                        recordType, 
+                    const record = new dnsRecord(
+                        domain,
+                        recordType,
                         value,
                     );
 
@@ -71,7 +88,7 @@ function command_dns(networkObjectId, args) {
                     record.cacheTTL = cacheTTL;
 
                     addDnsEntry(networkObjectId, record);
-                    terminalMessage(`Se ha añadido correctamente el registro ${recordType.toUpperCase()}.`, networkObjectId);
+                    terminalMessage(`The ${recordType.toUpperCase()} record has been successfully added.`, networkObjectId);
 
                 } catch (error) {
 
@@ -81,24 +98,24 @@ function command_dns(networkObjectId, args) {
 
             }else {
 
-                terminalMessage("Error: Tipo de Registro Desconocido.", networkObjectId);
-                terminalMessage("Error: Sintaxis: dns add -t &lt;tipo&gt; &lt;dominio&gt; &lt;valor&gt;", networkObjectId);
+                terminalMessage("Error: Unknown Record Type.", networkObjectId);
+                terminalMessage("Error: Syntax: dns add -t &lt;type&gt; &lt;domain&gt; &lt;value&gt;", networkObjectId);
 
             }
-            
+
         }
 
         return;
     }
-    
-    if (args[1] === "del") { //<-- dns del <tipo> <dominio>
-        let recordType= args[2];
-        let domain = args[3];
+
+    if (args[1] === "del") { //<-- dns del <type> <domain>
+        const recordType= args[2];
+        const domain = args[3];
         delDnsEntry(networkObjectId, recordType, domain);
-        terminalMessage("Se ha eliminado correctamente el registro DNS.", networkObjectId);
+        terminalMessage("The DNS record has been successfully deleted.", networkObjectId);
         return;
     }
-       
-    terminalMessage("Error: Sintaxis: dns &lt;add|del&gt; [-t &lt;type&gt;] &lt;domain|cname&gt; [ip|domain]", networkObjectId);
+
+    terminalMessage("Error: Syntax: dns &lt;add|del&gt; [-t &lt;type&gt;] &lt;domain|cname&gt; [ip|domain]", networkObjectId);
 
 }

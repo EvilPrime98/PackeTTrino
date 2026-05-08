@@ -1,3 +1,12 @@
+/**
+ * Creates and returns a routing table modal element as an `<article>` DOM node.
+ * The table has five columns — Destination Network, Netmask, Exit, Interface,
+ * and Next Hop — and a "Close" button that calls `closeObjectModalTable`.
+ * Click events on the element are stopped from propagating so they do not trigger
+ * parent board interactions.
+ *
+ * @returns {HTMLElement} The routing table `<article>` element, ready to be appended to a network object.
+ */
 function routingTable() {
     const $routingTable = document.createElement("article");
 
@@ -6,14 +15,14 @@ function routingTable() {
     $routingTable.innerHTML = `
         <table>
             <tr>
-                <th>Red de Destino</th>
-                <th>Máscara de Red</th>
-                <th>Salida</th>
-                <th>Interfaz</th>
-                <th>Siguiente Salto</th>
+                <th>Destination Network</th>
+                <th>Netmask</th>
+                <th>Exit</th>
+                <th>Interface</th>
+                <th>Next Hop</th>
             </tr>
         </table>
-        <button onclick="closeObjectModalTable(event, '.routing-table')">Cerrar</button>
+        <button onclick="closeObjectModalTable(event, '.routing-table')">Close</button>
     `;
 
     $routingTable.setAttribute("onclick", "event.stopPropagation()");
