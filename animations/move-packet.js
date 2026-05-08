@@ -1,11 +1,21 @@
+/**
+ * Pauses the current simulation.
+ */
 function pauseSimulation() {
     paused = true;
 }
 
+/**
+ * Resumes the current simulation.
+ */
 function resumeSimulation() {
     paused = false;
 }
 
+/**
+ * Controls the flow of the simulation.
+ * @returns {Promise<void>}
+ */
 function waitUntilResumed() {
     return new Promise(resolve => {
         const check = () => {
@@ -16,7 +26,22 @@ function waitUntilResumed() {
     });
 }
 
-async function movePacket(x1, y1, x2, y2, type) {
+/**
+ * Animates the movement of a packet between two points on the board.
+ * @param {string} x1 - X coordinate of the first point.
+ * @param {string} y1 - Y coordinate of the first point.
+ * @param {string} x2 - X coordinate of the second point.
+ * @param {string} y2 - Y coordinate of the second point.
+ * @param {'broadcast' | 'unicast' | 'dhcp' | 'dns' | 'icmp' | 'tcp' | 'unicast'} [type='unicast'] - Type of packet.
+ * @returns 
+ */
+async function movePacket(
+    x1, 
+    y1, 
+    x2, 
+    y2, 
+    type = 'unicast'
+) {
 
     return new Promise(resolve => {
 
