@@ -27,7 +27,8 @@ function getRandomMac() {
  * @returns {string} Network address in dotted-decimal notation.
  */
 function getNetwork(ip, netmask) {
-
+    if (!isValidIp(ip)) throw new Error("networkd: Error: Invalid IP address.");
+    if (!isValidIp(netmask)) throw new Error("networkd: Error: Invalid subnet mask.");
     ip = ip.split('.'); //split each IP octet
     netmask = netmask.split('.'); //split each netmask octet
     const network = [];
@@ -134,6 +135,7 @@ function parseCidr(cidr) {
  * @returns {boolean} `true` if valid, `false` otherwise.
  */
 function isValidIp(ip) {
+    if (typeof ip !== 'string') return false;
     return /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/.test(ip);
 }
 
@@ -285,6 +287,7 @@ function isValidDomain(domain) {
  * @returns {boolean} `true` if the MAC address format is valid, `false` otherwise.
  */
 function isValidMac(mac) {
+    if (typeof mac !== 'string') return false;
     return /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/.test(mac);
 }
 
