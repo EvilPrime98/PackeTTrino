@@ -52,19 +52,14 @@ function getBroadcast(ip, netmask) {
  * @description Converts a dotted-decimal IPv4 address to a 32-character binary string.
  * @param {string} ip - IPv4 address in dotted-decimal notation.
  * @returns {string} 32-character binary string (e.g. "11000000101010000000000000000001").
+ * @throws {Error} If `ip` is not a valid IPv4 address.
  */
 function ipToBinary(ip) {
-
-    const blocks = ip.split(".");
-    const blocksBinary = [];
-
-    for (let i = 0; i < blocks.length; i++) {
-        blocksBinary[i] = parseInt(blocks[i]).toString(2).padStart(8, "0");
-    }
-
-    const ipBinary = blocksBinary.join('')
-
-    return ipBinary
+    if (!isValidIp(ip)) throw new Error("networkd: Error: Invalid IP address.");
+    return ip
+    .split('.')
+    .map(oct => parseInt(oct).toString(2).padStart(8, "0"))
+    .join('')
 }
 
 /**
@@ -73,17 +68,12 @@ function ipToBinary(ip) {
  * @returns {string} IPv4 address in dotted-decimal notation.
  */
 function binaryToIp(binary) {
-
-    const blocks = binary.match(/.{8}/g);
-    const blocksIp = [];
-
-    for (let i = 0; i < blocks.length; i++) {
-        blocksIp[i] = parseInt(blocks[i], 2).toString(10)
-    }
-
-    const ip = blocksIp.join(".")
-
-    return ip
+    if (typeof binary !== 'string') throw new Error("networkd: Error: Invalid binary string.");
+    if (binary.length !== 32) throw new Error("networkd: Error: Invalid binary string.");
+    return binary
+    .match(/.{8}/g)
+    .map(b => parseInt(b, 2).toString(10))
+    .join(".");   
 }
 
 /**
@@ -92,17 +82,12 @@ function binaryToIp(binary) {
  * @returns {number} CIDR prefix length (e.g. 24).
  */
 function netmaskToCidr(netmask) {
-
-    const octets = netmask.split("."); //split into octets
-
-    for (let i = 0; i < octets.length; i++) {
-        octets[i] = parseInt(octets[i]).toString(2).padStart(8, "0");
-    }
-
-    const cidr = octets.join("").split("0")[0].length;
-
-    return cidr;
-
+    if (!isValidIp(netmask)) throw new Error("networkd: Error: Invalid subnet mask.");
+    return netmask
+    .split('.')
+    .map(octet => parseInt(octet).toString(2).padStart(8, '0'))
+    .join('')
+    .split('0')[0].length;
 }
 
 /**
@@ -112,6 +97,7 @@ function netmaskToCidr(netmask) {
  * @returns {[string, string]} Tuple of [ip, netmask] in dotted-decimal notation.
  */
 function parseCidr(cidr) {
+    if (!isValidCidrIp(cidr)) throw new Error("networkd: Error: Invalid CIDR.");
     const ip = cidr.split("/")[0]; //192.168.0.0
     const netmask = parseInt(cidr.split("/")[1]); //24
     let dummy = "";
@@ -266,10 +252,9 @@ function deleteSwitchPort(switchId, networkObjectId) {
 function isValidCidrIp(cidr) {
     const ip = cidr.split("/")[0];
     const netmask = parseInt(cidr.split("/")[1]);
-    let response = true;
-    if (!isValidIp(ip)) response = false;
-    if (isNaN(netmask) || netmask < 0 || netmask > 32) response = false;
-    return response;
+    if (!isValidIp(ip)) return false;
+    if (isNaN(netmask) || netmask < 0 || netmask > 32) return false;
+    return true;
 }
 
 /**
