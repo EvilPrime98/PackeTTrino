@@ -1,3 +1,5 @@
 node_modules
 dist
 .claude
+graphify-out/
+CLAUDE.md
