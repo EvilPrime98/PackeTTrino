@@ -8,7 +8,6 @@ describe('network_lib.js', () => {
         '../src/lib/network_lib.js',
     );
 
-    /*VALIDATORS*/
     suite('isValidMac(mac)', () => {
         
         const isValidMac = window.isValidMac;
@@ -86,7 +85,6 @@ describe('network_lib.js', () => {
 
     });
 
-    /*-----*/
     suite('getRandomMac()', () => {
 
         const getRandomMac = window.getRandomMac;
@@ -261,6 +259,28 @@ describe('network_lib.js', () => {
         it('should return the correct tuple for a valid cidr', () => {
             for (const { cidrIp, ip, netmask } of ips.validIps) {
                 expect(parseCidr(cidrIp)).toEqual([ip, netmask]);
+            }
+        })
+
+    });
+
+    suite('isValidCidrIp', () => {
+
+        const isValidCidrIp = window.isValidCidrIp;
+
+        it('should be a function', () => {
+            expect(typeof isValidCidrIp).toBe('function');
+        })
+
+        it('should always return a boolean', () => {
+            for (const { cidrIp } of ips.validIps) {
+                expect(typeof isValidCidrIp(cidrIp)).toBe('boolean');
+            }
+        })
+
+        it('should return `true` for a valid cidr', () => {
+            for (const { cidrIp } of ips.validIps) {
+                expect(isValidCidrIp(cidrIp)).toBe(true);
             }
         })
 
