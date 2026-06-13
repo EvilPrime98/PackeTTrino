@@ -11,7 +11,7 @@
  * const popup = confirmPopup("Do you want to delete this element?", () => deleteItem(id));
  * if (popup) document.body.appendChild(popup);
  */
-function confirmPopup(message, callback)  {
+export function confirmPopup(message, callback)  {
 
     if (document.querySelectorAll(".popup-content").length > 0) return;
 

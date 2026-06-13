@@ -7,7 +7,7 @@
  *
  * @returns {HTMLElement} The routing table `<article>` element, ready to be appended to a network object.
  */
-function routingTable() {
+export function routingTable() {
     const $routingTable = document.createElement("article");
 
     $routingTable.classList.add("modal-table","routing-table");

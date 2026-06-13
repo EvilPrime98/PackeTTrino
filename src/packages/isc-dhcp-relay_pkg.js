@@ -8,7 +8,12 @@
  * @param {HTMLElement} $networkObject - The DOM element representing the network device.
  * @returns {void}
  */
-function installDhcprelay($networkObject) {
+// [agent-added: esm-migration phase 05]
+import { FileSystem } from '../lib/fileSystem_lib.js';
+// esm-migration: scope unclear — terminalMessage, dhcpRelayConfig are defined in src/components/ (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export function installDhcprelay($networkObject) {
 
     const networkObjectId = $networkObject.id;
 
@@ -50,7 +55,8 @@ function installDhcprelay($networkObject) {
  * @param {string} networkObjectId - The DOM element ID of the network device.
  * @returns {void}
  */
-function uninstallDhcprelay(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function uninstallDhcprelay(networkObjectId) {
 
     terminalMessage("Uninstalling DHCP Relay...", networkObjectId);
 

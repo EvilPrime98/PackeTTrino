@@ -11,7 +11,7 @@
  * @param {number} y - Desired top position in pixels relative to the board.
  * @returns {HTMLElement} The configured DHCP relay agent `<article>` element.
  */
-function DhcpRelayObject(x, y) {
+export function DhcpRelayObject(x, y) {
 
     const $networkObject = document.createElement("article");
     const append = (...nodes) => nodes.forEach(node => $networkObject.appendChild(node));

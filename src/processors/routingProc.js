@@ -30,7 +30,17 @@
  *   broadcast packets when `isNotForward` is `true`.
  * @returns {Promise<void>}
  */
-async function routing(networkObjectId, packet, isNotForward = false, outInterface = "") {
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { getInterfaces, getNetwork, isIpInARPTable } from '../lib/network_lib.js';
+import { firewallProcessorFilter, firewallProc } from '../services/iptablesd_service.js';
+import { arpResolve } from '../services/arp_service.js';
+import { igniteFire } from '../../animations/firewall-block.js';
+import { switchProcessor } from './switchProc.js';
+// esm-migration: scope unclear — addPacketTraffic is defined in src/components/menus/packetTracerMenu.js (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export async function routing(networkObjectId, packet, isNotForward = false, outInterface = "") {
 
     const $networkObject = document.getElementById(networkObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
@@ -73,7 +83,7 @@ async function routing(networkObjectId, packet, isNotForward = false, outInterfa
             if (isNotForward) {
 
                 if (!firewallProcessorFilter(networkObjectId, packet, "OUTPUT", "", ruleInterface)) {
-                    if (visualToggle) igniteFire(networkObjectId);
+                    if (state.visualToggle) igniteFire(networkObjectId);
                     return;
                 }
 

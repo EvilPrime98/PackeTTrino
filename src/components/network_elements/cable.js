@@ -14,7 +14,7 @@
  *   the tooltip text on the delete circle.
  * @returns {void}
  */
-function CableObject(x1, y1, x2, y2, start, end, networkObjectInterface = "enp0s3") {
+export function CableObject(x1, y1, x2, y2, start, end, networkObjectInterface = "enp0s3") {
 
     const svg = document.getElementById("svg-board");
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -63,7 +63,7 @@ function CableObject(x1, y1, x2, y2, start, end, networkObjectInterface = "enp0s
  * @param {MouseEvent} event - The click event fired on the cable's delete circle.
  * @returns {void}
  */
-function deleteCable(event) {
+export function deleteCable(event) {
 
     const circle = event.target;
     const cableObject = circle.previousElementSibling;

@@ -12,7 +12,7 @@
  *   Format: ["curl", ["-m", "<METHOD>"], ["-h"], "<url>"]
  * @returns {Promise<void>}
  */
-async function command_curl(networkObjectId, args) {
+export async function command_curl(networkObjectId, args) {
 
     //option check
 

@@ -3,3 +3,4 @@ dist
 .claude
 graphify-out/
 CLAUDE.md
+esm-migration-plan/

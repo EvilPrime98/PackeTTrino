@@ -11,7 +11,7 @@
  * @param {string} iface - The interface name the network is reachable through.
  * @returns {void}
  */
-function setDirectRoutingRule(networkObjectId, gateway, netmask, iface) {
+export function setDirectRoutingRule(networkObjectId, gateway, netmask, iface) {
 
     if (!netmask || !gateway || !iface) return;
 
@@ -73,7 +73,7 @@ function setDirectRoutingRule(networkObjectId, gateway, netmask, iface) {
  * @param {string} nexthop - Next-hop IP address stored in the Next Hop column.
  * @returns {void}
  */
-function setRemoteRoutingRule(routerObjectId, destination, netmask, gateway, iface, nexthop) {
+export function setRemoteRoutingRule(routerObjectId, destination, netmask, gateway, iface, nexthop) {
 
     if (!destination || !netmask || !gateway || !iface || !nexthop) return;
 
@@ -128,7 +128,7 @@ function setRemoteRoutingRule(routerObjectId, destination, netmask, gateway, ifa
  * @param {string} iface - The interface name whose direct route should be removed.
  * @returns {void}
  */
-function removeDirectRoutingRule(routerObjectId, iface) {
+export function removeDirectRoutingRule(routerObjectId, iface) {
     const $networkObject = document.getElementById(routerObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
     const $rules = $routingTable.querySelectorAll("tr");
@@ -150,7 +150,7 @@ function removeDirectRoutingRule(routerObjectId, iface) {
  * @param {string} netmask - Subnet mask of the rule to remove.
  * @returns {void}
  */
-function removeRemoteRoutingRule(routerObjectId, destination, netmask) {
+export function removeRemoteRoutingRule(routerObjectId, destination, netmask) {
     const $networkObject = document.getElementById(routerObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
     const $rules = $routingTable.querySelectorAll("tr");
@@ -172,7 +172,7 @@ function removeRemoteRoutingRule(routerObjectId, destination, netmask) {
  * @param {string} networkObjectId - The DOM element ID of the network object whose routes are printed.
  * @returns {void}
  */
-function printRouting(networkObjectId) {
+export function printRouting(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
@@ -215,7 +215,7 @@ function printRouting(networkObjectId) {
  * @param {string} routerObjectid - The DOM element ID of the router whose routing table is reset.
  * @returns {void}
  */
-function routingTableRestore(routerObjectid) {
+export function routingTableRestore(routerObjectid) {
 
     const $routerObject = document.getElementById(routerObjectid);
     const routingTable = $routerObject.querySelector(".routing-table").querySelector("table");
@@ -265,7 +265,7 @@ function routingTableRestore(routerObjectid) {
  * @param {string} $routerObjectId - The DOM element ID of the router whose remote routes are cleared.
  * @returns {void}
  */
-function removeRemoteRules($routerObjectId) {
+export function removeRemoteRules($routerObjectId) {
     const $networkObject = document.getElementById($routerObjectId);
     const $remoteRoutingRules = $networkObject.querySelectorAll(".remote-route");
     $remoteRoutingRules.forEach($rule => $rule.remove());
@@ -281,7 +281,7 @@ function removeRemoteRules($routerObjectId) {
  * @param {string} netmask - Subnet mask to match.
  * @returns {HTMLTableRowElement|false} The matching table row, or false if not found.
  */
-function getRoutingRule(routerObjectId, destination, netmask) {
+export function getRoutingRule(routerObjectId, destination, netmask) {
     const $networkObject = document.getElementById(routerObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");
     const $rows = $routingTable.querySelectorAll("tr");
@@ -306,7 +306,7 @@ function getRoutingRule(routerObjectId, destination, netmask) {
  * @param {string} targetinterface - The interface name to filter rules by.
  * @returns {Array<string>} An array of `ip route add <dest>/<cidr> via <nexthop>` strings.
  */
-function getRoutingRules(routerObjectid, targetinterface) {
+export function getRoutingRules(routerObjectid, targetinterface) {
 
     const $routerObject = document.getElementById(routerObjectid);
     const $routingTable = $routerObject.querySelector(".routing-table").querySelector("table");
@@ -336,7 +336,7 @@ function getRoutingRules(routerObjectid, targetinterface) {
  * @param {string} iface - The interface name whose rules should be removed.
  * @returns {void}
  */
-function removeInterfaceRoutingRules(networkObjectId, iface) {
+export function removeInterfaceRoutingRules(networkObjectId, iface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const $routingTable = $networkObject.querySelector(".routing-table").querySelector("table");

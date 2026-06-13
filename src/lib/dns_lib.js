@@ -1,7 +1,16 @@
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { isValidIp, isValidDomain } from './network_lib.js';
+import { FileSystem } from './fileSystem_lib.js';
+import { pathBuilder } from '../utilities/filesystem_utils.js';
+// esm-migration: scope unclear — terminalMessage is defined in src/components/network_tools/terminal.js (Phase 06)
+// import { terminalMessage } from '../components/network_tools/terminal.js';
+
 /**
  * @description Represents a single DNS resource record with domain, type, and value fields.
  */
-class dnsRecord {
+// [agent-added: esm-migration phase 05]
+export class dnsRecord {
     /**
      * @param {string} domain - Fully-qualified domain name (FQDN) for the record.
      * @param {string} type - Record type (e.g. "A", "CNAME", "SOA", "NS", "PTR").
@@ -20,7 +29,8 @@ class dnsRecord {
  * @param {string} targetDomain - Domain name to search for a SOA record.
  * @returns {boolean} `true` if a SOA record exists for `targetDomain`, `false` otherwise.
  */
-function hasSoaRecord(serverObjectId, targetDomain) {
+// [agent-added: esm-migration phase 05]
+export function hasSoaRecord(serverObjectId, targetDomain) {
 
     const $networkObject = document.getElementById(serverObjectId);
     const $dnsTable = $networkObject.querySelector(".dns-table").querySelector("table");
@@ -43,7 +53,8 @@ function hasSoaRecord(serverObjectId, targetDomain) {
  * @param {string} targetDomain - Domain name to search for a NS record.
  * @returns {boolean} `true` if a NS record exists for `targetDomain`, `false` otherwise.
  */
-function hasNsRecord(serverObjectId, targetDomain) {
+// [agent-added: esm-migration phase 05]
+export function hasNsRecord(serverObjectId, targetDomain) {
     const $networkObject = document.getElementById(serverObjectId);
     const $dnsTable = $networkObject.querySelector(".dns-table").querySelector("table");
     const $nsRecords = $dnsTable.querySelectorAll(".NS");
@@ -65,7 +76,8 @@ function hasNsRecord(serverObjectId, targetDomain) {
  * @param {string} name - FQDN to look up (e.g. "www.example.com.").
  * @returns {string|false} The IP address string if found, otherwise `false`.
  */
-function getARecord(dataId, name) {
+// [agent-added: esm-migration phase 05]
+export function getARecord(dataId, name) {
     const $networkObject = document.getElementById(dataId);
     const $dnsTable = $networkObject.querySelector(".dns-table").querySelector("table");
     const $aRecords = $dnsTable.querySelectorAll(".A");
@@ -92,7 +104,8 @@ function getARecord(dataId, name) {
  * @returns {void}
  * @throws {Error} If any field is invalid or a SOA record already exists for the domain.
  */
-function isValidSOARecord(dataId, domain, authorityNameServer, serial, cacheTTL) {
+// [agent-added: esm-migration phase 05]
+export function isValidSOARecord(dataId, domain, authorityNameServer, serial, cacheTTL) {
     if (!isValidDomain(domain)) throw new Error(`Error: domain ${domain} is invalid`);
     if (!domain.endsWith(".")) throw new Error(`Error: domain ${domain} must be an FQDN`);
     if (!isValidDomain(authorityNameServer)) throw new Error(`Error: authority server ${authorityNameServer} is invalid`);
@@ -111,7 +124,8 @@ function isValidSOARecord(dataId, domain, authorityNameServer, serial, cacheTTL)
  * @returns {void}
  * @throws {Error} If the domain has no SOA record, or either field is not a valid FQDN.
  */
-function isValidNSRecord(dataId, domain, authorityNameServer) {
+// [agent-added: esm-migration phase 05]
+export function isValidNSRecord(dataId, domain, authorityNameServer) {
     if (!hasSoaRecord(dataId, domain)) throw new Error(`Error: Domain ${domain} must have a SOA record first.`);
     if (!isValidDomain(domain)) throw new Error("Error: Invalid Domain");
     if (!domain.endsWith(".")) throw new Error("Error: Domain Must Be An FQDN");
@@ -128,7 +142,8 @@ function isValidNSRecord(dataId, domain, authorityNameServer) {
  * @returns {void}
  * @throws {Error} If the name or IP is invalid, or if the domain lacks SOA/NS records.
  */
-function isValidARecord(serverObjectId, name, value) {
+// [agent-added: esm-migration phase 05]
+export function isValidARecord(serverObjectId, name, value) {
     if (!isValidDomain(name)) throw new Error(`Error: Name ${name} Is Invalid`);
     const domain = name.split(".").slice(1).join("."); //<-- extraemos el dominio del nombre
     if (!hasSoaRecord(serverObjectId, domain)) throw new Error(`Error: Domain ${domain} must have a SOA record first.`);
@@ -146,7 +161,8 @@ function isValidARecord(serverObjectId, name, value) {
  * @returns {void}
  * @throws {Error} If either domain is invalid, not an FQDN, or `name` has no A record.
  */
-function isValidCNAMERecord(serverObjectId, alias, name) {
+// [agent-added: esm-migration phase 05]
+export function isValidCNAMERecord(serverObjectId, alias, name) {
     if (!isValidDomain(alias)) throw new Error(`Error: Domain ${alias} is invalid`);
     if (!alias.endsWith(".")) throw new Error(`Error: domain ${alias} must be an FQDN`);
     if (!isValidDomain(name)) throw new Error(`Error: Domain ${name} is invalid`);
@@ -161,7 +177,8 @@ function isValidCNAMERecord(serverObjectId, alias, name) {
  * @param {string} inputDomain - Domain name to look up in `/etc/hosts`.
  * @returns {string|false} IP address string if found, otherwise `false`.
  */
-function getDomainFromEtcHosts(networkObjectId, inputDomain) {
+// [agent-added: esm-migration phase 05]
+export function getDomainFromEtcHosts(networkObjectId, inputDomain) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let response = false; //<-- initialize response to false
@@ -207,7 +224,8 @@ function getDomainFromEtcHosts(networkObjectId, inputDomain) {
  * @param {number} [newrecord.cacheTTL] - Cache TTL in seconds (SOA records only).
  * @returns {void}
  */
-function addDnsEntry(serverObjectId, newrecord) {
+// [agent-added: esm-migration phase 05]
+export function addDnsEntry(serverObjectId, newrecord) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const $dnsTable = $serverObject.querySelector(".dns-table").querySelector("table")
@@ -249,7 +267,8 @@ function addDnsEntry(serverObjectId, newrecord) {
  * @param {string} targetDomain - FQDN of the record to delete.
  * @returns {void}
  */
-function delDnsEntry(serverObjectId, recordType, targetDomain) {
+// [agent-added: esm-migration phase 05]
+export function delDnsEntry(serverObjectId, recordType, targetDomain) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const $dnsTable = $serverObject.querySelector(".dns-table").querySelector("table");
@@ -293,7 +312,8 @@ function delDnsEntry(serverObjectId, recordType, targetDomain) {
  * @param {string} networkObjectId - DOM id of the network object whose terminal receives the output.
  * @returns {void}
  */
-function generateDnsOuput(packet, networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function generateDnsOuput(packet, networkObjectId) {
 
     const currentDate = new Date();
     const currentDateString = currentDate.toString();
@@ -351,7 +371,8 @@ function generateDnsOuput(packet, networkObjectId) {
  * @returns {[string, string, string]|[false, false, false]} Tuple of [recordType, value, serverIp]
  *   if found, or [false, false, false] if not in cache.
  */
-function isDomainInCacheDns(networkObjectId, targetDomain) {
+// [agent-added: esm-migration phase 05]
+export function isDomainInCacheDns(networkObjectId, targetDomain) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const dnsTable = $networkObject.querySelector(".cache-dns-table").querySelector("table");
@@ -402,7 +423,8 @@ function isDomainInCacheDns(networkObjectId, targetDomain) {
  * @param {number} dnsReplyPacket.cache_ttl - TTL in seconds for this cache entry.
  * @returns {void}
  */
-function addDnsCacheEntry(networkObjectId, dnsReplyPacket) {
+// [agent-added: esm-migration phase 05]
+export function addDnsCacheEntry(networkObjectId, dnsReplyPacket) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const $dnsTable = $networkObject.querySelector(".cache-dns-table").querySelector("table");
@@ -435,7 +457,7 @@ function addDnsCacheEntry(networkObjectId, dnsReplyPacket) {
 
     console.log(`DNS record for ${domain} added to ${networkObjectId} for ${ttl} seconds`);
 
-    dnsCacheTimers[`${networkObjectId}-${domain}-${value}`] = setTimeout(() => {
+    state.dnsCacheTimers[`${networkObjectId}-${domain}-${value}`] = setTimeout(() => {
         delDnsCacheEntry(networkObjectId, domain);
     }, ttl * 1000);
 
@@ -448,7 +470,8 @@ function addDnsCacheEntry(networkObjectId, dnsReplyPacket) {
  * @param {string} domain - FQDN of the cache entry to remove.
  * @returns {void}
  */
-function delDnsCacheEntry(networkObjectId, domain) {
+// [agent-added: esm-migration phase 05]
+export function delDnsCacheEntry(networkObjectId, domain) {
     const $networkObject = document.getElementById(networkObjectId);
     const $cacheDnsTable = $networkObject.querySelector(".cache-dns-table").querySelector("table");
     const $records = $cacheDnsTable.querySelectorAll("tr");
@@ -458,8 +481,8 @@ function delDnsCacheEntry(networkObjectId, domain) {
         const $fields = $record.querySelectorAll("td");
         const recordDomain = $fields[0].innerText.trim();
         if (recordDomain === domain) {
-            clearTimeout(dnsCacheTimers[`${networkObjectId}-${recordDomain}`]);
-            delete dnsCacheTimers[`${networkObjectId}-${recordDomain}`];
+            clearTimeout(state.dnsCacheTimers[`${networkObjectId}-${recordDomain}`]);
+            delete state.dnsCacheTimers[`${networkObjectId}-${recordDomain}`];
             $record.remove();
             break;
         }
@@ -475,7 +498,8 @@ function delDnsCacheEntry(networkObjectId, domain) {
  * @param {string} value - Cached value (e.g. IP address).
  * @returns {void}
  */
-function addDnsCacheEntryServer(serverObjectId, domain, recordType, value) {
+// [agent-added: esm-migration phase 05]
+export function addDnsCacheEntryServer(serverObjectId, domain, recordType, value) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const dnsTable = $serverObject.querySelector(".cache-dns-table").querySelector("table");
@@ -504,7 +528,8 @@ function addDnsCacheEntryServer(serverObjectId, domain, recordType, value) {
  * @param {string} targetDomain - FQDN to look up in the zone table.
  * @returns {string[]|false} Array of matching record values, or `false` if no match is found.
  */
-function iterativeDnsQuery(serverObjectId, targetDomain) {
+// [agent-added: esm-migration phase 05]
+export function iterativeDnsQuery(serverObjectId, targetDomain) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const $dnsTable = $serverObject.querySelector(".dns-table").querySelector("table");
@@ -535,7 +560,8 @@ function iterativeDnsQuery(serverObjectId, targetDomain) {
  * @param {string} domain - FQDN of the zone to drop (e.g. "example.com.").
  * @returns {void}
  */
-function dropDnsZone(serverObjectId, domain) {
+// [agent-added: esm-migration phase 05]
+export function dropDnsZone(serverObjectId, domain) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const $dnsTable = $serverObject.querySelector(".dns-table").querySelector("table");
@@ -558,7 +584,8 @@ function dropDnsZone(serverObjectId, domain) {
  * @returns {Object} Object with keys `authorityNameServer`, `authorityDomain`, `serial`, and
  *   `cacheTTL`. Returns an empty object if no matching SOA is found.
  */
-function getSoaRecord(serverObjectId, targetDomain) {
+// [agent-added: esm-migration phase 05]
+export function getSoaRecord(serverObjectId, targetDomain) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const $dnsTable = $serverObject.querySelector(".dns-table").querySelector("table");
@@ -588,7 +615,8 @@ function getSoaRecord(serverObjectId, targetDomain) {
  * @param {string} networkObjectId - DOM id of the network device element.
  * @returns {string[]} Array of DNS server IP address strings.
  */
-function getDnsServers(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function getDnsServers(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectFileSystem = new FileSystem($networkObject);
     const fileContent = networkObjectFileSystem.read("resolv.conf", ["etc"]);
@@ -606,7 +634,8 @@ function getDnsServers(networkObjectId) {
  * @param {string[]} dnsServers - Array of DNS server IP address strings to write.
  * @returns {void}
  */
-function setDnsServers(networkObjectId, dnsServers) {
+// [agent-added: esm-migration phase 05]
+export function setDnsServers(networkObjectId, dnsServers) {
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectFileSystem = new FileSystem($networkObject);
     let fileContent = "";
@@ -620,7 +649,8 @@ function setDnsServers(networkObjectId, dnsServers) {
  * @param {string} networkObjectId - DOM id of the network device element.
  * @returns {void}
  */
-function flushDnsCache(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function flushDnsCache(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
     const $cacheDnsTable = $networkObject.querySelector(".cache-dns-table").querySelector("table");
     $cacheDnsTable.innerHTML = `

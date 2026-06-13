@@ -2,7 +2,8 @@
  * @description Generates a random 48-bit MAC address in colon-separated hexadecimal notation.
  * @returns {string} MAC address string (e.g. "a1:b2:c3:d4:e5:f6").
  */
-function getRandomMac() {
+// [agent-added: esm-migration phase 04]
+export function getRandomMac() {
     //generate the random 48 bits
     let macString = "";
     for (let i = 1; i <= 48; i++) {
@@ -26,7 +27,8 @@ function getRandomMac() {
  * @param {string} netmask - Subnet mask in dotted-decimal notation.
  * @returns {string} Network address in dotted-decimal notation.
  */
-function getNetwork(ip, netmask) {
+// [agent-added: esm-migration phase 04]
+export function getNetwork(ip, netmask) {
     if (!isValidIp(ip)) throw new Error("networkd: Error: Invalid IP address.");
     if (!isValidIp(netmask)) throw new Error("networkd: Error: Invalid subnet mask.");
     ip = ip.split('.'); //split each IP octet
@@ -44,7 +46,8 @@ function getNetwork(ip, netmask) {
  * @param {string} netmask - Subnet mask in dotted-decimal notation.
  * @returns {string} Broadcast address in dotted-decimal notation.
  */
-function getBroadcast(ip, netmask) {
+// [agent-added: esm-migration phase 04]
+export function getBroadcast(ip, netmask) {
     return binaryToIp((ipToBinary(ip)).slice(0, ipToBinary(netmask).split("0")[0].length).padEnd(32, "1"))
 }
 
@@ -54,7 +57,8 @@ function getBroadcast(ip, netmask) {
  * @returns {string} 32-character binary string (e.g. "11000000101010000000000000000001").
  * @throws {Error} If `ip` is not a valid IPv4 address.
  */
-function ipToBinary(ip) {
+// [agent-added: esm-migration phase 04]
+export function ipToBinary(ip) {
     if (!isValidIp(ip)) throw new Error("networkd: Error: Invalid IP address.");
     return ip
     .split('.')
@@ -67,7 +71,8 @@ function ipToBinary(ip) {
  * @param {string} binary - 32-character binary string.
  * @returns {string} IPv4 address in dotted-decimal notation.
  */
-function binaryToIp(binary) {
+// [agent-added: esm-migration phase 04]
+export function binaryToIp(binary) {
     if (typeof binary !== 'string') throw new Error("networkd: Error: Invalid binary string.");
     if (binary.length !== 32) throw new Error("networkd: Error: Invalid binary string.");
     return binary
@@ -81,7 +86,8 @@ function binaryToIp(binary) {
  * @param {string} netmask - Subnet mask in dotted-decimal notation (e.g. "255.255.255.0").
  * @returns {number} CIDR prefix length (e.g. 24).
  */
-function netmaskToCidr(netmask) {
+// [agent-added: esm-migration phase 04]
+export function netmaskToCidr(netmask) {
     if (!isValidIp(netmask)) throw new Error("networkd: Error: Invalid subnet mask.");
     return netmask
     .split('.')
@@ -96,7 +102,8 @@ function netmaskToCidr(netmask) {
  * @param {string} cidr - IP address with CIDR prefix (e.g. "192.168.1.0/24").
  * @returns {[string, string]} Tuple of [ip, netmask] in dotted-decimal notation.
  */
-function parseCidr(cidr) {
+// [agent-added: esm-migration phase 04]
+export function parseCidr(cidr) {
     if (!isValidCidrIp(cidr)) throw new Error("networkd: Error: Invalid CIDR.");
     const ip = cidr.split("/")[0]; //192.168.0.0
     const netmask = parseInt(cidr.split("/")[1]); //24
@@ -120,7 +127,8 @@ function parseCidr(cidr) {
  * @param {string} ip - String to validate.
  * @returns {boolean} `true` if valid, `false` otherwise.
  */
-function isValidIp(ip) {
+// [agent-added: esm-migration phase 04]
+export function isValidIp(ip) {
     if (typeof ip !== 'string') return false;
     return /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/.test(ip);
 }
@@ -134,7 +142,8 @@ function isValidIp(ip) {
  * @param {string} newMac - New MAC address string to record.
  * @returns {void}
  */
-function updateMacEntry(switchObjectId, networkObjectId, newMac) {
+// [agent-added: esm-migration phase 04]
+export function updateMacEntry(switchObjectId, networkObjectId, newMac) {
 
     const switchObject = document.getElementById(switchObjectId);
     const macTable = switchObject.querySelector("table");
@@ -182,7 +191,8 @@ function updateMacEntry(switchObjectId, networkObjectId, newMac) {
  * @param {string} networkObjectId - DOM id of the connected device whose MAC entry to delete.
  * @returns {void}
  */
-function deleteMacEntry(switchObjectId, networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function deleteMacEntry(switchObjectId, networkObjectId) {
 
     const $switchObject = document.getElementById(switchObjectId);
     const $macTable = $switchObject.querySelector("table");
@@ -208,7 +218,8 @@ function deleteMacEntry(switchObjectId, networkObjectId) {
  * @param {string} itemdId - DOM id of the device being connected to the switch.
  * @returns {void}
  */
-function addSwitchPort(switchId, itemdId) {
+// [agent-added: esm-migration phase 04]
+export function addSwitchPort(switchId, itemdId) {
     const $switchObject = document.getElementById(switchId);
     const $macTable = $switchObject.querySelector("table");
     const $records = $macTable.querySelectorAll("tr");
@@ -228,7 +239,8 @@ function addSwitchPort(switchId, itemdId) {
  * @param {string} networkObjectId - DOM id of the device whose port row to remove.
  * @returns {void}
  */
-function deleteSwitchPort(switchId, networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function deleteSwitchPort(switchId, networkObjectId) {
     const switchObject = document.getElementById(switchId);
     const table = switchObject.querySelector("table");
     const tds = table.querySelectorAll("td");
@@ -249,7 +261,8 @@ function deleteSwitchPort(switchId, networkObjectId) {
  * @param {string} cidr - String in the form "a.b.c.d/n" to validate.
  * @returns {boolean} `true` if both the IP part and the prefix length are valid, `false` otherwise.
  */
-function isValidCidrIp(cidr) {
+// [agent-added: esm-migration phase 04]
+export function isValidCidrIp(cidr) {
     const ip = cidr.split("/")[0];
     const netmask = parseInt(cidr.split("/")[1]);
     if (!isValidIp(ip)) return false;
@@ -262,7 +275,8 @@ function isValidCidrIp(cidr) {
  * @param {string} domain - Domain name string to validate (may include a trailing dot for FQDNs).
  * @returns {boolean} `true` if the domain is valid, `false` otherwise.
  */
-function isValidDomain(domain) {
+// [agent-added: esm-migration phase 04]
+export function isValidDomain(domain) {
     return /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])\.?$/.test(domain);
 }
 
@@ -271,7 +285,8 @@ function isValidDomain(domain) {
  * @param {string} mac - MAC address string (e.g. "aa:bb:cc:dd:ee:ff").
  * @returns {boolean} `true` if the MAC address format is valid, `false` otherwise.
  */
-function isValidMac(mac) {
+// [agent-added: esm-migration phase 04]
+export function isValidMac(mac) {
     if (typeof mac !== 'string') return false;
     return /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/.test(mac);
 }
@@ -282,7 +297,8 @@ function isValidMac(mac) {
  * @param {string} switchObjectId - DOM id of the switch element.
  * @returns {string[]} Array of MAC address strings indexed by port row order.
  */
-function getMACTable(switchObjectId) {
+// [agent-added: esm-migration phase 04]
+export function getMACTable(switchObjectId) {
 
     const switchOriginObject = document.getElementById(switchObjectId);
 
@@ -304,7 +320,8 @@ function getMACTable(switchObjectId) {
  * @param {string} switchObjectId - DOM id of the switch element.
  * @returns {boolean} `true` if the table has no device entries, `false` otherwise.
  */
-function isMacTableEmpty(switchObjectId) {
+// [agent-added: esm-migration phase 04]
+export function isMacTableEmpty(switchObjectId) {
 
     const tabla = document.getElementById(switchObjectId).querySelector("table");
     const matriz = [];
@@ -332,7 +349,8 @@ function isMacTableEmpty(switchObjectId) {
  * @param {string} macAddress - MAC address string to search for.
  * @returns {boolean} `true` if the MAC is present, `false` otherwise.
  */
-function isMacInMACTable(switchObjectId, macAddress) {
+// [agent-added: esm-migration phase 04]
+export function isMacInMACTable(switchObjectId, macAddress) {
 
     const macs = getMACTable(switchObjectId);
 
@@ -357,7 +375,8 @@ function isMacInMACTable(switchObjectId, macAddress) {
  * @param {string} mac - MAC address to look up.
  * @returns {string|undefined} The device id string if found, or `undefined` if not found.
  */
-function getDeviceFromMac(switchObjectId, mac) {
+// [agent-added: esm-migration phase 04]
+export function getDeviceFromMac(switchObjectId, mac) {
 
     const switchObject = document.getElementById(switchObjectId);
     const macTable = switchObject.querySelector("table");
@@ -380,7 +399,8 @@ function getDeviceFromMac(switchObjectId, mac) {
  * @param {string} switchObjectId - DOM id of the switch element.
  * @returns {string[]} Array of connected device DOM id strings.
  */
-function getDeviceTable(switchObjectId) {
+// [agent-added: esm-migration phase 04]
+export function getDeviceTable(switchObjectId) {
 
     const switchOriginObject = document.getElementById(switchObjectId);
 
@@ -402,7 +422,8 @@ function getDeviceTable(switchObjectId) {
  * @param {string} str - Input string to escape.
  * @returns {string} HTML-escaped string.
  */
-function escapeHtml(str) {
+// [agent-added: esm-migration phase 04]
+export function escapeHtml(str) {
     return str.replace(/[&<>"']/g, match => ({
         '&': '&amp;',
         '<': '&lt;',
@@ -421,7 +442,8 @@ function escapeHtml(str) {
  * @returns {Object.<string, string>} Object keyed by recognised option flags (e.g. {"-a": "", "-b": "foo"}).
  * @throws {Error} If `options` does not start with ":", or if an unrecognised option is encountered.
  */
-function getopts(options, string) {
+// [agent-added: esm-migration phase 04]
+export function getopts(options, string) {
 
     options = options.replace(/ /g, "");
 
@@ -462,7 +484,8 @@ function getopts(options, string) {
  * @param {string[]} args - Full argument array including the command as the first element.
  * @returns {Object.<string, string>} Object keyed by matched option names plus `IND` (last parsed index).
  */
-function catchopts(options, args) {
+// [agent-added: esm-migration phase 04]
+export function catchopts(options, args) {
 
     const optionsObject = {};
 
@@ -500,7 +523,8 @@ function catchopts(options, args) {
  * @param {string|Element} identifier - DOM id of the network object or the element itself.
  * @returns {string[]} Array of interface name strings (e.g. ["enp0s3", "enp0s8"]).
  */
-function getInterfaces(identifier) {
+// [agent-added: esm-migration phase 04]
+export function getInterfaces(identifier) {
 
     const $networkObject = (typeof identifier === "string") ? document.getElementById(identifier) : identifier;
     const response = [];
@@ -524,7 +548,8 @@ function getInterfaces(identifier) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {boolean} `true` if connected, `false` otherwise.
  */
-function isConnected(networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function isConnected(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let index = 3;
@@ -550,7 +575,8 @@ function isConnected(networkObjectId) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {string|false} Interface name (e.g. "enp0s3") if an available interface exists, otherwise `false`.
  */
-function getAvailableInterface(networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function getAvailableInterface(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let index = 3;
@@ -573,7 +599,8 @@ function getAvailableInterface(networkObjectId) {
  * @param {string} iface - Interface name (e.g. "enp0s3").
  * @returns {[string, string, string]} Tuple of [ip, netmask, mac].
  */
-function getIfaceData(networkObjectId, iface) {
+// [agent-added: esm-migration phase 04]
+export function getIfaceData(networkObjectId, iface) {
     const $networkObject = document.getElementById(networkObjectId);
     return [$networkObject.getAttribute("ip-" + iface), $networkObject.getAttribute("netmask-" + iface), $networkObject.getAttribute("mac-" + iface)];
 }
@@ -586,7 +613,8 @@ function getIfaceData(networkObjectId, iface) {
  * @returns {[string, string, string]|[false, false, false]} Tuple of [ip, netmask, mac] for the
  *   matching interface, or [false, false, false] if no interface is connected to that switch.
  */
-function getInterfaceSwitchInfo(networkObjectId, switchObjectId) {
+// [agent-added: esm-migration phase 04]
+export function getInterfaceSwitchInfo(networkObjectId, switchObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let index = 3;
@@ -618,7 +646,8 @@ function getInterfaceSwitchInfo(networkObjectId, switchObjectId) {
  * @param {string} switchId - DOM id of the switch to match.
  * @returns {string|false} Interface name (e.g. "enp0s8") or `false`.
  */
-function switchToInterface(networkObjectId, switchId) {
+// [agent-added: esm-migration phase 04]
+export function switchToInterface(networkObjectId, switchId) {
     const $networkObject = document.getElementById(networkObjectId);
     const interfaces = getInterfaces(networkObjectId);
     let response = false;
@@ -632,7 +661,8 @@ function switchToInterface(networkObjectId, switchId) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {string[]} Array of IP address strings.
  */
-function getAvailableIps(networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function getAvailableIps(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let index = 3;
@@ -659,7 +689,8 @@ function getAvailableIps(networkObjectId) {
  * @param {string} ip - IP address to search for.
  * @returns {[string|false, string|false, string|false]} Tuple of [interfaceName, switchId, mac].
  */
-function getInfoFromIp(networkObjectId, ip) {
+// [agent-added: esm-migration phase 04]
+export function getInfoFromIp(networkObjectId, ip) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const response = [false, false, false];
@@ -691,7 +722,8 @@ function getInfoFromIp(networkObjectId, ip) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {string[]} Array of MAC address strings.
  */
-function getMacAddresses(networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function getMacAddresses(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let index = 3;
@@ -716,7 +748,8 @@ function getMacAddresses(networkObjectId) {
  * @param {string} ip - IP address to check.
  * @returns {boolean} `true` if the IP is local to the device, `false` otherwise.
  */
-function isLocalIp(networkObjectId, ip) {
+// [agent-added: esm-migration phase 04]
+export function isLocalIp(networkObjectId, ip) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const interfaces = getInterfaces(networkObjectId);
@@ -741,7 +774,8 @@ function isLocalIp(networkObjectId, ip) {
  * @param {number} [position=-1] - Offset from the end of the NodeList (e.g. -1 for last, -2 for second-to-last).
  * @returns {Element|undefined} The element at the computed index, or `undefined` if out of range.
  */
-function getLastElement(selector, position = -1) {
+// [agent-added: esm-migration phase 04]
+export function getLastElement(selector, position = -1) {
     const elements = document.querySelectorAll(selector);
     return elements[elements.length + position];
 }
@@ -754,7 +788,8 @@ function getLastElement(selector, position = -1) {
  * @returns {{originElement: Element, targetElement: Element, dataTransfer: DataTransfer}} Object
  *   with references to both elements and the shared DataTransfer instance.
  */
-function createConn(elementoOrigen, elementoDestino) {
+// [agent-added: esm-migration phase 04]
+export function createConn(elementoOrigen, elementoDestino) {
 
     const dragstartEvent = new DragEvent('dragstart', {
         bubbles: true,
@@ -796,7 +831,8 @@ function createConn(elementoOrigen, elementoDestino) {
  * @param {string} [ip3=""] - CIDR address for enp0s9.
  * @returns {void}
  */
-function setRouterIps($router, ip1, ip2 = "", ip3 = "") {
+// [agent-added: esm-migration phase 04]
+export function setRouterIps($router, ip1, ip2 = "", ip3 = "") {
 
     const [newIpEnp0s3, newNetmaskEnp0s3] = parseCidr(ip1);
     const [newIpEnp0s8, newNetmaskEnp0s8] = parseCidr(ip2);
@@ -836,7 +872,8 @@ function setRouterIps($router, ip1, ip2 = "", ip3 = "") {
  *   "example.com/page", or "192.168.1.1").
  * @returns {{protocol: string, address: string, port: number, resource: string}} Parsed address object.
  */
-function parseSearch(input) {
+// [agent-added: esm-migration phase 04]
+export function parseSearch(input) {
 
     let protocol;
     let addressPortResource;
@@ -854,6 +891,7 @@ function parseSearch(input) {
     };
 
     //
+    // esm-migration: scope unclear — splitFirst is defined in src/lib/component_lib.js
     const dividebyProtocol = splitFirst(input, "://");
 
     if (dividebyProtocol.length < 2) {
@@ -901,7 +939,8 @@ function parseSearch(input) {
  * @returns {number|undefined} The highest interface index (e.g. 9 for "enp0s9"), or `undefined`
  *   if the device has no interfaces.
  */
-function maxIfaceIndex(networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function maxIfaceIndex(networkObjectId) {
     return getInterfaces(networkObjectId)
         .map(iface => parseInt(iface.split("enp0s")[1]))
         .sort((a, b) => a - b)
@@ -916,7 +955,8 @@ function maxIfaceIndex(networkObjectId) {
  * @param {string} iface - Interface name to delete (e.g. "enp0s8").
  * @returns {void}
  */
-function deleteInterface(networkObjectId, iface) {
+// [agent-added: esm-migration phase 04]
+export function deleteInterface(networkObjectId, iface) {
 
     const $networkObject = document.getElementById(networkObjectId);
 
@@ -952,7 +992,8 @@ function deleteInterface(networkObjectId, iface) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {void}
  */
-function addInterface(networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function addInterface(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableInterfaces = getInterfaces(networkObjectId);
@@ -985,7 +1026,8 @@ function addInterface(networkObjectId) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {string} Default gateway IP address, or `""` if absent.
  */
-function getDefaultGateway(networkObjectId) {
+// [agent-added: esm-migration phase 04]
+export function getDefaultGateway(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
     const $defaultRule = $networkObject.querySelector(".routing-table table").querySelector(".default-route");
     return $defaultRule?.querySelectorAll("td")[4]?.innerHTML || "";
@@ -1000,7 +1042,8 @@ function getDefaultGateway(networkObjectId) {
  * @returns {void}
  * @throws {Error} If `newGateway` is not reachable through any directly connected network.
  */
-function setDefaultGateway(networkObjectId, newGateway) {
+// [agent-added: esm-migration phase 04]
+export function setDefaultGateway(networkObjectId, newGateway) {
 
     if (!newGateway) return;
 
@@ -1017,6 +1060,7 @@ function setDefaultGateway(networkObjectId, newGateway) {
         const ruleNextHop = $fields[4].innerHTML;
 
         if (getNetwork(ruleDestination, ruleNetmask) === getNetwork(newGateway, ruleNetmask)) {
+            // esm-migration: scope unclear — setRemoteRoutingRule is not defined in this file
             setRemoteRoutingRule(networkObjectId,
                 "0.0.0.0",
                 "0.0.0.0",

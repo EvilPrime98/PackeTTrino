@@ -10,7 +10,7 @@
  * @param {Array<string>} options - Zero or one element: "on", "off", or empty for status query.
  * @returns {void}
  */
-function command_ipv4_forwarding(networkObjectId, options) {
+export function command_ipv4_forwarding(networkObjectId, options) {
 
     const $networkObject = document.getElementById(networkObjectId);
 

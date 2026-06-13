@@ -11,7 +11,7 @@
  * @returns {void}
  * @throws {Error} If the service name is unknown or the service is not installed on the device.
  */
-function systemd(networkObjectId, service, option) {
+export function systemd(networkObjectId, service, option) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const currentServices = ["dhcpd", "apache2", "dhclient", "dhcrelay", "resolved", "named"];
@@ -56,7 +56,7 @@ function systemd(networkObjectId, service, option) {
  * @param {string} networkObjectId - The DOM element ID of the network object whose services are listed.
  * @returns {void}
  */
-function listallServices(networkObjectId) {
+export function listallServices(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableServices = {
@@ -90,7 +90,7 @@ function listallServices(networkObjectId) {
  * @param {string} networkObjectId - The DOM element ID of the network object to inspect.
  * @returns {Array<string>} Array of installed service name strings.
  */
-function getAvailableServices(networkObjectId) {
+export function getAvailableServices(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableServices = ["dhcpd", "apache2", "dhclient", "dhcrelay", "resolved", "named"];
@@ -119,7 +119,7 @@ function getAvailableServices(networkObjectId) {
  * @param {string} service - The service name to start.
  * @returns {void}
  */
-function startService(networkObjectId, service) {
+export function startService(networkObjectId, service) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkElementFileSystem = new FileSystem($networkObject);

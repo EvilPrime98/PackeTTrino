@@ -2,7 +2,7 @@
  * @description Represents a component token tied to a CSS selector. Provides methods to render
  * child components into all matching elements and attach event listeners.
  */
-class componentToken {
+export class componentToken {
 
     /**
      * @param {string} element - CSS selector for the target DOM element(s).
@@ -45,7 +45,7 @@ class componentToken {
  * @param {number} y - Proposed vertical position in pixels.
  * @returns {[number, number]} Adjusted [x, y] position that keeps the object within the board.
  */
-function checkObjectClip(x, y) {
+export function checkObjectClip(x, y) {
 
     const $board = document.querySelector(".board");
     const boardProperties = window.getComputedStyle($board, null);
@@ -93,7 +93,7 @@ function checkObjectClip(x, y) {
  * @param {MouseEvent} event - The contextmenu mouse event.
  * @returns {void}
  */
-function showAdvancedOptions(event) {
+export function showAdvancedOptions(event) {
 
     event.preventDefault();
     event.stopPropagation();
@@ -149,7 +149,7 @@ function showAdvancedOptions(event) {
  * @param {string} selector - CSS selector for the table modal element within the network object.
  * @returns {void}
  */
-function showObjectModalTable(event, selector) {
+export function showObjectModalTable(event, selector) {
 
     event.preventDefault();
     event.stopPropagation();
@@ -218,7 +218,7 @@ function showObjectModalTable(event, selector) {
  * @param {string} selector - CSS selector for the table modal element within the network object.
  * @returns {void}
  */
-function closeObjectModalTable(event, selector) {
+export function closeObjectModalTable(event, selector) {
     event.stopPropagation();
     const $networkObject = event.target.closest(".item-dropped");
     const $table = $networkObject.querySelector(selector);
@@ -231,7 +231,7 @@ function closeObjectModalTable(event, selector) {
  * @param {string} id - DOM id of the target network object element.
  * @returns {void}
  */
-function createPacketIndicator(id) {
+export function createPacketIndicator(id) {
 
     const $networkObject = document.getElementById(id)
     const $board = document.querySelector(".board");
@@ -259,7 +259,7 @@ function createPacketIndicator(id) {
  * @param {string} networkObjectId - DOM id of the network object whose connections to retrieve.
  * @returns {[SVGLineElement[], SVGCircleElement[]]} Tuple of [lines, circles] connected to the object.
  */
-function getConns(networkObjectId) {
+export function getConns(networkObjectId) {
     const $lines = document.querySelectorAll("line");
     const $circles = document.querySelectorAll("circle");
     const finalLines = [];
@@ -289,7 +289,7 @@ function getConns(networkObjectId) {
  * @param {MouseEvent} event - The mousedown event on the modal's drag handle.
  * @returns {void}
  */
-function dragModal(event) {
+export function dragModal(event) {
 
     event.preventDefault();
     const $modal = event.target.closest(".draggable-modal");
@@ -331,7 +331,7 @@ function dragModal(event) {
  * @param {MouseEvent} event - The mousedown event on the board item.
  * @returns {void}
  */
-function startBoardItemMove(event) {
+export function startBoardItemMove(event) {
 
     const $networkObject = event.target.closest(".item-dropped");
 
@@ -359,7 +359,7 @@ function startBoardItemMove(event) {
  * @returns {string[]} Array with at most two elements: the part before and the part after the first match.
  *   Returns a single-element array if the separator is not found.
  */
-function splitFirst(text, separator) {
+export function splitFirst(text, separator) {
     const index = text.indexOf(separator);
     if (index === -1) return [text];
     return [text.substring(0, index), text.substring(index + separator.length)];
@@ -372,7 +372,7 @@ function splitFirst(text, separator) {
  * @returns {string[]} Array with at most two elements: the part before and the part after the last match.
  *   Returns a single-element array if the separator is not found.
  */
-function splitLast(text, separator) {
+export function splitLast(text, separator) {
     const index = text.lastIndexOf(separator);
     if (index === -1) return [text];
     return [text.substring(0, index), text.substring(index + separator.length)];
@@ -384,8 +384,9 @@ function splitLast(text, separator) {
  * @param {Event} event - The file input `change` event.
  * @returns {void}
  */
-function fileInputChangeHandler(event) {
+export function fileInputChangeHandler(event) {
     const fileName = event.target.files[0].name;
+    // esm-migration: scope unclear — bodyComponent and popupMessage are defined in other src/ files
     bodyComponent.render(popupMessage(`File <em>${fileName}</em> loaded successfully. To display the contents, click:`, "/assets/panel/load.svg"));
 }
 
@@ -394,17 +395,19 @@ function fileInputChangeHandler(event) {
  * selected, otherwise prompts the user to confirm loading the selected file.
  * @returns {void}
  */
-function fileInputLoadHandler() {
+export function fileInputLoadHandler() {
 
     const $inputFile = document.getElementById("fileInput");
 
     if ($inputFile.files.length === 0) {
+        // esm-migration: scope unclear — boardComponent and popupMessage are defined in other src/ files
         boardComponent.render(popupMessage("Please upload a file first."));
         return;
     }
 
     const fileName = $inputFile.files[0].name;
 
+    // esm-migration: scope unclear — bodyComponent and confirmPopup are defined in other src/ files
     bodyComponent.render(confirmPopup(`Do you want to load the file ${fileName}?`, loadState));
 
 }
@@ -414,7 +417,7 @@ function fileInputLoadHandler() {
  * download with the filename `red.ptt`.
  * @returns {void}
  */
-function downloadState() {
+export function downloadState() {
     const $workspace = document.querySelector(".board");
     const workspaceHTML = ($workspace.innerHTML).replace(/\s+/g, " ");
     const blob = new Blob([workspaceHTML], { type: "text/html" });
@@ -436,7 +439,7 @@ function downloadState() {
  *   from the `#fileInput` element.
  * @returns {void}
  */
-function loadState(files = undefined) {
+export function loadState(files = undefined) {
 
     const $inputFile = (!files)
     ? (document.getElementById("fileInput").files[0])
@@ -452,6 +455,7 @@ function loadState(files = undefined) {
         resetDnsCacheTables();
         setNewIndex();
         setTextContents();
+        // esm-migration: scope unclear — startLeaseTimers is defined in another src/ file
         startLeaseTimers();
     };
 
@@ -498,7 +502,7 @@ function loadState(files = undefined) {
  * @param {DragEvent} event - The dragstart event.
  * @returns {void}
  */
-function dragStart(event) {
+export function dragStart(event) {
     const networkObjectId = event.target.closest("img").alt;
     const itemType = "item";
 
@@ -515,7 +519,7 @@ function dragStart(event) {
  * deactivates the mode and removes the custom cursor.
  * @returns {void}
  */
-function quickPingStart() {
+export function quickPingStart() {
 
     if (quickPingToggle) {
         quickPingEnd();
@@ -560,9 +564,10 @@ function quickPingStart() {
  * @param {MouseEvent} event - The mouseenter event on the panel item.
  * @returns {void}
  */
-function showTooltip(name, event) {
+export function showTooltip(name, event) {
     const $panelItem = event.target.closest(".item");
     if ($panelItem.querySelector(".tooltip")) return;
+    // esm-migration: scope unclear — tooltip is defined in another src/ file
     $panelItem.appendChild(tooltip(name));
 }
 
@@ -571,7 +576,7 @@ function showTooltip(name, event) {
  * @param {MouseEvent} event - The mouseleave event on the panel item.
  * @returns {void}
  */
-function deleteTooltip(event) {
+export function deleteTooltip(event) {
     const $panelItem = event.target.closest(".item");
     if ($panelItem.querySelector(".tooltip")) {
         $panelItem.querySelector(".tooltip").remove();
@@ -584,7 +589,7 @@ function deleteTooltip(event) {
  * @param {*} obj - Value to test.
  * @returns {boolean} `true` if `obj` is an empty plain object, `false` otherwise.
  */
-function isEmptyObject(obj) {
+export function isEmptyObject(obj) {
   return obj && typeof obj === 'object' && !Array.isArray(obj) && Object.keys(obj).length === 0;
 }
 
@@ -593,7 +598,7 @@ function isEmptyObject(obj) {
  * @param {number} ms - Duration to wait in milliseconds.
  * @returns {Promise<void>}
  */
-function delay(ms) {
+export function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -602,7 +607,7 @@ function delay(ms) {
  * ARP entry timers, and DNS cache timers. Intended to be called when loading a new workspace.
  * @returns {void}
  */
-function cleanUpWorkspace() {
+export function cleanUpWorkspace() {
 
     for (const serverLeaseTime in serverLeaseTimers) {
         clearInterval(serverLeaseTimers[serverLeaseTime]);
@@ -631,7 +636,7 @@ function cleanUpWorkspace() {
  * `.item-dropped` element currently on the board. Used when loading a saved workspace.
  * @returns {void}
  */
-function resetArpTables() {
+export function resetArpTables() {
     const $droppedItems = document.querySelectorAll(".item-dropped");
     $droppedItems.forEach(item => {
         const $arpTable = item?.querySelector(".arp-table");
@@ -647,7 +652,7 @@ function resetArpTables() {
  * `.item-dropped` element currently on the board. Used when loading a saved workspace.
  * @returns {void}
  */
-function resetDnsCacheTables() {
+export function resetDnsCacheTables() {
     const $droppedItems = document.querySelectorAll(".item-dropped");
     $droppedItems.forEach(item => {
         const $dnsCacheTable = item?.querySelector(".cache-dns-table");

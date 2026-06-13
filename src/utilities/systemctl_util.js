@@ -20,7 +20,7 @@
  * command_systemctl("server-1", ["systemctl", "list-units"]);
  * command_systemctl("server-1", ["systemctl", "status", "dhcpd"]);
  */
-function command_systemctl(networkObjectId, args) {
+export function command_systemctl(networkObjectId, args) {
 
     const option = args[1];
     const service = args[2];

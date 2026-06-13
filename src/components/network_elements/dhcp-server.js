@@ -11,7 +11,7 @@
  * @param {number} y - Desired top position in pixels relative to the board.
  * @returns {HTMLElement} The configured DHCP server `<article>` element.
  */
-function DhcpServerObject(x, y) {
+export function DhcpServerObject(x, y) {
 
     const $networkObject = document.createElement("article");
     const append = (...nodes) => nodes.forEach(node => $networkObject.appendChild(node));

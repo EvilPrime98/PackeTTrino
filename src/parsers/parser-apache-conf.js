@@ -15,7 +15,11 @@
  * const sites = apacheSitesParser("pc-1");
  * // { "000-default.conf": { ip: "0.0.0.0", port: "80", documentRoot: "/var/www/html", ... } }
  */
-function apacheSitesParser(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+import { FileSystem } from '../lib/fileSystem_lib.js';
+
+// [agent-added: esm-migration phase 05]
+export function apacheSitesParser(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectFileSystem = new FileSystem($networkObject);

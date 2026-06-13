@@ -1,10 +1,14 @@
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+
 /**
  * @description Returns the ARP table of a network object as a 2-D array of strings.
  * The first row contains headers; subsequent rows contain [ip, mac] pairs.
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {string[][]} Matrix where each inner array represents one table row's cell values.
  */
-function getARPTable(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function getARPTable(networkObjectId) {
     const $table = document.querySelector(`#${networkObjectId} .arp-table table`);
     if (!$table) return [];
     const matrix = [];
@@ -21,13 +25,14 @@ function getARPTable(networkObjectId) {
 /**
  * @description Adds or updates an ARP entry in the ARP table of the given network object.
  * If the IP already exists, its MAC is updated. Otherwise a new row is appended and a TTL
- * timer is started that will automatically delete the entry after `$ARPENTRYTTL` seconds.
+ * timer is started that will automatically delete the entry after `state.$ARPENTRYTTL` seconds.
  * @param {string} networkObjectId - DOM id of the network object whose ARP table to modify.
  * @param {string} ip - IP address to register.
  * @param {string} mac - MAC address associated with the IP.
  * @returns {void}
  */
-function addARPEntry(networkObjectId, ip, mac) {
+// [agent-added: esm-migration phase 05]
+export function addARPEntry(networkObjectId, ip, mac) {
 
     const $arpTable = document.querySelector(`#${networkObjectId} .arp-table table`);
     const $records = $arpTable.querySelectorAll("tr");
@@ -49,11 +54,11 @@ function addARPEntry(networkObjectId, ip, mac) {
         const newRow = $arpTable.insertRow();
         newRow.insertCell().innerText = ip;
         newRow.insertCell().innerText = mac;
-        console.log(`ARP entry for ${ip} added to ${networkObjectId} for ${$ARPENTRYTTL * 1000} ms`);
-        arpEntryTimers[`${networkObjectId}-${ip}`] = setTimeout(() => {
+        console.log(`ARP entry for ${ip} added to ${networkObjectId} for ${state.$ARPENTRYTTL * 1000} ms`);
+        state.arpEntryTimers[`${networkObjectId}-${ip}`] = setTimeout(() => {
             console.log(`ARP entry for ${ip} in ${networkObjectId} has expired`);
             delARPEntry(networkObjectId, ip);
-        }, $ARPENTRYTTL * 1000);
+        }, state.$ARPENTRYTTL * 1000);
     }
 
 }
@@ -65,7 +70,8 @@ function addARPEntry(networkObjectId, ip, mac) {
  * @param {string} ip - IP address of the entry to remove.
  * @returns {void}
  */
-function delARPEntry(networkObjectId, ip) {
+// [agent-added: esm-migration phase 05]
+export function delARPEntry(networkObjectId, ip) {
 
     const $arpTable = document.querySelector(`#${networkObjectId} .arp-table table`);
     const $records = $arpTable.querySelectorAll("tr");
@@ -75,8 +81,8 @@ function delARPEntry(networkObjectId, ip) {
         const $fields = $record.querySelectorAll("td");
         const recordIp = $fields[0].innerText.trim();
         if (recordIp === ip) {
-            clearTimeout(arpEntryTimers[`${networkObjectId}-${ip}`]);
-            delete arpEntryTimers[`${networkObjectId}-${ip}`];
+            clearTimeout(state.arpEntryTimers[`${networkObjectId}-${ip}`]);
+            delete state.arpEntryTimers[`${networkObjectId}-${ip}`];
             $record.remove();
             break;
         }
@@ -91,7 +97,8 @@ function delARPEntry(networkObjectId, ip) {
  * @param {string} ipAddress - IP address to look up.
  * @returns {string|false} The MAC address string if found, otherwise `false`.
  */
-function isIpInARPTable(networkObjectId, ipAddress) {
+// [agent-added: esm-migration phase 05]
+export function isIpInARPTable(networkObjectId, ipAddress) {
 
     const arpTable = getARPTable(networkObjectId);
 
@@ -114,7 +121,8 @@ function isIpInARPTable(networkObjectId, ipAddress) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {string} The `outerHTML` string of the ARP `<table>` element.
  */
-function getcurrentARPTable(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function getcurrentARPTable(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
     return $networkObject.querySelector(".arp-table table").outerHTML;
 }
@@ -125,7 +133,8 @@ function getcurrentARPTable(networkObjectId) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {void}
  */
-function clearARPTable(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function clearARPTable(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const $arpTable = $networkObject.querySelector(".arp-table table");
@@ -135,8 +144,8 @@ function clearARPTable(networkObjectId) {
         const $entry = $entries[i];
         const $fields = $entry.querySelectorAll("td");
         const entryIp = $fields[0].innerText.trim();
-        clearTimeout(arpEntryTimers[`${networkObjectId}-${entryIp}`]);
-        delete arpEntryTimers[`${networkObjectId}-${entryIp}`];
+        clearTimeout(state.arpEntryTimers[`${networkObjectId}-${entryIp}`]);
+        delete state.arpEntryTimers[`${networkObjectId}-${entryIp}`];
         $entries[i].remove();
     }
 

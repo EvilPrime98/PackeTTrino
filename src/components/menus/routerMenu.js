@@ -1,3 +1,4 @@
+import { dragModal } from "@/lib/component_lib";
 /**
  * Builds and returns the Router configuration form.
  *
@@ -22,7 +23,7 @@
  *
  * @returns {HTMLFormElement} The assembled router configuration form element.
  */
-function router_menu() {
+export function router_menu() {
 
     const $menu = document.createElement("form");
     $menu.classList.add("router-form", "modal", "draggable-modal");
@@ -120,7 +121,7 @@ function router_menu() {
  * @param {Event} event - The click event originating from inside an `.item-dropped` element.
  * @returns {void}
  */
-function showRouterMenu(event) {
+export function showRouterMenu(event) {
 
     event.stopPropagation();
 
@@ -176,7 +177,7 @@ function showRouterMenu(event) {
  * @param {Event} event - The form submit event.
  * @returns {void}
  */
-function saveRouterMenu(event) {
+export function saveRouterMenu(event) {
 
     event.preventDefault();
 
@@ -215,7 +216,7 @@ function saveRouterMenu(event) {
  * @param {Event} event - The click event fired by the close button.
  * @returns {void}
  */
-function closeRouterMenu(event) {
+export function closeRouterMenu(event) {
     event.stopPropagation();
     event.preventDefault();
     const $form = document.querySelector(".router-form");
@@ -231,7 +232,7 @@ function closeRouterMenu(event) {
  * @param {Event} event - The change event fired by the `#iface` select element.
  * @returns {void}
  */
-function selectGraphicInterface(event)  {
+export function selectGraphicInterface(event)  {
     const $select = event.target;
     const $menu = document.querySelector(".router-form");
     const $networkObject = document.getElementById($menu.dataset.id);
@@ -248,7 +249,7 @@ function selectGraphicInterface(event)  {
  *
  * @returns {void}
  */
-function registerNetworkChanges()  {
+export function registerNetworkChanges()  {
     const $form = document.querySelector(".router-form");
     const iface = $form.querySelector("#iface").value;
     const ip = $form.querySelector("#router-ip").value;
@@ -264,7 +265,7 @@ function registerNetworkChanges()  {
  * @param {Event} event - The click event fired by the Add interface button.
  * @returns {void}
  */
-function addGraphicInterface(event) {
+export function addGraphicInterface(event) {
 
     event.preventDefault();
 
@@ -297,7 +298,7 @@ function addGraphicInterface(event) {
  * @param {Event} event - The click event fired by the Delete interface button.
  * @returns {void}
  */
-function deleteGraphicInterface(event) {
+export function deleteGraphicInterface(event) {
 
     event.preventDefault();
 
@@ -334,7 +335,7 @@ function deleteGraphicInterface(event) {
  * @param {Event} event - The click event fired by a nav-panel tab button.
  * @returns {void}
  */
-function showRouterGraphicTab(event) {
+export function showRouterGraphicTab(event) {
     event.stopPropagation();
     event.preventDefault();
     const $menu = document.querySelector(".router-form");
@@ -357,7 +358,7 @@ function showRouterGraphicTab(event) {
  * @param {Event} event - The click event fired by the add-rule button.
  * @returns {void}
  */
-function addRoutingRuleGraphicHandler(event) {
+export function addRoutingRuleGraphicHandler(event) {
 
     event.stopPropagation();
     event.preventDefault();
@@ -393,7 +394,7 @@ function addRoutingRuleGraphicHandler(event) {
  * @param {Event} event - The click event fired by the remove-rule button.
  * @returns {void}
  */
-function removeRoutingRuleGraphicHandler(event) {
+export function removeRoutingRuleGraphicHandler(event) {
 
     event.stopPropagation();
     event.preventDefault();
@@ -438,7 +439,7 @@ function removeRoutingRuleGraphicHandler(event) {
  * @returns {void}
  * @throws {Error} If any validation step fails.
  */
-function addRoutingRuleGraphic(networkObjectId, destination, gatewayInterface, nexthop) {
+export function addRoutingRuleGraphic(networkObjectId, destination, gatewayInterface, nexthop) {
 
     //<-- validate destination IP
 
@@ -481,7 +482,7 @@ function addRoutingRuleGraphic(networkObjectId, destination, gatewayInterface, n
  * @returns {void}
  * @throws {Error} If the destination is not a valid CIDR network address.
  */
-function removeRoutingRuleGraphic(networkObjectId, destination) {
+export function removeRoutingRuleGraphic(networkObjectId, destination) {
 
     //<-- validate destination IP
 

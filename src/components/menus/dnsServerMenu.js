@@ -1,3 +1,5 @@
+import { dragModal } from "@/lib/component_lib";
+
 /**
  * Builds and returns the DNS server configuration form.
  *
@@ -21,7 +23,7 @@
  *
  * @returns {HTMLFormElement} The assembled DNS server configuration form element.
  */
-function dns_server_menu() {
+export function dns_server_menu() {
 
     const $menu = document.createElement("form");
     $menu.classList.add("dns-form", "modal", "draggable-modal");
@@ -159,7 +161,7 @@ function dns_server_menu() {
  * @param {Event} event - The click event originating from inside an `.item-dropped` element.
  * @returns {void}
  */
-function showDnsServerMenu(event) {
+export function showDnsServerMenu(event) {
 
     event.stopPropagation();
 
@@ -215,7 +217,7 @@ function showDnsServerMenu(event) {
  * @param {Event} event - The form submit event.
  * @returns {void}
  */
-function saveDnsServerMenu(event) {
+export function saveDnsServerMenu(event) {
 
     event.preventDefault();
     event.stopPropagation();
@@ -268,7 +270,7 @@ function saveDnsServerMenu(event) {
  * @param {Event} event - The click event fired by the close button.
  * @returns {void}
  */
-function closeDnsMenu(event) {
+export function closeDnsMenu(event) {
     event.stopPropagation();
     event.preventDefault();
     const $menu = document.querySelector(".dns-form");
@@ -285,7 +287,7 @@ function closeDnsMenu(event) {
  * @param {Event} event - The click event fired by a nav-panel tab button.
  * @returns {void}
  */
-function showDnsGraphicTab(event) {
+export function showDnsGraphicTab(event) {
     event.stopPropagation();
     event.preventDefault();
     const $menu = document.querySelector(".dns-form");
@@ -311,7 +313,7 @@ function showDnsGraphicTab(event) {
  * @param {Event} event - The click event fired by the add-record button.
  * @returns {void}
  */
-function addDnsRecordHandler(event) {
+export function addDnsRecordHandler(event) {
 
     event.stopPropagation();
     event.preventDefault();
@@ -363,7 +365,7 @@ function addDnsRecordHandler(event) {
  * @param {Event} event - The click event fired by the remove-record button.
  * @returns {void}
  */
-function removeDnsRecordHandler(event) {
+export function removeDnsRecordHandler(event) {
     event.stopPropagation();
     event.preventDefault();
     const $menu = document.querySelector(".dns-form");
@@ -383,7 +385,7 @@ function removeDnsRecordHandler(event) {
  * @param {Event} event - The change event fired by the record-type select element.
  * @returns {void}
  */
-function recordTypeHandler(event) {
+export function recordTypeHandler(event) {
     const $menu = document.querySelector(".dns-form");
     const $recordType = $menu.querySelector("#type");
     const $serial = $menu.querySelector("#serial");

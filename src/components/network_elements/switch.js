@@ -9,7 +9,7 @@
  * @param {number} y - Desired top position in pixels relative to the board.
  * @returns {HTMLElement} The configured switch `<article>` element.
  */
-function SwitchObject(x, y) {
+export function SwitchObject(x, y) {
 
     const $switchObject = document.createElement("article");
     const networkObjectIcon = document.createElement("img");
@@ -67,7 +67,7 @@ function SwitchObject(x, y) {
  * @param {DragEvent} event - The drop event fired on the switch element.
  * @returns {void}
  */
-function switchConn(event) {
+export function switchConn(event) {
 
     event.preventDefault();
     event.stopPropagation();
@@ -109,7 +109,7 @@ function switchConn(event) {
  * @param {MouseEvent} event - The click event fired on the close button inside the MAC table.
  * @returns {void}
  */
-function closeMacTable(event) {
+export function closeMacTable(event) {
     event.stopPropagation();
     const networkObject = event.target.closest(".item-dropped");
     const table = networkObject.querySelector(".mac-table");
@@ -125,7 +125,7 @@ function closeMacTable(event) {
  * @param {MouseEvent} event - The click event fired on the "Cluster" button.
  * @returns {void}
  */
-function clusterizeSwitch(event) {
+export function clusterizeSwitch(event) {
     event.preventDefault();
     event.stopPropagation();
     const $switchObject = event.target.closest(".item-dropped");
@@ -159,7 +159,7 @@ function clusterizeSwitch(event) {
  * @param {MouseEvent} event - The click event fired on the "De-cluster" button.
  * @returns {void}
  */
-function desClusterizeSwitch(event) {
+export function desClusterizeSwitch(event) {
     event.preventDefault();
     event.stopPropagation();
     const $switchObject = event.target.closest(".item-dropped");
@@ -194,7 +194,7 @@ function desClusterizeSwitch(event) {
  * @param {number} dy - Vertical offset in pixels to apply.
  * @returns {void}
  */
-function moveConns(switchId, dx, dy) {
+export function moveConns(switchId, dx, dy) {
     const $connectedDevices = getDeviceTable(switchId);
 
     $connectedDevices.forEach(deviceId => {

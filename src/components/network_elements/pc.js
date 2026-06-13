@@ -1,3 +1,4 @@
+import { checkObjectClip } from "@/lib/component_lib";
 /**
  * Creates and returns a PC network element as an `<article>` DOM node.
  * The element is positioned on the board at `(x, y)`, clipped to board boundaries,
@@ -11,7 +12,7 @@
  * @param {number} y - Desired top position in pixels relative to the board.
  * @returns {HTMLElement} The configured PC `<article>` element.
  */
-function PcObject(x, y) {
+export function PcObject(x, y) {
 
     const $networkObject = document.createElement("article");
     const append = (...nodes) => nodes.forEach(node => $networkObject.appendChild(node));

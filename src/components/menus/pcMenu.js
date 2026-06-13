@@ -1,3 +1,5 @@
+import { dragModal } from "@/lib/component_lib";
+
 /**
  * Builds and returns the PC network configuration form.
  *
@@ -20,7 +22,7 @@
  *
  * @returns {HTMLFormElement} The assembled PC configuration form element.
  */
-function pc_menu() {
+export function pc_menu() {
 
     const $menu = document.createElement("form");
 
@@ -115,7 +117,7 @@ function pc_menu() {
  * @param {string} networkObjectId - The DOM id of the PC network device element.
  * @returns {void}
  */
-function showPcMenu(networkObjectId) {
+export function showPcMenu(networkObjectId) {
 
     if (quickPingToggle) {
         quickPing(networkObjectId);
@@ -178,7 +180,7 @@ function showPcMenu(networkObjectId) {
  * @param {Event} event - The form submit event.
  * @returns {Promise<void>}
  */
-async function pcMenuButtonsHandler(event) {
+export async function pcMenuButtonsHandler(event) {
 
     event.preventDefault();
 
@@ -293,7 +295,7 @@ async function pcMenuButtonsHandler(event) {
  *
  * @returns {void}
  */
-function dhcpToggleHandler() {
+export function dhcpToggleHandler() {
     const $menu = document.querySelector(".pc-form");
     const iface = $menu.querySelector("#iface").value;
     const $networkObject = document.getElementById($menu.dataset.id);
@@ -310,7 +312,7 @@ function dhcpToggleHandler() {
  * @param {Event} event - The change event fired by the web-server-toggle checkbox.
  * @returns {void}
  */
-function webServerHandler(event) {
+export function webServerHandler(event) {
 
     const $webServerToggle = event.target;
     const $menu = document.querySelector(".pc-form");
@@ -342,7 +344,7 @@ function webServerHandler(event) {
  *
  * @returns {void}
  */
-function loadDhcpMenuConf() {
+export function loadDhcpMenuConf() {
 
     const $menu = document.querySelector(".pc-form");
     const $networkObject = document.getElementById($menu.dataset.id);

@@ -13,7 +13,7 @@
  * @param {number} destination_port - Destination port number of the target service.
  * @returns {Promise<void>}
  */
-async function tcpSynPacketGenerator(networkObjectId, destination, source_port , destination_port) {
+export async function tcpSynPacketGenerator(networkObjectId, destination, source_port , destination_port) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectInterface = getInterfaces(networkObjectId)[0];

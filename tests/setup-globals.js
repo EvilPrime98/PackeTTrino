@@ -1,3 +1,6 @@
+// [agent-added: esm-migration phase 04]
+// DEPRECATED: vm sandbox no longer needed after ESM migration.
+// Will be removed in Phase 08.
 import { parseHTML } from 'linkedom';
 import { readFileSync } from 'fs';
 import vm from 'vm';

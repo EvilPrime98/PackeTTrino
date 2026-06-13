@@ -20,7 +20,7 @@
  * @param {Array<string>} args - Tokenised command arguments. First element is "ip".
  * @returns {void}
  */
-function command_Ip(networkObjectId, args) {
+export function command_Ip(networkObjectId, args) {
 
     let opt_addr = false;
     let opt_route = false;

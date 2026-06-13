@@ -1,14 +1,16 @@
 /**
  * Pauses the current simulation.
  */
-function pauseSimulation() {
+// [agent-added: esm-migration phase 04]
+export function pauseSimulation() {
     paused = true;
 }
 
 /**
  * Resumes the current simulation.
  */
-function resumeSimulation() {
+// [agent-added: esm-migration phase 04]
+export function resumeSimulation() {
     paused = false;
 }
 
@@ -16,7 +18,8 @@ function resumeSimulation() {
  * Controls the flow of the simulation.
  * @returns {Promise<void>}
  */
-function waitUntilResumed() {
+// [agent-added: esm-migration phase 04]
+export function waitUntilResumed() {
     return new Promise(resolve => {
         const check = () => {
             if (!paused) resolve();
@@ -35,7 +38,8 @@ function waitUntilResumed() {
  * @param {'broadcast' | 'unicast' | 'dhcp' | 'dns' | 'icmp' | 'tcp' | 'unicast'} [type='unicast'] - Type of packet.
  * @returns 
  */
-async function movePacket(
+// [agent-added: esm-migration phase 04]
+export async function movePacket(
     x1, 
     y1, 
     x2, 

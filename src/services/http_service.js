@@ -1,3 +1,4 @@
+import { isValidIp } from "@/lib/network_lib";
 /**
  * Sends an HTTP request from a network object and returns the server's reply packet.
  *
@@ -15,7 +16,7 @@
  * @throws {Error} If the port or method is invalid, the domain cannot be resolved,
  *   the TCP connection cannot be established, or no response is received.
  */
-async function http(networkObjectId, headers) {
+export async function http(networkObjectId, headers) {
 
     const $networkObject = document.getElementById(networkObjectId);
     let domainName;
@@ -99,7 +100,7 @@ async function http(networkObjectId, headers) {
  * @param {string} [headers.resource] - Requested resource path.
  * @returns {Promise<void>}
  */
-async function httpRequestPacketGenerator(networkObjectId, headers) {
+export async function httpRequestPacketGenerator(networkObjectId, headers) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkjObjectInterface = getInterfaces(networkObjectId)[0];

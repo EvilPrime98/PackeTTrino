@@ -24,7 +24,14 @@
  * @returns {Promise<Object|undefined>} A reply packet to be routed back, or `undefined`
  *   if no reply is needed (packet consumed, buffered, or not addressed to this device).
  */
-async function kernelProcessor(networkObjectId, packet, inputInterface) {
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { getAvailableIps } from '../lib/network_lib.js';
+import { addARPEntry } from '../lib/arp_lib.js';
+import { ArpReply, IcmpEchoReply, synAck, Ack } from '../lib/packets_lib.js';
+
+// [agent-added: esm-migration phase 05]
+export async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableIps = getAvailableIps(networkObjectId);
@@ -45,9 +52,9 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
         if (packet.destination_ip !== networkObjectIp) return;
 
-        arpFlag[networkObjectId] = true;
+        state.arpFlag[networkObjectId] = true;
         addARPEntry(networkObjectId, packet.origin_ip, packet.origin_mac);
-        buffer[networkObjectId] = packet;
+        state.buffer[networkObjectId] = packet;
 
     }
 
@@ -65,9 +72,9 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
         if (!availableIps.includes(packet.destination_ip)) return;
 
-        if (trace[networkObjectId] === true) {
-            traceReturn[networkObjectId] = true;
-            traceBuffer[networkObjectId].push(packet.origin_ip);
+        if (state.trace[networkObjectId] === true) {
+            state.traceReturn[networkObjectId] = true;
+            state.traceBuffer[networkObjectId].push(packet.origin_ip);
         }
 
         return;
@@ -77,10 +84,10 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
         if (!availableIps.includes(packet.destination_ip)) return;
 
-        icmpFlag[networkObjectId] = true;
+        state.icmpFlag[networkObjectId] = true;
 
-        if (trace[networkObjectId] === true) {
-            traceBuffer[networkObjectId].push(packet.origin_ip);
+        if (state.trace[networkObjectId] === true) {
+            state.traceBuffer[networkObjectId].push(packet.origin_ip);
             traceFlag[networkObjectId] = true;
         }
 
@@ -102,7 +109,7 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
         newPacket.ack_number = packet.sequence_number + 1; // <--- the ack must be the next sequence number
 
-        tcpBuffer[networkObjectId] = newPacket.sequence_number;
+        state.tcpBuffer[networkObjectId] = newPacket.sequence_number;
 
         return newPacket;
 
@@ -112,7 +119,7 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
         if (!availableIps.includes(packet.destination_ip)) return;
 
-        if (packet.ack_number !== tcpBuffer[networkObjectId] + 1) return;
+        if (packet.ack_number !== state.tcpBuffer[networkObjectId] + 1) return;
 
         const newPacket = new Ack(
             networkObjectIp, //source IP
@@ -126,7 +133,7 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
         newPacket.ack_number = packet.sequence_number + 1; // <--- the ack must be the next sequence number
         newPacket.sequence_number = packet.ack_number - 1; //<--- the packet must have the correct sequence number
 
-        tcpSyncFlag[networkObjectId] = true;
+        state.tcpSyncFlag[networkObjectId] = true;
 
         return newPacket;
 
@@ -134,20 +141,20 @@ async function kernelProcessor(networkObjectId, packet, inputInterface) {
 
     if (packet.protocol === "tcp" && packet.type === "syn-ack-reply") {
         if (!availableIps.includes(packet.destination_ip)) return;
-        if (packet.ack_number !== tcpBuffer[networkObjectId] + 1) return;
+        if (packet.ack_number !== state.tcpBuffer[networkObjectId] + 1) return;
         return;
     }
 
     if (packet.protocol === "http" && packet.type === "reply") {
         if (!availableIps.includes(packet.destination_ip)) return;
-        httpBuffer[networkObjectId] = packet;
+        state.httpBuffer[networkObjectId] = packet;
         return;
     }
 
     if (packet.protocol === "dns" && packet.type === "reply") {
         if (!availableIps.includes(packet.destination_ip)) return;
-        dnsRequestFlag[networkObjectId] = true;
-        buffer[networkObjectId] = packet;
+        state.dnsRequestFlag[networkObjectId] = true;
+        state.buffer[networkObjectId] = packet;
         return;
     }
 

@@ -7,7 +7,11 @@
  * @param {HTMLElement} $networkObject - The DOM element representing the network device.
  * @returns {void}
  */
-function installBind9($networkObject) {
+// [agent-added: esm-migration phase 05]
+// esm-migration: scope unclear — terminalMessage, dnsTable, cacheDnsTable, dnsRecordsOptionButton, dnsServerConfig, cacheDnsOptionButton are defined in src/components/ (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export function installBind9($networkObject) {
 
     terminalMessage("Installing Bind...", $networkObject.id);
 
@@ -39,7 +43,8 @@ function installBind9($networkObject) {
  * @param {string} networkObjectId - The DOM element ID of the network device.
  * @returns {void}
  */
-function uninstallBind9(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function uninstallBind9(networkObjectId) {
 
     terminalMessage("Uninstalling Bind...", networkObjectId);
 

@@ -1,25 +1,34 @@
 /**
- * Simulates the Debian package manager (dpkg) to install or remove network service packages
+ * Simulates the Debian pkg manager (dpkg) to install or remove network service pkgs
  * on a network object.
  *
- * Maps package names to their corresponding service attributes and delegates to the appropriate
- * installer or uninstaller helper. Throws if the package name is unrecognised, if an already-
- * installed package is installed again, or if an uninstalled package is removed.
+ * Maps pkg names to their corresponding service attributes and delegates to the appropriate
+ * installer or uninstaller helper. Throws if the pkg name is unrecognised, if an already-
+ * installed pkg is installed again, or if an uninstalled pkg is removed.
  *
- * @param {string} networkObjectId - The DOM element ID of the network object to install/remove the package on.
+ * @param {string} networkObjectId - The DOM element ID of the network object to install/remove the pkg on.
  * @param {string} option - Action to perform: "install" or "remove".
- * @param {string} package - Package name. One of: "apache2", "bind9", "isc-dhcp-server",
+ * @param {string} pkg - Package name. One of: "apache2", "bind9", "isc-dhcp-server",
  *   "isc-dhcp-relay", "isc-dhcp-client", "amin-search".
  * @returns {void}
- * @throws {Error} If the package is unknown, already installed (on install), or not installed (on remove).
+ * @throws {Error} If the pkg is unknown, already installed (on install), or not installed (on remove).
  */
-function dpkg(networkObjectId, option, package) {
+// [agent-added: esm-migration phase 05]
+import { installApache2, uninstallApache2 } from '../packages/apache2_pkg.js';
+import { installBind9, uninstallBind9 } from '../packages/bind9_pkg.js';
+import { installDhcpd, uninstallDhcpd } from '../packages/isc-dhcp-server_pkg.js';
+import { installDhcprelay, uninstallDhcprelay } from '../packages/isc-dhcp-relay_pkg.js';
+import { installDhclient, uninstallDhclient } from '../packages/isc-dhcp-client_pkg.js';
+import { installBrowser, uninstallBrowser } from '../packages/browser_pkg.js';
+
+// [agent-added: esm-migration phase 05]
+export function dpkg(networkObjectId, option, pkg) {
 
     const $networkObject = document.getElementById(networkObjectId);
 
     const availablePackages = ["apache2", "bind9", "isc-dhcp-server", "isc-dhcp-relay", "isc-dhcp-client", "amin-search"];
 
-    const packagesToServices = {
+    const pkgsToServices = {
         "apache2": "apache2",
         "bind9": "named",
         "isc-dhcp-server": "dhcpd",
@@ -28,23 +37,23 @@ function dpkg(networkObjectId, option, package) {
         "amin-search": "browser",
     }
 
-    if (!availablePackages.includes(package)) throw new Error(`Error: Unable to locate package ${package}.`);
+    if (!availablePackages.includes(pkg)) throw new Error(`Error: Unable to locate pkg ${pkg}.`);
 
-    const service = packagesToServices[package];
+    const service = pkgsToServices[pkg];
     const isServiceInstalled = $networkObject.getAttribute(service) !== null;
 
-    if (option === "install" && isServiceInstalled) throw new Error(`${package} is already at its newest version.`);
-    if (option === "remove" && !isServiceInstalled) throw new Error(`Error: Package ${package} is not installed, so it will not be removed.`);
-    if (option === "install") dpkgInstaller(package);
-    if (option === "remove") dpkgUninstaller(package);
+    if (option === "install" && isServiceInstalled) throw new Error(`${pkg} is already at its newest version.`);
+    if (option === "remove" && !isServiceInstalled) throw new Error(`Error: Package ${pkg} is not installed, so it will not be removed.`);
+    if (option === "install") dpkgInstaller(pkg);
+    if (option === "remove") dpkgUninstaller(pkg);
 
     /**
-     * Calls the appropriate install function for the given package.
+     * Calls the appropriate install function for the given pkg.
      *
-     * @param {string} package - The package name to install.
+     * @param {string} pkg - The pkg name to install.
      * @returns {void}
      */
-    function dpkgInstaller(package) {
+    function dpkgInstaller(pkg) {
 
         const installFunctions = {
             "apache2": () => installApache2($networkObject),
@@ -55,17 +64,17 @@ function dpkg(networkObjectId, option, package) {
             "amin-search": () => installBrowser($networkObject),
         }
 
-        installFunctions[package]();
+        installFunctions[pkg]();
 
     }
 
     /**
-     * Calls the appropriate uninstall function for the given package.
+     * Calls the appropriate uninstall function for the given pkg.
      *
-     * @param {string} package - The package name to remove.
+     * @param {string} pkg - The pkg name to remove.
      * @returns {void}
      */
-    function dpkgUninstaller(package) {
+    function dpkgUninstaller(pkg) {
 
         const uninstallFunctions = {
             "apache2": () => uninstallApache2(networkObjectId),
@@ -76,7 +85,7 @@ function dpkg(networkObjectId, option, package) {
             "amin-search": () => uninstallBrowser(networkObjectId),
         }
 
-        uninstallFunctions[package]();
+        uninstallFunctions[pkg]();
 
     }
 

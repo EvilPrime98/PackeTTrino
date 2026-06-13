@@ -14,7 +14,12 @@
  * @throws {Error} If `INTERFACESv4` is empty (no listen interfaces declared).
  * @throws {Error} If any listed interface does not exist on the device.
  */
-function iscDhcpServerInterpreter(networkObjectId, content)  {
+// [agent-added: esm-migration phase 05]
+import { splitFirst, splitLast } from '../lib/component_lib.js';
+import { getInterfaces } from '../lib/network_lib.js';
+
+// [agent-added: esm-migration phase 05]
+export function iscDhcpServerInterpreter(networkObjectId, content)  {
 
     const $networkObject = document.getElementById(networkObjectId);
 

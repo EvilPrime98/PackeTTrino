@@ -1,3 +1,6 @@
+// [agent-added: esm-migration phase 05]
+import { getInterfaces } from './network_lib.js';
+
 /**
  * @description Handles interface selection changes in a device configuration menu. Reads the
  * currently selected interface from the `#iface` dropdown and populates the `#ip` and `#netmask`
@@ -6,7 +9,8 @@
  * @param {string} selector - CSS class name (without leading dot) of the menu element.
  * @returns {void}
  */
-function interfaceHandler(event, selector) {
+// [agent-added: esm-migration phase 05]
+export function interfaceHandler(event, selector) {
     const $menu = document.querySelector(`.${selector}`);
     const $networkObject = document.getElementById($menu.dataset.id);
     const $ifaceSelector = $menu.querySelector("#iface");
@@ -21,7 +25,8 @@ function interfaceHandler(event, selector) {
  * @param {string} selector - CSS class name (without leading dot) of the menu element.
  * @returns {void}
  */
-function loadInterfaces(selector) {
+// [agent-added: esm-migration phase 05]
+export function loadInterfaces(selector) {
     const $menu = document.querySelector(`.${selector}`);
     const $networkObject = document.getElementById($menu.dataset.id);
     const availableInterfaces = getInterfaces($networkObject.id);

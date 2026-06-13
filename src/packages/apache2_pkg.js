@@ -7,7 +7,14 @@
  * @param {HTMLElement} $networkObject - The DOM element representing the network device.
  * @returns {void}
  */
-function installApache2($networkObject) {
+// [agent-added: esm-migration phase 05]
+import { $APACHEDEFAULTCONTENT, $APACHECONFIGCONTENT } from '../lib/apache2_lib.js';
+import { FileSystem } from '../lib/fileSystem_lib.js';
+// esm-migration: scope unclear — terminalMessage is defined in src/components/network_tools/terminal.js (Phase 06)
+// import { terminalMessage } from '../components/network_tools/terminal.js';
+
+// [agent-added: esm-migration phase 05]
+export function installApache2($networkObject) {
 
     terminalMessage("Installing Apache...", $networkObject.id);
 
@@ -46,7 +53,8 @@ function installApache2($networkObject) {
  * @param {string} networkObjectId - The DOM element ID of the network device.
  * @returns {void}
  */
-function uninstallApache2(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function uninstallApache2(networkObjectId) {
 
     terminalMessage("Uninstalling Apache...", networkObjectId);
 

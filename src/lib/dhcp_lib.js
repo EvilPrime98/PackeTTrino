@@ -1,3 +1,12 @@
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { ipToBinary, binaryToIp, getInterfaces, isValidIp, isValidMac, getNetwork, setDefaultGateway } from './network_lib.js';
+import { setDnsServers } from './dns_lib.js';
+import { configureInterface, deconfigureInterface } from '../services/networkd_service.js';
+import { updateServerLeaseTimes } from '../services/dhcpd_service.js';
+import { dhcpRenewHandler } from '../utilities/dhcp_util.js';
+import { dhcpDiscoverGenerator } from '../services/dhclient_service.js';
+
 /**
  * @description Returns a random valid IP address from within the DHCP server's configured range
  * that is not already leased or reserved. If the server has no range/netmask configured, returns
@@ -5,7 +14,8 @@
  * @param {string} serverObjectId - DOM id of the DHCP server element.
  * @returns {string} A random available IP address in dotted-decimal notation.
  */
-function getRandomIPfromDhcp(serverObjectId) {
+// [agent-added: esm-migration phase 05]
+export function getRandomIPfromDhcp(serverObjectId) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const rangeStart = $serverObject.getAttribute("data-range-start");
@@ -36,7 +46,8 @@ function getRandomIPfromDhcp(serverObjectId) {
  * @param {string} newip - IP address to check for availability.
  * @returns {boolean} `true` if the IP is available for a new offer, `false` if it is already taken.
  */
-function checkIpinDhcp(serverObjectId, newip) {
+// [agent-added: esm-migration phase 05]
+export function checkIpinDhcp(serverObjectId, newip) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const $leasesTable = $serverObject.querySelector(".dhcp-table").querySelector("table");
@@ -67,7 +78,8 @@ function checkIpinDhcp(serverObjectId, newip) {
  * @param {string} newhostname - Hostname of the client receiving the lease.
  * @returns {void}
  */
-function addDhcpEntry(serverObjectId, newip, newmac, newhostname) {
+// [agent-added: esm-migration phase 05]
+export function addDhcpEntry(serverObjectId, newip, newmac, newhostname) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const leaseTime = $serverObject.getAttribute("dhcp-offer-lease-time");
@@ -82,7 +94,7 @@ function addDhcpEntry(serverObjectId, newip, newmac, newhostname) {
     `;
 
     $leasesTable.appendChild($newLease);
-    if (!serverLeaseTimers[serverObjectId]) serverLeaseTimers[serverObjectId] = setInterval(() => updateServerLeaseTimes(serverObjectId), 1000);
+    if (!state.serverLeaseTimers[serverObjectId]) state.serverLeaseTimers[serverObjectId] = setInterval(() => updateServerLeaseTimes(serverObjectId), 1000);
 }
 
 /**
@@ -92,7 +104,8 @@ function addDhcpEntry(serverObjectId, newip, newmac, newhostname) {
  * @param {string} targetip - IP address of the lease to remove.
  * @returns {void}
  */
-function deleteDhcpEntry(serverObjectId, targetip) {
+// [agent-added: esm-migration phase 05]
+export function deleteDhcpEntry(serverObjectId, targetip) {
     const serverObject = document.getElementById(serverObjectId);
     const table = serverObject.querySelector(".dhcp-table").querySelector("table");
     const rows = table.querySelectorAll("tr");
@@ -122,7 +135,8 @@ function deleteDhcpEntry(serverObjectId, targetip) {
  * @param {string} renewPacket.hostname - New hostname to record.
  * @returns {boolean} `true` if a matching lease was found and updated, `false` otherwise.
  */
-function updateDhcpEntry(serverObjectId, renewPacket) {
+// [agent-added: esm-migration phase 05]
+export function updateDhcpEntry(serverObjectId, renewPacket) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const leaseTimeOffer = $serverObject.getAttribute("dhcp-offer-lease-time");
@@ -159,7 +173,8 @@ function updateDhcpEntry(serverObjectId, renewPacket) {
  * @param {string} iface - Interface name (e.g. "enp0s3") whose lease timer to (re)start.
  * @returns {Promise<void>}
  */
-async function updateClientLeaseTimer(networkObjectId, iface) {
+// [agent-added: esm-migration phase 05]
+export async function updateClientLeaseTimer(networkObjectId, iface) {
 
     const $networkObject = document.getElementById(networkObjectId);
 
@@ -173,7 +188,7 @@ async function updateClientLeaseTimer(networkObjectId, iface) {
         await reduceClientLeaseTime(networkObjectId, iface)
     }, 1000 );
 
-    clientLeaseTimers[`${networkObjectId}-${iface}`] = clientLeaseTimer;
+    state.clientLeaseTimers[`${networkObjectId}-${iface}`] = clientLeaseTimer;
 
 }
 
@@ -185,7 +200,8 @@ async function updateClientLeaseTimer(networkObjectId, iface) {
  * @param {string} iface - Interface name whose lease countdown to decrement.
  * @returns {Promise<void>}
  */
-async function reduceClientLeaseTime(networkObjectId, iface) {
+// [agent-added: esm-migration phase 05]
+export async function reduceClientLeaseTime(networkObjectId, iface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const switchId = $networkObject.getAttribute(`data-switch-${iface}`);
@@ -205,20 +221,20 @@ async function reduceClientLeaseTime(networkObjectId, iface) {
     if (currentLeaseTime > T1 && flagT1 === "false") {
         $networkObject.setAttribute(`data-dhcp-flag-t1-${iface}`, "true");
         await dhcpRenewHandler(networkObjectId, "T1", iface);
-        if (dhcpRequestFlag[networkObjectId] === true) $networkObject.setAttribute(`data-dhcp-flag-t1-${iface}`, "false");
+        if (state.dhcpRequestFlag[networkObjectId] === true) $networkObject.setAttribute(`data-dhcp-flag-t1-${iface}`, "false");
         return;
     }
 
     if (currentLeaseTime > T2 && flagT2 === "false") {
         $networkObject.setAttribute(`data-dhcp-flag-t2-${iface}`, "true");
         await dhcpRenewHandler(networkObjectId, "T2", iface);
-        if (dhcpRequestFlag[networkObjectId] === true) $networkObject.setAttribute(`data-dhcp-flag-t2-${iface}`, "false");
+        if (state.dhcpRequestFlag[networkObjectId] === true) $networkObject.setAttribute(`data-dhcp-flag-t2-${iface}`, "false");
         return;
     }
 
     if (currentLeaseTime >= leaseTime ) {
-        clearInterval(clientLeaseTimers[`${networkObjectId}-${iface}`]);
-        delete clientLeaseTimers[`${networkObjectId}-${iface}`];
+        clearInterval(state.clientLeaseTimers[`${networkObjectId}-${iface}`]);
+        delete state.clientLeaseTimers[`${networkObjectId}-${iface}`];
         deleteDhcpInfo(networkObjectId, iface);
         await dhcpDiscoverGenerator(networkObjectId, iface);
         return;
@@ -235,7 +251,8 @@ async function reduceClientLeaseTime(networkObjectId, iface) {
  * @returns {void}
  * @throws {Error} If the IP is invalid, out of the server's subnet range, or the MAC is invalid.
  */
-function addDhcpReservation(networkObjectId, mac, ip) {
+// [agent-added: esm-migration phase 05]
+export function addDhcpReservation(networkObjectId, mac, ip) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const rangeStart = $networkObject.getAttribute("data-range-start");
@@ -261,7 +278,8 @@ function addDhcpReservation(networkObjectId, mac, ip) {
  * @param {string} mac - MAC address whose reservation to remove.
  * @returns {void}
  */
-function removeDhcpReservation(networkObjectId, mac) {
+// [agent-added: esm-migration phase 05]
+export function removeDhcpReservation(networkObjectId, mac) {
     const $networkObject = document.getElementById(networkObjectId);
     const reservations = JSON.parse($networkObject.getAttribute("dhcp-reservations"));
     delete reservations[mac];
@@ -275,7 +293,8 @@ function removeDhcpReservation(networkObjectId, mac) {
  * @param {string} mac - MAC address to look up (trimmed and uppercased internally).
  * @returns {string|false} The reserved IP address string, or `false` if not found.
  */
-function getReservedIp(serverObjectId, mac) {
+// [agent-added: esm-migration phase 05]
+export function getReservedIp(serverObjectId, mac) {
     const $serverObject = document.getElementById(serverObjectId);
     const reservations = JSON.parse($serverObject.getAttribute("dhcp-reservations"));
     const filteredMac = mac.trim().toUpperCase();
@@ -298,7 +317,8 @@ function getReservedIp(serverObjectId, mac) {
  * @param {string} networkObjectInterface - Interface name to configure (e.g. "enp0s3").
  * @returns {void}
  */
-function setDhcpInfo(networkObjectId, packet, networkObjectInterface) {
+// [agent-added: esm-migration phase 05]
+export function setDhcpInfo(networkObjectId, packet, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const newIp = packet.yiaddr;
@@ -327,7 +347,8 @@ function setDhcpInfo(networkObjectId, packet, networkObjectInterface) {
  * @param {string} networkObjectInterface - Interface name to deconfigure (e.g. "enp0s3").
  * @returns {void}
  */
-function deleteDhcpInfo(networkObjectId, networkObjectInterface) {
+// [agent-added: esm-migration phase 05]
+export function deleteDhcpInfo(networkObjectId, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
 
@@ -344,8 +365,8 @@ function deleteDhcpInfo(networkObjectId, networkObjectInterface) {
     $networkObject.setAttribute("data-dhcp-flag-t2", "false");
 
     //cancel the client lease timer
-    clearInterval(clientLeaseTimers[`${networkObjectId}-${networkObjectInterface}`]);
-    delete clientLeaseTimers[`${networkObjectId}-${networkObjectInterface}`];
+    clearInterval(state.clientLeaseTimers[`${networkObjectId}-${networkObjectInterface}`]);
+    delete state.clientLeaseTimers[`${networkObjectId}-${networkObjectInterface}`];
 }
 
 /**
@@ -354,7 +375,8 @@ function deleteDhcpInfo(networkObjectId, networkObjectInterface) {
  * intervals for any DHCP client that has a non-empty lease time on its first interface.
  * @returns {void}
  */
-function startLeaseTimers() {
+// [agent-added: esm-migration phase 05]
+export function startLeaseTimers() {
 
     const $dhcpServers = Array.from(document.querySelectorAll(".item-dropped"))
     .filter($networkObject => $networkObject.getAttribute("dhcpd") !== null);
@@ -365,8 +387,8 @@ function startLeaseTimers() {
         const serverObjectId = server.id;
         const table = server.querySelector(".dhcp-table table");
         const leases = table.querySelectorAll("tr");
-        if (leases.length > 1 && !serverLeaseTimers[serverObjectId]) {
-            serverLeaseTimers[serverObjectId] = setInterval(() => updateServerLeaseTimes(serverObjectId), 1000);
+        if (leases.length > 1 && !state.serverLeaseTimers[serverObjectId]) {
+            state.serverLeaseTimers[serverObjectId] = setInterval(() => updateServerLeaseTimes(serverObjectId), 1000);
         }
     });
 
@@ -374,8 +396,8 @@ function startLeaseTimers() {
         const clientObjectId = client.id;
         const leaseTime = client.getAttribute("data-dhcp-lease-time");
         const interfaces = getInterfaces(clientObjectId);
-        if (leaseTime !== "" && !clientLeaseTimers[`${clientObjectId}-${interfaces[0]}`]) {
-            clientLeaseTimers[`${clientObjectId}-${interfaces[0]}`] = setInterval( async () => { await reduceClientLeaseTime(clientObjectId, interfaces[0])}, 1000 );
+        if (leaseTime !== "" && !state.clientLeaseTimers[`${clientObjectId}-${interfaces[0]}`]) {
+            state.clientLeaseTimers[`${clientObjectId}-${interfaces[0]}`] = setInterval( async () => { await reduceClientLeaseTime(clientObjectId, interfaces[0])}, 1000 );
         }
     });
 
@@ -396,7 +418,8 @@ function startLeaseTimers() {
  * @returns {void}
  * @throws {Error} If any field fails validation.
  */
-function validateDhpcConfiguration(networkObjectId, configObject) {
+// [agent-added: esm-migration phase 05]
+export function validateDhpcConfiguration(networkObjectId, configObject) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableInterfaces = getInterfaces($networkObject.id);

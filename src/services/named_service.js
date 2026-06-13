@@ -1,3 +1,10 @@
+import { getInterfaces } from "@/lib/network_lib";
+import { dnsReply } from "@/lib/packets_lib";
+import { iterativeDnsQuery } from "@/lib/dns_lib";
+import { isDomainInCacheDns } from "@/lib/dns_lib";
+import { addDnsCacheEntryServer } from "@/lib/dns_lib";
+import { getSoaRecord } from "@/lib/dns_lib";
+
 /**
  * Processes an incoming DNS request on behalf of the named (BIND9) DNS server running on a network object.
  *
@@ -15,7 +22,7 @@
  * @param {number} packet.sport - Source port of the requester (used as destination port for the reply).
  * @returns {Promise<Object|undefined>} The DNS reply packet, or undefined if named is off.
  */
-async function named_service(networkObjectId, packet) {
+export async function named_service(networkObjectId, packet) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectInterface = getInterfaces(networkObjectId)[0];
@@ -105,7 +112,7 @@ async function named_service(networkObjectId, packet) {
  * @param {string} domain - The fully qualified domain name to resolve.
  * @returns {Promise<Array<string>|false>} An array of resolved IPv4 addresses, or false on failure.
  */
-async function recursiveDnsQuery(domain) {
+export async function recursiveDnsQuery(domain) {
 
     try {
 

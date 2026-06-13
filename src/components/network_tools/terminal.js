@@ -1,3 +1,5 @@
+import { dragModal } from "@/lib/component_lib";
+import { unixParser } from "@/unix";
 /**
  * Creates and returns the terminal modal component as a `<div>` DOM node.
  * The element includes a draggable title bar, a prompt line with a text input,
@@ -7,7 +9,7 @@
  *
  * @returns {HTMLDivElement} The fully configured terminal modal element.
  */
-function terminal() {
+export function terminal() {
 
     const $terminal = document.createElement("div");
     $terminal.classList.add("terminal-component", "draggable-modal");
@@ -59,7 +61,7 @@ function terminal() {
  * @param {MouseEvent} event - The click event fired on the terminal component or its output.
  * @returns {void}
  */
-function clickTerminal(event) {
+export function clickTerminal(event) {
     const terminal = event.target.closest(".terminal-component");
     const input = terminal.querySelector("input");
     input.focus();
@@ -74,7 +76,7 @@ function clickTerminal(event) {
  * @param {boolean} [isHtml=true] - When true, the message is injected via `innerHTML`; otherwise via `textContent`.
  * @returns {void}
  */
-function terminalMessage(message, networkObjectId, isHtml = true) {
+export function terminalMessage(message, networkObjectId, isHtml = true) {
     const $terminal = document.querySelector(".terminal-component");
     const $output = document.querySelector(".terminal-output");
     if (window.getComputedStyle($terminal).display === "none") return;
@@ -93,7 +95,7 @@ function terminalMessage(message, networkObjectId, isHtml = true) {
  * @param {KeyboardEvent} event - The keydown event fired on the terminal component.
  * @returns {void}
  */
-function terminalKeyboard(event) {
+export function terminalKeyboard(event) {
 
     if (event.ctrlKey && event.key === "c") {
         event.preventDefault();
@@ -128,7 +130,7 @@ function terminalKeyboard(event) {
  *
  * @returns {Promise<void>} Resolves when the minimize animation completes.
  */
-async function minimizeTerminal() {
+export async function minimizeTerminal() {
     return new Promise(resolve => {
         const $terminal = document.querySelector(".terminal-component");
         if (!$terminal || window.getComputedStyle($terminal).display === "none") return resolve();
@@ -154,7 +156,7 @@ async function minimizeTerminal() {
  *
  * @returns {Promise<void>} Resolves when the maximize animation completes.
  */
-async function maximizeTerminal() {
+export async function maximizeTerminal() {
     return new Promise(resolve => {
         const $terminal = document.querySelector(".terminal-component");
         if (!$terminal || window.getComputedStyle($terminal).display === "none") return resolve();
@@ -179,7 +181,7 @@ async function maximizeTerminal() {
  * @param {MouseEvent} event - The click event fired from the network object's advanced options.
  * @returns {void}
  */
-function showTerminal(event) {
+export function showTerminal(event) {
     event.stopPropagation();
     const $networkObject = event.target.closest(".item-dropped");
     const $terminal = document.querySelector(".terminal-component");
@@ -200,7 +202,7 @@ function showTerminal(event) {
  * @param {Event} event - The event that triggered the close action (keyboard or click).
  * @returns {void}
  */
-function closeTerminal(event) {
+export function closeTerminal(event) {
     event.preventDefault();
     const $terminal = document.querySelector(".terminal-component");
     clearInterval(window.pingInterval);
@@ -227,7 +229,7 @@ function closeTerminal(event) {
  * @param {KeyboardEvent} event - The keydown event fired inside the file editor textarea.
  * @returns {void}
  */
-function fileEditorKeyboard(event) {
+export function fileEditorKeyboard(event) {
 
     event.stopPropagation();
 

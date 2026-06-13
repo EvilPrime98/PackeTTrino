@@ -7,7 +7,11 @@
  * @param {HTMLElement} $networkObject - The DOM element representing the network device.
  * @returns {void}
  */
-function installIptables($networkObject) {
+// [agent-added: esm-migration phase 05]
+// esm-migration: scope unclear — terminalMessage is defined in src/components/network_tools/terminal.js (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export function installIptables($networkObject) {
 
     const networkObjectId = $networkObject.id;
 

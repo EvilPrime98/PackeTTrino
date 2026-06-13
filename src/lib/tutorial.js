@@ -244,6 +244,6 @@ tutorial.addSlide(
  * @description Starts the tutorial slide presentation.
  * @returns {void}
  */
-function startTutorial() {
+export function startTutorial() {
     tutorial.startPresentation();
 }

@@ -15,7 +15,7 @@
  *   - `3` — no reply received (timeout or routing failure)
  *   - `4` — the interface has no IP or netmask configured
  */
-async function ping(networkObjectId, destination) {
+export async function ping(networkObjectId, destination) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectInterface = getInterfaces(networkObjectId)[0];
@@ -61,7 +61,7 @@ async function ping(networkObjectId, destination) {
  * @param {boolean} [numeric=false] - When true, prefixes each output line with a hop count number.
  * @returns {Promise<void>}
  */
-async function traceroute(networkObjectId, destination, numeric = false) {
+export async function traceroute(networkObjectId, destination, numeric = false) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectInterface = getInterfaces(networkObjectId)[0];
@@ -158,7 +158,7 @@ async function traceroute(networkObjectId, destination, numeric = false) {
  * @param {string} [iface="enp0s3"] - Interface name used to look up the source MAC address.
  * @returns {Promise<void>}
  */
-async function icmpRequestPacketGenerator(networkObjectId, originIp, destinationIp, iface = "enp0s3") {
+export async function icmpRequestPacketGenerator(networkObjectId, originIp, destinationIp, iface = "enp0s3") {
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectMac = $networkObject.getAttribute(`mac-${iface}`);
     const packet = new IcmpEchoRequest(originIp, destinationIp, networkObjectMac, "");

@@ -4,7 +4,7 @@
  * **PacketTracer** buffer.
  * @returns {HTMLDivElement} modal - An HTML div element representing the packet info modal.
  */
-function packetInfo(event) {
+export function packetInfo(event) {
     
     const packet = trafficBuffer[event.target.dataset.buffer];
 

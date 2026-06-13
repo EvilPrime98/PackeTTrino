@@ -5,7 +5,7 @@
  * @param {string} pathInput - Absolute or relative path for the new directory.
  * @returns {void}
  */
-function command_mkdir(networkObjectId, pathInput) {
+export function command_mkdir(networkObjectId, pathInput) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const fileSystem = new FileSystem($networkObject);
@@ -27,7 +27,7 @@ function command_mkdir(networkObjectId, pathInput) {
  * @param {string} pathInput - Absolute or relative path for the new file.
  * @returns {void}
  */
-function command_touch(networkObjectId, pathInput) {
+export function command_touch(networkObjectId, pathInput) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const fileSystem = new FileSystem($networkObject);
@@ -49,7 +49,7 @@ function command_touch(networkObjectId, pathInput) {
  * @param {Array<string>} args - Two-element array: [originPath, destinationPath].
  * @returns {void}
  */
-function command_cp(networkObjectId, args) {
+export function command_cp(networkObjectId, args) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const originInput = args[0];
@@ -82,7 +82,7 @@ function command_cp(networkObjectId, args) {
  * @param {Array<string>} args - Options and optional path forwarded to `FileSystem.ls`.
  * @returns {void}
  */
-function command_ls(networkObjectId, args) {
+export function command_ls(networkObjectId, args) {
 
     const $networkObject = document.getElementById(networkObjectId);
 
@@ -107,7 +107,7 @@ function command_ls(networkObjectId, args) {
  * @param {string} inputPath - Absolute or relative path to the file or directory to remove.
  * @returns {void}
  */
-function command_rm(networkObjectId, inputPath) {
+export function command_rm(networkObjectId, inputPath) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const fileSystem = new FileSystem($networkObject);
@@ -131,7 +131,7 @@ function command_rm(networkObjectId, inputPath) {
  * @param {string} pathInput - Absolute or relative path to navigate to.
  * @returns {void}
  */
-function command_cd(networkObjectId, pathInput) {
+export function command_cd(networkObjectId, pathInput) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const directoryPath = pathBuilder(pathInput);
@@ -156,7 +156,7 @@ function command_cd(networkObjectId, pathInput) {
  * @param {string} file - Absolute or relative path to the file to read.
  * @returns {void}
  */
-function command_cat(networkObjectId, file) {
+export function command_cat(networkObjectId, file) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const fileSystem = new FileSystem($networkObject);
@@ -181,7 +181,7 @@ function command_cat(networkObjectId, file) {
  * @param {string} pathInput - The path string to parse (absolute or relative).
  * @returns {Array<string>} An array of path segment strings (e.g. ["etc", "network", "interfaces"]).
  */
-function pathBuilder(pathInput) {
+export function pathBuilder(pathInput) {
 
     let path;
 

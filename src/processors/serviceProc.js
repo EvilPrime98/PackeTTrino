@@ -18,7 +18,17 @@
  *   An array of response descriptors. Each entry contains the reply packet and the
  *   output interface name to use when sending it (`""` means use normal routing).
  */
-async function serviceProcessor(networkObjectId, packet, networkObjectInterface) {
+// [agent-added: esm-migration phase 05]
+import { getAvailableServices } from '../services/systemd_service.js';
+import { getInfoFromIp } from '../lib/network_lib.js';
+import { dhclient_service } from '../services/dhclient_service.js';
+import { dhcpd_service } from '../services/dhcpd_service.js';
+import { dhcrelay_service } from '../services/dhcrelay_service.js';
+import { named_service } from '../services/named_service.js';
+import { apache_service } from '../services/apache2_service.js';
+
+// [agent-added: esm-migration phase 05]
+export async function serviceProcessor(networkObjectId, packet, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableServices = getAvailableServices(networkObjectId);

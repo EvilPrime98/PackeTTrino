@@ -6,7 +6,7 @@
  *
  * @returns {HTMLElement} The DNS cache table `<article>` element, ready to be appended to a network object.
  */
-function cacheDnsTable() {
+export function cacheDnsTable() {
 
     const $cacheDnsTable = document.createElement("article");
 

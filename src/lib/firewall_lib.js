@@ -1,9 +1,13 @@
+// [agent-added: esm-migration phase 05]
+import { getInterfaces, isValidIp, isValidCidrIp } from './network_lib.js';
+
 /**
  * @description Represents a single iptables-style firewall rule with default wildcard values for
  * all match fields. Fields map to iptables options: `t` (table), `A` (chain), `p` (protocol),
  * `s`/`d` (source/dest IP), `i`/`o` (in/out interface), `sport`/`dport` (ports), `j` (action).
  */
-class iptablesRule {
+// [agent-added: esm-migration phase 05]
+export class iptablesRule {
     constructor() {
         this.t = "filter"; //table
         this.A = ""; //chain
@@ -29,7 +33,8 @@ class iptablesRule {
  * @returns {void}
  * @throws {Error} If `chain` or `action` is not one of the accepted values.
  */
-function setFirewallDefaultPolicy(networkObjectId, chain, action) {
+// [agent-added: esm-migration phase 05]
+export function setFirewallDefaultPolicy(networkObjectId, chain, action) {
     const $networkObject = document.getElementById(networkObjectId);
     const defaultPolicies = JSON.parse($networkObject.getAttribute("firewall-default-policy"));
     const validChains = ["INPUT", "OUTPUT", "FORWARD"];
@@ -47,7 +52,8 @@ function setFirewallDefaultPolicy(networkObjectId, chain, action) {
  * @returns {Object.<string, string>} Object mapping chain names ("INPUT", "OUTPUT", "FORWARD") to
  *   their default policy ("ACCEPT", "DROP", or "REJECT").
  */
-function getFirewallDefaultPolicy(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function getFirewallDefaultPolicy(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
     return JSON.parse($networkObject.getAttribute("firewall-default-policy"));
 }
@@ -58,7 +64,8 @@ function getFirewallDefaultPolicy(networkObjectId) {
  * @param {string} networkObjectId - DOM id of the network object.
  * @returns {string[]} Array of rule strings (one per rule).
  */
-function getFirewallTable(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function getFirewallTable(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
     const firewallRules = JSON.parse($networkObject.getAttribute("firewall-rules"));
     const response = [];
@@ -81,7 +88,8 @@ function getFirewallTable(networkObjectId) {
  * @returns {void}
  * @throws {Error} If any field in the rule is invalid.
  */
-function isValidFirewallRule(rule, networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function isValidFirewallRule(rule, networkObjectId) {
 
     const validTables = ["filter", "nat"];
     const validFilterChains = ["INPUT", "OUTPUT", "FORWARD"];
@@ -137,7 +145,8 @@ function isValidFirewallRule(rule, networkObjectId) {
  * @param {iptablesRule} newRule - The validated rule object to add.
  * @returns {void}
  */
-function addFirewallRule(routerObjectId, newRule) {
+// [agent-added: esm-migration phase 05]
+export function addFirewallRule(routerObjectId, newRule) {
     const $networkObject = document.getElementById(routerObjectId);
     const firewallRules = JSON.parse($networkObject.getAttribute("firewall-rules")); //array of rules
     const table = (newRule.t).toUpperCase();
@@ -152,7 +161,8 @@ function addFirewallRule(routerObjectId, newRule) {
  * @param {string} id - Identifier value displayed in the first `<td>` of the rule row.
  * @returns {void}
  */
-function deleteFirewallRule(routerObjectId, id) {
+// [agent-added: esm-migration phase 05]
+export function deleteFirewallRule(routerObjectId, id) {
 
     const $networkObject = document.getElementById(routerObjectId);
     const ruleTable = $networkObject.querySelector(".firewall-table").querySelector("table");
@@ -180,7 +190,8 @@ function deleteFirewallRule(routerObjectId, id) {
  *   to clear every rule in every table.
  * @returns {void}
  */
-function clearFirewall(networkObjectId, chain = "ALL") {
+// [agent-added: esm-migration phase 05]
+export function clearFirewall(networkObjectId, chain = "ALL") {
     const $networkObject = document.getElementById(networkObjectId);
     const firewallRules = JSON.parse($networkObject.getAttribute("firewall-rules")); //firewallRules object
     for (const table in firewallRules) {

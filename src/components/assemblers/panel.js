@@ -1,3 +1,12 @@
+import { dynamicRoutingButton } from "./dynamicRoutingButton";
+import { dragStart } from "@/lib/component_lib";
+import { fileInputChangeHandler, fileInputLoadHandler } from "@/lib/component_lib";
+import { quickPingStart } from "@/lib/component_lib";
+import { generalOptionsHandler } from "../menus/generalSettingsMenu";
+import { showPacketTraffic } from "../menus/packetTracerMenu";
+import { downloadState } from "@/lib/component_lib";
+import { $, $$ } from "@/lib/dom_lib";
+
 /**
  * Returns an HTML element representing the **Items Panel**, where the user can pick and drag items from.
  * Panel items are rendered as `<article>` elements with the class `item`. Each item is also 
@@ -9,7 +18,7 @@
  * - `tooltip`: The tooltip text for the item.
  * @returns {HTMLElement}
  */
-async function itemPanel() {
+export async function itemPanel() {
 
     const $panel = document.createElement("section");
     const $itemsContainer = document.createElement("div");
@@ -180,7 +189,7 @@ async function itemPanel() {
  * Manages the hide-panel button logic.
  * @returns {void}
  */
-function hidePanel() {
+export function hidePanel() {
 
     const $panel = $("#item-panel");
     const $hideButton = $('.hide-panel', $panel);

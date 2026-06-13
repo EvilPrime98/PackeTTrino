@@ -18,9 +18,23 @@
  * @param {Object} packet - The packet object being processed.
  * @returns {Promise<void>}
  */
-async function packetProcessor_Host(switchId, networkObjectId, packet) {
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { visualize } from '../lib/packet_visualize_lib.js';
+import { switchToInterface } from '../lib/network_lib.js';
+import { getAvailableServices } from '../services/systemd_service.js';
+import { firewallProcessorFilter } from '../services/iptablesd_service.js';
+import { igniteFire } from '../../animations/firewall-block.js';
+import { kernelProcessor } from './kernelProc.js';
+import { routing } from './routingProc.js';
+import { serviceProcessor } from './serviceProc.js';
+import { packetProcessor_Router } from './routerProc.js';
+// esm-migration: scope unclear — addPacketTraffic is defined in src/components/menus/packetTracerMenu.js (Phase 06)
 
-    if (visualToggle) await visualize(switchId, networkObjectId, packet);
+// [agent-added: esm-migration phase 05]
+export async function packetProcessor_Host(switchId, networkObjectId, packet) {
+
+    if (state.visualToggle) await visualize(switchId, networkObjectId, packet);
 
     const $networkObject = document.getElementById(networkObjectId);
 
@@ -42,7 +56,7 @@ async function packetProcessor_Host(switchId, networkObjectId, packet) {
     //evaluate the firewall INPUT chain
 
     if (!firewallProcessorFilter(networkObjectId, packet, "INPUT", networkObjectInterface, "")) {
-        if (visualToggle) igniteFire(networkObjectId);
+        if (state.visualToggle) igniteFire(networkObjectId);
         return;
     }
 

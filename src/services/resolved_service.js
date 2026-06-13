@@ -1,3 +1,12 @@
+import { getDomainFromEtcHosts } from "@/lib/dns_lib";
+import { isDomainInCacheDns } from "@/lib/dns_lib";
+import { addDnsCacheEntry } from "@/lib/dns_lib";
+import { isValidIp, isLocalIp } from "@/lib/network_lib";
+import { state } from "@/env";
+import { getDnsServers } from "@/lib/dns_lib";
+import { dnsRequest } from "@/lib/packets_lib";
+import { getInterfaces } from "@/lib/network_lib";
+
 /**
  * Resolves a domain name to an IP address using the network object's configured resolution stack.
  *
@@ -10,7 +19,7 @@
  * @param {string} domain - The domain name to resolve.
  * @returns {Promise<string|false>} The first resolved IP address string, or false if resolution fails.
  */
-async function domainNameResolution(networkObjectId, domain) {
+export async function domainNameResolution(networkObjectId, domain) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const useCache = $networkObject.getAttribute("resolved") === "true";
@@ -73,7 +82,7 @@ async function domainNameResolution(networkObjectId, domain) {
  * @returns {Promise<Object>} The DNS reply packet stored in the device's packet buffer.
  * @throws {Error} If no DNS servers are configured or all servers time out.
  */
-async function getDomainFromServer(networkObjectId, domain, dnsServer = "", query_type) {
+export async function getDomainFromServer(networkObjectId, domain, dnsServer = "", query_type) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const isResolvedOn = $networkObject.getAttribute("resolved") === "true"; //check if the device has a DNS cache
@@ -82,7 +91,7 @@ async function getDomainFromServer(networkObjectId, domain, dnsServer = "", quer
 
     //reseteamos el flag de comunicaciones
 
-    dnsRequestFlag[networkObjectId] = false;
+    state.dnsRequestFlag[networkObjectId] = false;
 
     //si no se especifico un servidor dns se usan los del equipo
 
@@ -115,13 +124,13 @@ async function getDomainFromServer(networkObjectId, domain, dnsServer = "", quer
 
             if (dnsReply) {
                 answered = true;
-                buffer[networkObjectId] = dnsReply;
+                state.buffer[networkObjectId] = dnsReply;
             }
 
         } else { //remote DNS servers
 
             await dnsRequestPacketGenerator(networkObjectId, domain, dnsServer, query_type);
-            if (dnsRequestFlag[networkObjectId] === true) answered = true;
+            if (state.dnsRequestFlag[networkObjectId] === true) answered = true;
 
         }
 
@@ -148,7 +157,7 @@ async function getDomainFromServer(networkObjectId, domain, dnsServer = "", quer
  * @param {string} query_type - DNS record type to request (e.g. "A", "PTR", "SOA").
  * @returns {Promise<void>}
  */
-async function dnsRequestPacketGenerator(networkObjectId, domain, dnsServer, query_type) {
+export async function dnsRequestPacketGenerator(networkObjectId, domain, dnsServer, query_type) {
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectInterface = getInterfaces(networkObjectId)[0];
     const networkObjectMac = $networkObject.getAttribute(`mac-${networkObjectInterface}`);

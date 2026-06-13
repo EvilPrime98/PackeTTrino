@@ -15,7 +15,7 @@
  *   Format: ["dns", <subcommand>, ...]
  * @returns {void}
  */
-function command_dns(networkObjectId, args) {
+export function command_dns(networkObjectId, args) {
 
     const $serverObject = document.getElementById(networkObjectId);
     const $dnsTable = $serverObject.querySelector(".dns-table").querySelector("table");

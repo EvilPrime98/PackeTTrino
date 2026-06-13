@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "checkJs": false,
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
-      "*": ["src/*"]
+      "@/*": ["src/*"]
     },
-    "checkJs": false
+    "moduleDetection": "force",
+    "resolveJsonModule": true
   },
+  "include": ["src/**/*.js", "vite.config.js", "tests/**/*.js"],
   "exclude": ["node_modules", "dist"]
 }

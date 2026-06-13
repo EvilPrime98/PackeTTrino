@@ -10,7 +10,7 @@
  * @param {string} networkObjectInterface - The interface name from which the discover is sent.
  * @returns {Promise<void>}
  */
-async function dhcpDiscoverHandler(networkObjectId, networkObjectInterface) {
+export async function dhcpDiscoverHandler(networkObjectId, networkObjectInterface) {
 
     console.log(networkObjectId, networkObjectInterface);
     const $networkObject = document.getElementById(networkObjectId);
@@ -64,7 +64,7 @@ async function dhcpDiscoverHandler(networkObjectId, networkObjectInterface) {
  * @param {string} networkObjectInterface - The interface whose lease is being renewed.
  * @returns {Promise<void>}
  */
-async function dhcpRenewHandler(networkObjectId, renewPhase, networkObjectInterface) {
+export async function dhcpRenewHandler(networkObjectId, renewPhase, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectIp = $networkObject.getAttribute(`ip-${networkObjectInterface}`);
@@ -102,7 +102,7 @@ async function dhcpRenewHandler(networkObjectId, renewPhase, networkObjectInterf
  * @param {string} networkObjectInterface - The interface whose lease is being released.
  * @returns {Promise<void>}
  */
-async function dhcpReleaseHandler(networkObjectId, networkObjectInterface) {
+export async function dhcpReleaseHandler(networkObjectId, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectIp = $networkObject.getAttribute(`ip-${networkObjectInterface}`);

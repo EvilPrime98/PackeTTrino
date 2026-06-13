@@ -23,7 +23,7 @@
  * @param {string} networkObjectInterface - The interface name on which the packet was received.
  * @returns {Promise<Object|undefined>} The mutated packet to forward, or undefined if it should be dropped.
  */
-async function dhcrelay_service(agentObjectId, packet, networkObjectInterface) {
+export async function dhcrelay_service(agentObjectId, packet, networkObjectInterface) {
 
     //relay agent attributes
     const $agentObject = document.getElementById(agentObjectId);

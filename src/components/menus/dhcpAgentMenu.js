@@ -1,3 +1,4 @@
+import { dragModal } from "@/lib/component_lib";
 /**
  * Builds and returns the DHCP relay agent configuration form.
  *
@@ -16,7 +17,7 @@
  *
  * @returns {HTMLFormElement} The assembled DHCP relay configuration form element.
  */
-function dhcp_agent_menu() {
+export function dhcp_agent_menu() {
 
     const $menu = document.createElement("form");
     $menu.classList.add("dhcp-relay-form", "modal", "draggable-modal");
@@ -93,7 +94,7 @@ function dhcp_agent_menu() {
  * @param {Event} event - The click event originating from inside an `.item-dropped` element.
  * @returns {void}
  */
-function showDhcpRelayMenu(event) {
+export function showDhcpRelayMenu(event) {
 
     event.stopPropagation();
 
@@ -151,7 +152,7 @@ function showDhcpRelayMenu(event) {
  * @returns {void}
  * @throws {Error} Validation errors are caught internally and displayed as popup messages.
  */
-function saveDhcpRelayMenu(event) {
+export function saveDhcpRelayMenu(event) {
 
     event.preventDefault();
     event.stopPropagation();
@@ -207,7 +208,7 @@ function saveDhcpRelayMenu(event) {
  * @param {Event} event - The click event fired by the close button.
  * @returns {void}
  */
-function closeDhcpRelayMenu(event) {
+export function closeDhcpRelayMenu(event) {
     event.stopPropagation();
     event.preventDefault();
     const $form = $('.dhcp-relay-form');

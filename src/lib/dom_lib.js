@@ -4,7 +4,8 @@
  * @param {Element} [ctxEl=document] - Context element to search within. Defaults to `document`.
  * @returns {Element|null} The first matching element, or null if not found.
  */
-function $(
+// [agent-added: esm-migration phase 04]
+export function $(
     sel,
     ctxEl = document
 ){
@@ -18,7 +19,8 @@ function $(
  * @param {boolean} [asArray=false] - If true, returns an Array instead of a NodeList.
  * @returns {NodeList|Array<Element>} All matching elements.
  */
-function $$(
+// [agent-added: esm-migration phase 04]
+export function $$(
     sel,
     ctxEl = document,
     asArray = false

@@ -18,7 +18,7 @@
  * @param {string} networkObjectInterface - The interface name on which the packet was received.
  * @returns {Promise<Object|undefined>} A DHCPREQUEST packet when responding to an offer, or undefined otherwise.
  */
-async function dhclient_service(networkObjectId, packet, networkObjectInterface) {
+export async function dhclient_service(networkObjectId, packet, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectMac = $networkObject.getAttribute(`mac-${networkObjectInterface}`);
@@ -88,7 +88,7 @@ async function dhclient_service(networkObjectId, packet, networkObjectInterface)
  * @param {string} networkObjectInterface - The interface name to send the DHCPDISCOVER from.
  * @returns {Promise<void>}
  */
-async function dhcpDiscoverGenerator(networkObjectId, networkObjectInterface) {
+export async function dhcpDiscoverGenerator(networkObjectId, networkObjectInterface) {
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectMac = $networkObject.getAttribute(`mac-${networkObjectInterface}`);
     const switchId = $networkObject.getAttribute(`data-switch-${networkObjectInterface}`);
@@ -110,7 +110,7 @@ async function dhcpDiscoverGenerator(networkObjectId, networkObjectInterface) {
  * @param {string} networkObjectInterface - The interface name whose lease is being renewed.
  * @returns {Promise<void>}
  */
-async function dhcpRequestGenerator(networkObjectId, renewPhase, networkObjectInterface) {
+export async function dhcpRequestGenerator(networkObjectId, renewPhase, networkObjectInterface) {
 
     //device attributes
     const $networkObject = document.getElementById(networkObjectId);
@@ -159,7 +159,7 @@ async function dhcpRequestGenerator(networkObjectId, renewPhase, networkObjectIn
  * @param {string} networkObjectInterface - The interface name whose DHCP lease is being released.
  * @returns {Promise<void>}
  */
-async function dhcpReleaseGenerator(networkObjectId, networkObjectInterface) {
+export async function dhcpReleaseGenerator(networkObjectId, networkObjectInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectIp = $networkObject.getAttribute(`ip-${networkObjectInterface}`);

@@ -1,3 +1,5 @@
+import { activateDarkMode } from "../assemblers/html";
+import { dragModal } from "@/lib/component_lib";
 /**
  * Builds and returns the General Options settings modal form.
  *
@@ -14,7 +16,7 @@
  *
  * @returns {HTMLFormElement} The assembled general options modal element.
  */
-function GeneralOptions() {
+export function GeneralOptions() {
 
     const $generalOptions = document.createElement("form");
 
@@ -106,7 +108,7 @@ function GeneralOptions() {
  * @param {Event} event - The click event fired by the close/open button.
  * @returns {void}
  */
-function generalOptionsHandler(event) {
+export function generalOptionsHandler(event) {
     event.preventDefault();
     const $generalOptions = document.querySelector(".settings-modal");
     const isVisible = $generalOptions.style.display === "flex";

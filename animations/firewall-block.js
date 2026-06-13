@@ -4,7 +4,8 @@
  * @param {number} [duration=2000] - Duration of the fire effect in milliseconds.
  * @returns {void}
  */
-function igniteFire(
+// [agent-added: esm-migration phase 04]
+export function igniteFire(
     networkObjectId,
     duration = 2000
 ) {

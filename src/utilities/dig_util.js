@@ -16,7 +16,7 @@
  *   Format: ["dig", ["-x"], ["-t", "<type>"], ["@", "<ip>"], "<domain|ip>"]
  * @returns {Promise<void>}
  */
-async function command_dig(networkObjectId, args) {
+export async function command_dig(networkObjectId, args) {
 
     let opt_x = false;
     let opt_t = false;

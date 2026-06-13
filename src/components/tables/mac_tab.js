@@ -6,7 +6,7 @@
  *
  * @returns {HTMLElement} The MAC table `<article>` element, ready to be appended to a switch object.
  */
-function macTable() {
+export function macTable() {
 
     const $macTable = document.createElement("article");
 

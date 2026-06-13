@@ -8,10 +8,15 @@
  * @param {Array<string>} args - Tokenised command arguments. Expected format: ["apt", "install"|"remove", "<package>"].
  * @returns {void}
  */
-function command_apt(networkObjectId, args) {
+// [agent-added: esm-migration phase 05]
+import { dpkg } from '../services/dpkg_service.js';
+// esm-migration: scope unclear — terminalMessage is defined in src/components/network_tools/terminal.js (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export function command_apt(networkObjectId, args) {
 
     const option =  args[1];
-    const package = args[2];
+    const pkg = args[2];
     const availableOptions = ["install", "remove"];
 
     if (args.length !== 3) {
@@ -28,7 +33,7 @@ function command_apt(networkObjectId, args) {
 
     try {
 
-        dpkg(networkObjectId, option, package);
+        dpkg(networkObjectId, option, pkg);
 
     }catch(error) {
 

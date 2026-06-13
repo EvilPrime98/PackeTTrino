@@ -1,3 +1,5 @@
+import { dragModal } from "@/lib/component_lib";
+
 /**
  * Builds and returns the Packet Tracer panel widget.
  *
@@ -17,7 +19,7 @@
  *
  * @returns {HTMLElement} The assembled packet-traffic article element.
  */
-function packetTracer() {
+export function packetTracer() {
 
     const $packetTracer = document.createElement("article");
     $packetTracer.classList.add("packet-traffic", "draggable-modal");
@@ -51,11 +53,11 @@ function packetTracer() {
         </div>
     `;
 
-    $packetTracer.querySelector("input").addEventListener("keydown", (event) => { if (event.key === "Enter") filterPacketTraffic(); });
-    $packetTracer.querySelector("#filter-traffic-button").addEventListener("click", filterPacketTraffic);
-    $packetTracer.querySelector("#clean-traffic-button").addEventListener("click", cleanPacketTraffic);
-    $packetTracer.querySelector("#filter-by-device").addEventListener("change", filterPacketTrafficbyDevice);
-    $packetTracer.querySelector(".window-frame").addEventListener("mousedown", dragModal);
+    $packetTracer.querySelector("input")?.addEventListener("keydown", (event) => { if (event.key === "Enter") filterPacketTraffic(); });
+    $packetTracer.querySelector("#filter-traffic-button")?.addEventListener("click", filterPacketTraffic);
+    $packetTracer.querySelector("#clean-traffic-button")?.addEventListener("click", cleanPacketTraffic);
+    $packetTracer.querySelector("#filter-by-device")?.addEventListener("change", filterPacketTrafficbyDevice);
+    $packetTracer.querySelector(".window-frame")?.addEventListener("mousedown", dragModal);
 
     return $packetTracer;
 
@@ -80,7 +82,7 @@ function packetTracer() {
  * @param {string} [packet.xid] - Transaction identifier.
  * @returns {void}
  */
-function addPacketTraffic(packet) {
+export function addPacketTraffic(packet) {
     trafficBuffer.push(packet);
     const $table = document.querySelector(".packet-traffic table");
     const protocol = packet.protocol || "N/A";
@@ -116,7 +118,7 @@ function addPacketTraffic(packet) {
  *
  * @returns {void}
  */
-function showPacketTraffic() {
+export function showPacketTraffic() {
 
     const $packetTraffic = document.querySelector(".packet-traffic");
 
@@ -138,7 +140,7 @@ function showPacketTraffic() {
  *
  * @returns {void}
  */
-function cleanPacketTraffic() {
+export function cleanPacketTraffic() {
 
     trafficBuffer = [];
 
@@ -159,7 +161,7 @@ function cleanPacketTraffic() {
  *
  * @returns {void}
  */
-function filterPacketTraffic() {
+export function filterPacketTraffic() {
 
     const $packetTraffic = document.querySelector(".packet-traffic");
     const $table = $packetTraffic.querySelector("table");
@@ -203,7 +205,7 @@ function filterPacketTraffic() {
  * @param {Event} event - The click event fired by the XID anchor link in the table.
  * @returns {void}
  */
-function showPacketFields(event) {
+export function showPacketFields(event) {
     //document.querySelector(".modal-overlay").style.display = "block";
     bodyComponent.render(packetInfo(event));
 }
@@ -214,7 +216,7 @@ function showPacketFields(event) {
  *
  * @returns {void}
  */
-function closePacketFieldsModal() {
+export function closePacketFieldsModal() {
     const modalComponent = document.querySelector(".packet-fields-modal-container");
     document.querySelector(".modal-overlay").style.display = "none";
     modalComponent.removeEventListener("click", closePacketFieldsModal);
@@ -230,7 +232,7 @@ function closePacketFieldsModal() {
  *
  * @returns {void}
  */
-function insertDevicesToTraffic() {
+export function insertDevicesToTraffic() {
     const $packetTraffic = document.querySelector(".packet-traffic");
     const $packetTrafficSelect = $packetTraffic.querySelector("#filter-by-device");
     const $devices = document.querySelectorAll(".item-dropped");
@@ -249,7 +251,7 @@ function insertDevicesToTraffic() {
  *
  * @returns {void}
  */
-function removeDevicesFromTraffic() {
+export function removeDevicesFromTraffic() {
     const $packetTraffic = document.querySelector(".packet-traffic");
     const $packetTrafficSelect = $packetTraffic.querySelector("#filter-by-device");
     $packetTrafficSelect.innerHTML = `<option value="all">All</option>`;
@@ -264,7 +266,7 @@ function removeDevicesFromTraffic() {
  *
  * @returns {void}
  */
-function filterPacketTrafficbyDevice() {
+export function filterPacketTrafficbyDevice() {
     const $packetTraffic = document.querySelector(".packet-traffic");
     const $packetTrafficTable = $packetTraffic.querySelector("table");
     const selectValue = $packetTraffic.querySelector("#filter-by-device").value;
@@ -298,7 +300,7 @@ function filterPacketTrafficbyDevice() {
  *
  * @returns {void}
  */
-function closeTraffic() {
+export function closeTraffic() {
     const $traffic = document.querySelector(".packet-traffic");
     $traffic.style.display = "none";
 }

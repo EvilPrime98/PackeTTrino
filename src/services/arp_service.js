@@ -10,7 +10,7 @@
  * @param {string} iface - The interface name used to look up the origin IP, MAC, and connected switch.
  * @returns {Promise<string|false>} The resolved MAC address string, or false if no reply was received.
  */
-async function arpResolve(networkObjectId, destinationIp, iface)  {
+export async function arpResolve(networkObjectId, destinationIp, iface)  {
     const $networkObject = document.getElementById(networkObjectId);
     const switchId = $networkObject.getAttribute("data-switch-" + iface);
     const originIp = $networkObject.getAttribute("ip-" + iface);

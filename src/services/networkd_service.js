@@ -8,7 +8,7 @@
  * @param {string} iface - The interface name (e.g. "enp0s3").
  * @returns {void}
  */
-function configureInterface(networkObjectId, ip, netmask, iface) {
+export function configureInterface(networkObjectId, ip, netmask, iface) {
     const $networkObject = document.getElementById(networkObjectId);
     $networkObject.setAttribute("ip-" + iface, ip);
     $networkObject.setAttribute("netmask-" + iface, netmask);
@@ -23,7 +23,7 @@ function configureInterface(networkObjectId, ip, netmask, iface) {
  * @param {string} iface - The interface name to clear.
  * @returns {void}
  */
-function deconfigureInterface(networkObjectId, iface) {
+export function deconfigureInterface(networkObjectId, iface) {
     const $networkObject = document.getElementById(networkObjectId);
     $networkObject.setAttribute("ip-" + iface, "");
     $networkObject.setAttribute("netmask-" + iface, "");
@@ -40,7 +40,7 @@ function deconfigureInterface(networkObjectId, iface) {
  * @param {string} networkObjectId - The DOM element ID of the network object whose interfaces are displayed.
  * @returns {void}
  */
-function showNetworkObjectInfo(networkObjectId) {
+export function showNetworkObjectInfo(networkObjectId) {
     const $networkObject = document.getElementById(networkObjectId);
     const interfaces = getInterfaces(networkObjectId);
 

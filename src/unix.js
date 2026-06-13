@@ -10,7 +10,7 @@
  * @param {KeyboardEvent} event - The keyboard event fired on the terminal input element.
  * @returns {void}
  */
-function unixParser(event) {
+export function unixParser(event) {
 
     const $terminal = document.querySelector(".terminal-component");
     const networkObjectId = $terminal.dataset.id;

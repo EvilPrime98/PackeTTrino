@@ -23,9 +23,16 @@
  * @param {Object} packet - The packet object being switched.
  * @returns {Promise<void>}
  */
-async function switchProcessor(switchId, networkObjectId, packet) {
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { visualize } from '../lib/packet_visualize_lib.js';
+import { updateMacEntry, isMacInMACTable, getDeviceTable, getDeviceFromMac } from '../lib/network_lib.js';
+import { packetProcessor_Host } from './hostProc.js';
 
-    if (visualToggle) await visualize(networkObjectId, switchId, packet);
+// [agent-added: esm-migration phase 05]
+export async function switchProcessor(switchId, networkObjectId, packet) {
+
+    if (state.visualToggle) await visualize(networkObjectId, switchId, packet);
 
     const $switchObject = document.getElementById(switchId);
 

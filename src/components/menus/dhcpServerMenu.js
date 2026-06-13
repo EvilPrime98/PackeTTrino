@@ -1,3 +1,4 @@
+import { dragModal } from "@/lib/component_lib";
 /**
  * Builds and returns the DHCP server configuration form.
  *
@@ -19,7 +20,7 @@
  *
  * @returns {HTMLFormElement} The assembled DHCP server configuration form element.
  */
-function dhcp_server_menu() {
+export function dhcp_server_menu() {
 
     const $menu = document.createElement("form");
     $menu.classList.add("dhcp-form", "modal", "draggable-modal");
@@ -158,7 +159,7 @@ function dhcp_server_menu() {
  * @param {Event} event - The click event originating from inside an `.item-dropped` element.
  * @returns {void}
  */
-function showDhcpMenu(event) {
+export function showDhcpMenu(event) {
 
     event.stopPropagation();
 
@@ -217,7 +218,7 @@ function showDhcpMenu(event) {
  * @param {Event} event - The form submit event.
  * @returns {void}
  */
-function saveDhcpMenu(event) {
+export function saveDhcpMenu(event) {
 
     event.preventDefault();
 
@@ -279,7 +280,7 @@ function saveDhcpMenu(event) {
  * @returns {void}
  * @throws {Error} If any validated field contains an invalid value.
  */
-function validateDHCPMenu() {
+export function validateDHCPMenu() {
 
     const $menu = document.querySelector(".dhcp-form");
     const $networkObject = document.getElementById($menu.dataset.id);
@@ -347,7 +348,7 @@ function validateDHCPMenu() {
  * @param {Event} event - The click event fired by the close button.
  * @returns {void}
  */
-function closeDhcpMenu(event) {
+export function closeDhcpMenu(event) {
     event.stopPropagation();
     event.preventDefault();
     const $menu = document.querySelector(".dhcp-form");
@@ -363,7 +364,7 @@ function closeDhcpMenu(event) {
  * @param {Event} event - The click event fired by the Basic tab button.
  * @returns {void}
  */
-function showBasicTab(event) {
+export function showBasicTab(event) {
     event.stopPropagation();
     event.preventDefault();
     const $menu = document.querySelector(".dhcp-form");
@@ -380,7 +381,7 @@ function showBasicTab(event) {
  * @param {Event} event - The click event fired by the Reservations tab button.
  * @returns {void}
  */
-function showReservTab(event) {
+export function showReservTab(event) {
     event.stopPropagation();
     event.preventDefault();
     const $menu = document.querySelector(".dhcp-form");
@@ -398,7 +399,7 @@ function showReservTab(event) {
  * @param {Event} event - The click event fired by the add-reservation button.
  * @returns {void}
  */
-function addDhcpReservationHandler(event) {
+export function addDhcpReservationHandler(event) {
     event.stopPropagation();
     event.preventDefault();
     const $menu = document.querySelector(".dhcp-form");
@@ -431,7 +432,7 @@ function addDhcpReservationHandler(event) {
  * @param {Event} event - The click event fired by the remove button.
  * @returns {void}
  */
-function removeDhcpReservationHandler(networkObjectId, mac, event) {
+export function removeDhcpReservationHandler(networkObjectId, mac, event) {
     event.stopPropagation();
     event.preventDefault();
     const $networkObject = document.getElementById(networkObjectId);
@@ -447,7 +448,7 @@ function removeDhcpReservationHandler(networkObjectId, mac, event) {
  *
  * @returns {void}
  */
-function restoreDhcpReservationTable() {
+export function restoreDhcpReservationTable() {
     const $menu = document.querySelector(".dhcp-form");
     const $reservationsTable = $menu.querySelector("#reservations-table");
     $reservationsTable.innerHTML = `
@@ -466,7 +467,7 @@ function restoreDhcpReservationTable() {
  * @param {string} networkObjectId - The DOM id of the network device element.
  * @returns {Array<HTMLTableRowElement>} Array of `<tr>` elements, one per reservation.
  */
-function genDhcpReservationsRows(networkObjectId) {
+export function genDhcpReservationsRows(networkObjectId) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const reservations = JSON.parse($networkObject.getAttribute("dhcp-reservations"));
@@ -500,7 +501,7 @@ function genDhcpReservationsRows(networkObjectId) {
  *
  * @returns {boolean} `true` if all DHCP option inputs are empty, `false` otherwise.
  */
-function isDhcpModuleEmpty() {
+export function isDhcpModuleEmpty() {
     const $dhcpMenu = document.querySelector(".dhcp-form");
     const $optionsModule = $dhcpMenu.querySelector(".dhcp-options-section");
     const $optionsModuleInputs = $optionsModule.querySelectorAll("input");

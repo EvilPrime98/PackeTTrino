@@ -9,7 +9,7 @@
  * @param {string} interfaceInput - Interface name to bring up, or "-a" to bring up all interfaces.
  * @returns {Promise<void>}
  */
-async function command_ifup(networkObjectId, interfaceInput)  {
+export async function command_ifup(networkObjectId, interfaceInput)  {
 
     if (!interfaceInput) terminalMessage("Error: no interface was specified", networkObjectId);
     if (interfaceInput !== "-a" && !getInterfaces(networkObjectId).includes(interfaceInput)) terminalMessage(`Error: interface ${interfaceInput} is not recognized`, networkObjectId);
@@ -39,7 +39,7 @@ async function command_ifup(networkObjectId, interfaceInput)  {
  * @param {string} interfaceInput - Interface name to take down, or "-a" to take down all interfaces.
  * @returns {void}
  */
-function command_ifdown(networkObjectId, interfaceInput)  {
+export function command_ifdown(networkObjectId, interfaceInput)  {
 
     if (!interfaceInput) terminalMessage("Error: no interface was specified", networkObjectId);
 

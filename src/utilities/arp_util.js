@@ -11,7 +11,7 @@
  * @param {Array<string>} args - Tokenised command arguments. Expected format: ["arp", "-a"|"-f"|"--flush"].
  * @returns {void}
  */
-function command_arp(networkObjectId, args) {
+export function command_arp(networkObjectId, args) {
 
     if (args[1] === "-a") {
         const arpTable = getcurrentARPTable(networkObjectId);

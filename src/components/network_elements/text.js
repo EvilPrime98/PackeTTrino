@@ -9,7 +9,7 @@
  * @param {number} y - Top position in pixels relative to the board.
  * @returns {HTMLElement} The configured text annotation `<article>` element.
  */
-function TextObject(x, y) {
+export function TextObject(x, y) {
 
     const $textObject = document.createElement("article");
     const $input = document.createElement("input");
@@ -57,7 +57,7 @@ function TextObject(x, y) {
  * @this {HTMLInputElement} The input element inside the text annotation container.
  * @returns {void}
  */
-function autoExtendText() {
+export function autoExtendText() {
     const container = this.parentElement;
     const input = container.querySelector("input");
     const content = input.value;
@@ -85,7 +85,7 @@ function autoExtendText() {
  * @param {MouseEvent} event - The `mousedown` event fired on the text annotation.
  * @returns {void}
  */
-function dragText(event) {
+export function dragText(event) {
     event.preventDefault();
     const text = event.target.closest(".text-annotation");
     const rect = text.getBoundingClientRect();

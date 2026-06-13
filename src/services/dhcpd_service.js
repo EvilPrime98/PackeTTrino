@@ -22,7 +22,7 @@
  * @param {string} iface - The interface name on which the packet was received.
  * @returns {Promise<Object|undefined>} A DHCPOFFER or DHCPACK reply packet, or undefined.
  */
-async function dhcpd_service(serverObjectId, packet, iface) {
+export async function dhcpd_service(serverObjectId, packet, iface) {
 
     //server attributes
     const $serverObject = document.getElementById(serverObjectId);
@@ -148,7 +148,7 @@ async function dhcpd_service(serverObjectId, packet, iface) {
  * @param {string} serverObjectId - The DOM element ID of the DHCP server whose lease timers are updated.
  * @returns {void}
  */
-function updateServerLeaseTimes(serverObjectId) {
+export function updateServerLeaseTimes(serverObjectId) {
 
     const $serverObject = document.getElementById(serverObjectId);
     const $leasesTable = $serverObject.querySelector(".dhcp-table").querySelector("table");

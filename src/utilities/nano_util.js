@@ -9,7 +9,7 @@
  * @example
  * command_nano("pc-1", "/etc/hosts");
  */
-function command_nano(networkObjectId, file) {
+export function command_nano(networkObjectId, file) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const frameTitle = document.querySelector(".editor-frame").querySelector("span");

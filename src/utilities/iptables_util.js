@@ -16,7 +16,7 @@
  * @param {Array<string>} args - Tokenised command arguments. First element is "iptables".
  * @returns {void}
  */
-function command_Iptables(networkObjectId, args) {
+export function command_Iptables(networkObjectId, args) {
 
     if (args[1] === "-S") {
         const defaultPolicies = getFirewallDefaultPolicy(networkObjectId);

@@ -14,7 +14,7 @@
  *   Format: ["iface", "--add"] or ["iface", "--del=<interface|all>"]
  * @returns {void}
  */
-function command_iface(networkObjectId, args) {
+export function command_iface(networkObjectId, args) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableInterfaces = getInterfaces(networkObjectId);

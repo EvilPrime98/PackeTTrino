@@ -6,7 +6,7 @@
  *
  * @returns {HTMLElement} The ARP table `<article>` element, ready to be appended to a network object.
  */
-function arpTable() {
+export function arpTable() {
 
     const $arpTable = document.createElement("article");
 

@@ -13,7 +13,7 @@
  * const popup = popupMessage("Operation completed.", "./icons/success.png");
  * if (popup) document.body.appendChild(popup);
  */
-function popupMessage(message, imgsrc = "") {
+export function popupMessage(message, imgsrc = "") {
 
     if (document.querySelectorAll(".popup-content").length > 0) return;
 

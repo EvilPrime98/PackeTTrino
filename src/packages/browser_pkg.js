@@ -6,7 +6,11 @@
  * @param {HTMLElement} $networkObject - The DOM element representing the network device.
  * @returns {void}
  */
-function installBrowser($networkObject) {
+// [agent-added: esm-migration phase 05]
+// esm-migration: scope unclear — terminalMessage, browserOptionButton are defined in src/components/ (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export function installBrowser($networkObject) {
 
     terminalMessage("Installing Amin Search browser...", $networkObject.id);
 
@@ -34,7 +38,8 @@ function installBrowser($networkObject) {
  * @param {string} networkObjectId - The DOM element ID of the network device.
  * @returns {void}
  */
-function uninstallBrowser(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function uninstallBrowser(networkObjectId) {
 
     terminalMessage("Uninstalling Amin Search browser...", networkObjectId);
 

@@ -12,7 +12,7 @@
  *
  * @returns {HTMLDivElement} The assembled animation controls modal element.
  */
-function AnimationControls() {
+export function AnimationControls() {
     
     const $animationControls = document.createElement("div");
     

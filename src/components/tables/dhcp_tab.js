@@ -6,7 +6,7 @@
  *
  * @returns {HTMLElement} The DHCP table `<article>` element, ready to be appended to a network object.
  */
-function dhcpTable() {
+export function dhcpTable() {
 
     const $dhcpTable = document.createElement("article");
 

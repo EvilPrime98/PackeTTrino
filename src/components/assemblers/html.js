@@ -1,7 +1,7 @@
 /**
  * Closes all advanced options modals.
  */
-function closeAllAdvOptsModals() {
+export function closeAllAdvOptsModals() {
     const modals = $$(".advanced-options-modal");
     modals?.forEach(modal => modal.style.display = "none");
 }
@@ -10,7 +10,7 @@ function closeAllAdvOptsModals() {
  * Manages keyboard events in the document.
  * @param {KeyboardEvent} event 
  */
-function documentKeyboardHandler(event) {
+export function documentKeyboardHandler(event) {
 
     const keyboardActions = {
         "Escape": () => closeEveryThing(event)
@@ -23,7 +23,7 @@ function documentKeyboardHandler(event) {
  * Hides all modals and popups.
  * @param {Event} event 
  */
-function closeEveryThing(event) {
+export function closeEveryThing(event) {
 
     //close all modals
     $$(".modal")?.forEach($modal => {
@@ -50,7 +50,7 @@ function closeEveryThing(event) {
  * Manages the dark mode of the application.
  * @returns {void}
  */
-function activateDarkMode() {
+export function activateDarkMode() {
 
     const $checkbox = $(".settings-modal #dark-mode");
     const $board = $(".board");

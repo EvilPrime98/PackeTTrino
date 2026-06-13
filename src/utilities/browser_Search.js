@@ -1,3 +1,7 @@
+import { state } from "@/env";
+import { minimizeBrowser } from "@/components/network_tools/browser";
+import { parseSearch } from "@/lib/network_lib";
+import { http } from "@/services/http_service";
 /**
  * Handles a browser address-bar search, performs the HTTP request, and renders the response.
  *
@@ -12,14 +16,14 @@
  *
  * @returns {Promise<void>}
  */
-async function browserSearch() {
+export async function browserSearch() {
 
     const $networkObject = document.getElementById(document.querySelector(".browser-component").getAttribute("data-id"));
     const $browser = document.querySelector(".browser-component");
     const $browserContent = $browser.querySelector(".browser-content");
     const $addressInput = $browser.querySelector(".address-input");
 
-    if (visualToggle) await minimizeBrowser();
+    if (state.visualToggle) await minimizeBrowser();
 
         try {
 
@@ -82,6 +86,6 @@ async function browserSearch() {
 
         }
 
-    if (visualToggle) await maximizeBrowser();
+    if (state.visualToggle) await maximizeBrowser();
 
 }

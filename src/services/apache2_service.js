@@ -15,7 +15,7 @@
  * @param {string} packet.resource - Requested resource path.
  * @returns {Promise<Object|undefined>} The constructed HTTP reply packet, or undefined if Apache2 is off.
  */
-async function apache_service(networkObjectId, packet) {
+export async function apache_service(networkObjectId, packet) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectInterface = getInterfaces($networkObject.id)[0];
@@ -77,7 +77,7 @@ async function apache_service(networkObjectId, packet) {
  * @returns {[string, number]} A tuple of [responseBody, httpStatusCode].
  *   Status codes: 200 (OK), 403 (Forbidden), 404 (Not Found), 500 (Internal Server Error).
  */
-function obtainApacheContent(networkObjectId, requestObject) {
+export function obtainApacheContent(networkObjectId, requestObject) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectFileSystem = new FileSystem($networkObject);

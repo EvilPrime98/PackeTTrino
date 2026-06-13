@@ -4,7 +4,7 @@
  * @param {*} topic - Topic to display.
  * @returns {void}
  */
-function command_man(networkObjectId, topic) {
+export function command_man(networkObjectId, topic) {
 
     const topicsMapper = {
         "man": manual_man,
@@ -39,7 +39,7 @@ function command_man(networkObjectId, topic) {
 
 }
 
-function manual_ip(){
+export function manual_ip(){
     let message = '';
     message += 'NAME\n';
     message += '    ip - Utility for configuring IP addresses and routes on simulated network objects\n';
@@ -99,7 +99,7 @@ function manual_ip(){
     return message;
 }
 
-function manual_nano(){
+export function manual_nano(){
     let message = '';
     message += 'NAME\n';
     message += '    nano - Text editor for viewing and modifying files on simulated network objects\n';
@@ -121,7 +121,7 @@ function manual_nano(){
     return message;
 }
 
-function manual_apt() {
+export function manual_apt() {
     let message = '';
     message += 'NAME\n';
     message += '    apt - Package management tool for simulated systems\n';
@@ -170,7 +170,7 @@ function manual_apt() {
     return message;
 }
 
-function manual_arp() {
+export function manual_arp() {
     let message = '';
     message += 'NAME\n';
     message += '    arp - Displays or manages the system ARP table\n';
@@ -204,7 +204,7 @@ function manual_arp() {
     return message;
 }
 
-function manual_dig() {
+export function manual_dig() {
     let message = '';
     message += 'NAME\n';
     message += '    dig - Performs DNS queries on domain names or IP addresses\n';
@@ -253,7 +253,7 @@ function manual_dig() {
     return message;
 }
 
-function manual_dns() {
+export function manual_dns() {
     let message = '';
     message += 'NAME\n';
     message += '    dns - Manages DNS records on the current server\n';
@@ -302,7 +302,7 @@ function manual_dns() {
     return message;
 }
 
-function manual_mkdir() {
+export function manual_mkdir() {
     let message = "";
     message += "NAME\n";
     message += "    mkdir - creates a new directory in the filesystem\n";
@@ -319,7 +319,7 @@ function manual_mkdir() {
     return message;
 }
 
-function manual_touch() {
+export function manual_touch() {
     let message = "";
     message += "NAME\n";
     message += "    touch - creates an empty file at the specified path\n";
@@ -336,7 +336,7 @@ function manual_touch() {
     return message;
 }
 
-function manual_ls() {
+export function manual_ls() {
     let message = "";
     message += "NAME\n";
     message += "    ls - lists the contents of a directory\n";
@@ -354,7 +354,7 @@ function manual_ls() {
     return message;
 }
 
-function manual_rm() {
+export function manual_rm() {
     let message = "";
     message += "NAME\n";
     message += "    rm - removes a file or directory\n";
@@ -371,7 +371,7 @@ function manual_rm() {
     return message;
 }
 
-function manual_cd() {
+export function manual_cd() {
     let message = "";
     message += "NAME\n";
     message += "    cd - changes the current working directory\n";
@@ -388,7 +388,7 @@ function manual_cd() {
     return message;
 }
 
-function manual_cat() {
+export function manual_cat() {
     let message = "";
     message += "NAME\n";
     message += "    cat - displays the contents of a file\n";
@@ -405,7 +405,7 @@ function manual_cat() {
     return message;
 }
 
-function manual_ifup() {
+export function manual_ifup() {
     let message = "";
     message += "NAME\n";
     message += "    ifup - configures a network interface using the '/etc/network/interfaces' file\n";
@@ -427,7 +427,7 @@ function manual_ifup() {
     return message;
 }
 
-function manual_ifdown() {
+export function manual_ifdown() {
     let message = "";
     message += "NAME\n";
     message += "    ifdown - deconfigures a network interface\n";
@@ -449,7 +449,7 @@ function manual_ifdown() {
     return message;
 }
 
-function manual_Iptables() {
+export function manual_Iptables() {
     let message = "";
     message += "NAME\n";
     message += "    iptables - manage firewall rules on a system\n";
@@ -495,7 +495,7 @@ function manual_Iptables() {
     return message;
 }
 
-function manual_ping() {
+export function manual_ping() {
     let message = "";
     message += "NAME\n";
     message += "    ping - verify connectivity with another machine over the network\n";
@@ -541,7 +541,7 @@ function manual_ping() {
     return message;
 }
 
-function manual_systemctl() {
+export function manual_systemctl() {
     let message = "";
     message += "NAME\n";
     message += "    systemctl - manage services on the system\n";
@@ -606,7 +606,7 @@ function manual_systemctl() {
     return message;
 }
 
-function manual_traceroute() {
+export function manual_traceroute() {
     let message = "";
     message += "NAME\n";
     message += "    traceroute - trace the path of packets to a destination.\n";
@@ -636,7 +636,7 @@ function manual_traceroute() {
     return message;
 }
 
-function manual_man() {
+export function manual_man() {
     let message = "";
     message += "NAME\n";
     message += "    man - Displays the manuals for system commands.\n";
@@ -683,7 +683,7 @@ function manual_man() {
     return message;
 }
 
-function manual_visual() {
+export function manual_visual() {
 
     let message = "";
     message += "NAME\n";
@@ -725,7 +725,7 @@ function manual_visual() {
 
 }
 
-function manual_curl(){
+export function manual_curl(){
     let message = '';
     message += 'NAME\n';
     message += '    curl - HTTP client for making requests to servers from simulated network objects\n';
@@ -756,7 +756,7 @@ function manual_curl(){
     return message;
 }
 
-function manual_realnode(){
+export function manual_realnode(){
     let message = '';
     message += 'NAME\n';
     message += '    realnode - Displays the real properties of a network object in the simulator\n';
@@ -780,7 +780,7 @@ function manual_realnode(){
     return message;
 }
 
-function manual_cp(){
+export function manual_cp(){
     let message = '';
     message += 'NAME\n';
     message += '    cp - Copy files or directories\n';
@@ -809,7 +809,7 @@ function manual_cp(){
     return message;
 }
 
-function manual_iface() {
+export function manual_iface() {
     let message = '';
     message += 'NAME\n';
     message += '    iface - Manages the network interfaces of an object within the simulator\n';

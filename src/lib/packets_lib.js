@@ -2,7 +2,8 @@
  * @description Base class for all simulated network packets. Holds layer-3/layer-2 addressing
  * and a random transaction id (`xid`).
  */
-class packet {
+// [agent-added: esm-migration phase 04]
+export class packet {
     /**
      * @param {string} origin_ip - Source IP address.
      * @param {string} destination_ip - Destination IP address.
@@ -22,7 +23,8 @@ class packet {
  * @description Represents an ARP Request packet broadcast to `ff:ff:ff:ff:ff:ff` to discover
  * the MAC address of the target IP.
  */
-class ArpRequest extends packet {
+// [agent-added: esm-migration phase 04]
+export class ArpRequest extends packet {
     /**
      * @param {string} origin_ip - IP address of the requesting host.
      * @param {string} destination_ip - IP address whose MAC is being requested.
@@ -39,7 +41,8 @@ class ArpRequest extends packet {
  * @description Represents an ARP Reply packet sent unicast back to the original requester with
  * the resolved MAC address.
  */
-class ArpReply extends packet {
+// [agent-added: esm-migration phase 04]
+export class ArpReply extends packet {
     /**
      * @param {string} origin_ip - IP address of the replying host.
      * @param {string} destination_ip - IP address of the original requester.
@@ -56,7 +59,8 @@ class ArpReply extends packet {
 /**
  * @description Represents an ICMP Echo Request (ping) packet with a default TTL of 64.
  */
-class IcmpEchoRequest extends packet {
+// [agent-added: esm-migration phase 04]
+export class IcmpEchoRequest extends packet {
     /**
      * @param {string} origin_ip - Source IP address.
      * @param {string} destination_ip - Destination IP address.
@@ -74,7 +78,8 @@ class IcmpEchoRequest extends packet {
 /**
  * @description Represents an ICMP Echo Reply (ping response) packet with a default TTL of 64.
  */
-class IcmpEchoReply extends packet {
+// [agent-added: esm-migration phase 04]
+export class IcmpEchoReply extends packet {
     /**
      * @param {string} origin_ip - Source IP address.
      * @param {string} destination_ip - Destination IP address.
@@ -93,7 +98,8 @@ class IcmpEchoReply extends packet {
  * @description Represents an ICMP Time Exceeded message, sent by a router when a packet's TTL
  * reaches zero.
  */
-class IcmpTimeExceeded extends packet {
+// [agent-added: esm-migration phase 04]
+export class IcmpTimeExceeded extends packet {
     /**
      * @param {string} origin_ip - Source IP address (the router dropping the packet).
      * @param {string} destination_ip - Destination IP address (the original sender).
@@ -112,7 +118,8 @@ class IcmpTimeExceeded extends packet {
  * @description Represents a DHCP Discover packet broadcast by a client that has no IP address.
  * Source IP is `0.0.0.0`, destination is the broadcast `255.255.255.255`.
  */
-class dhcpDiscover extends packet {
+// [agent-added: esm-migration phase 04]
+export class dhcpDiscover extends packet {
     /**
      * @param {string} origin_mac - MAC address of the DHCP client.
      */
@@ -134,7 +141,8 @@ class dhcpDiscover extends packet {
  * @description Represents a DHCP Offer packet sent by a server in response to a Discover,
  * proposing an IP address and network configuration to the client.
  */
-class dhcpOffer extends packet {
+// [agent-added: esm-migration phase 04]
+export class dhcpOffer extends packet {
     /**
      * @param {string} origin_ip - IP address of the DHCP server.
      * @param {string} origin_mac - MAC address of the DHCP server.
@@ -172,7 +180,8 @@ class dhcpOffer extends packet {
  * @description Represents a DHCP Request packet broadcast by a client to formally request the
  * IP address offered in a DHCP Offer.
  */
-class dhcpRequest extends packet {
+// [agent-added: esm-migration phase 04]
+export class dhcpRequest extends packet {
     /**
      * @param {string} origin_mac - MAC address of the DHCP client.
      * @param {string} requested_ip - IP address the client is requesting.
@@ -205,7 +214,8 @@ class dhcpRequest extends packet {
  * @description Represents a DHCP Acknowledgement packet sent by the server to confirm the IP
  * assignment and deliver the full network configuration to the client.
  */
-class dhcpAck extends packet {
+// [agent-added: esm-migration phase 04]
+export class dhcpAck extends packet {
     /**
      * @param {string} origin_mac - MAC address of the DHCP server.
      * @param {string} assigned_ip - IP address assigned to the client (yiaddr).
@@ -241,7 +251,8 @@ class dhcpAck extends packet {
  * @description Represents a DHCP Release packet sent by a client to voluntarily relinquish its
  * leased IP address back to the server.
  */
-class dhcpRelease extends packet {
+// [agent-added: esm-migration phase 04]
+export class dhcpRelease extends packet {
     /**
      * @param {string} origin_ip - IP address of the client releasing the lease.
      * @param {string} destination_ip - IP address of the DHCP server.
@@ -268,7 +279,8 @@ class dhcpRelease extends packet {
  * @description Represents a DNS Query packet sent by a client to a DNS server.
  * Uses a random ephemeral source port (49152–65535).
  */
-class dnsRequest extends packet {
+// [agent-added: esm-migration phase 04]
+export class dnsRequest extends packet {
     /**
      * @param {string} origin_ip - Source IP address.
      * @param {string} destination_ip - Destination DNS server IP address.
@@ -295,7 +307,8 @@ class dnsRequest extends packet {
 /**
  * @description Represents a DNS Reply packet sent by a server back to the querying client.
  */
-class dnsReply extends packet {
+// [agent-added: esm-migration phase 04]
+export class dnsReply extends packet {
     /**
      * @param {string} origin_ip - Source IP address (the DNS server).
      * @param {string} destination_ip - Destination IP address (the querying client).
@@ -322,7 +335,8 @@ class dnsReply extends packet {
  * @description Represents a TCP SYN segment used to initiate a three-way handshake.
  * The sequence number is randomised.
  */
-class syn extends packet {
+// [agent-added: esm-migration phase 04]
+export class syn extends packet {
     /**
      * @param {string} origin_ip - Source IP address.
      * @param {string} destination_ip - Destination IP address.
@@ -348,7 +362,8 @@ class syn extends packet {
  * @description Represents a TCP SYN-ACK segment sent by the server in response to a SYN.
  * The sequence number is randomised.
  */
-class synAck extends packet {
+// [agent-added: esm-migration phase 04]
+export class synAck extends packet {
     /**
      * @param {string} origin_ip - Source IP address.
      * @param {string} destination_ip - Destination IP address.
@@ -373,7 +388,8 @@ class synAck extends packet {
 /**
  * @description Represents a TCP ACK segment, the final step of the three-way handshake.
  */
-class Ack extends packet {
+// [agent-added: esm-migration phase 04]
+export class Ack extends packet {
     /**
      * @param {string} origin_ip - Source IP address.
      * @param {string} destination_ip - Destination IP address.
@@ -399,7 +415,8 @@ class Ack extends packet {
  * @description Represents an HTTP Request packet carrying method, host, and resource information
  * over a TCP connection.
  */
-class httpRequest extends packet {
+// [agent-added: esm-migration phase 04]
+export class httpRequest extends packet {
     /**
      * @param {string} origin_ip - Source IP address.
      * @param {string} destination_ip - Destination IP address.
@@ -433,7 +450,8 @@ class httpRequest extends packet {
 /**
  * @description Represents an HTTP Reply packet sent by a server in response to an HTTP Request.
  */
-class httpReply extends packet {
+// [agent-added: esm-migration phase 04]
+export class httpReply extends packet {
     /**
      * @param {string} origin_ip - Source IP address (the HTTP server).
      * @param {string} destination_ip - Destination IP address (the client).

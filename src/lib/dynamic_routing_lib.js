@@ -1,14 +1,21 @@
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { getInterfaces, getNetwork } from './network_lib.js';
+import { setRemoteRoutingRule, removeRemoteRules } from '../services/routing_service.js';
+
 /**
  * @description Rebuilds the global `nodes`, `nodesIp`, and `nodesNetmask` maps by scanning all
  * network objects on the board that have IPv4 forwarding enabled. Each router's interfaces are
  * iterated and their network addresses, IPs, and netmasks are recorded.
  * @returns {void}
  */
-function getNodes() {
+// [agent-added: esm-migration phase 05]
+export function getNodes() {
 
-    nodes = {};
-    nodesIp = {};
-    nodesNetmask = {};
+    // [agent-added: esm-migration phase 05]
+    state.nodes = {};
+    state.nodesIp = {};
+    state.nodesNetmask = {};
 
     const $routerElements = Array.from(document.querySelectorAll(".item-dropped"))
     .filter($networkObject => $networkObject.getAttribute("ipv4-forwarding") === "true");
@@ -20,18 +27,19 @@ function getNodes() {
 
         interfaces.forEach((iface) => {
 
-            if (!nodes[$router.id]) nodes[$router.id] = [];
-            if (!nodesIp[$router.id]) nodesIp[$router.id] = [];
-            if (!nodesNetmask[$router.id]) nodesNetmask[$router.id] = [];
+            // [agent-added: esm-migration phase 05]
+            if (!state.nodes[$router.id]) state.nodes[$router.id] = [];
+            if (!state.state.nodesIp[$router.id]) state.state.nodesIp[$router.id] = [];
+            if (!state.state.nodesNetmask[$router.id]) state.state.nodesNetmask[$router.id] = [];
 
             const ip = $router.getAttribute("ip-" + iface);
             const netmask = $router.getAttribute("netmask-" + iface);
             const network = getNetwork(ip, netmask);
 
             if (ip) {
-                nodes[$router.id].push(network);
-                nodesIp[$router.id].push(ip);
-                nodesNetmask[$router.id].push(netmask);
+                state.nodes[$router.id].push(network);
+                state.state.nodesIp[$router.id].push(ip);
+                state.state.nodesNetmask[$router.id].push(netmask);
             }
 
         });
@@ -45,11 +53,12 @@ function getNodes() {
  * the board. Internally calls `getNodes` to refresh the routing topology.
  * @returns {string[]} Array of unique network address strings (e.g. ["192.168.1.0", "10.0.0.0"]).
  */
-function getAllNetworks() {
+// [agent-added: esm-migration phase 05]
+export function getAllNetworks() {
     let networks = [];
     getNodes();
-    for (const routerId in nodes) {
-        networks = networks.concat(nodes[routerId]);
+    for (const routerId in state.nodes) {
+        networks = networks.concat(state.nodes[routerId]);
     }
     //remove duplicates
     networks = networks.filter((item, index) => networks.indexOf(item) === index);
@@ -65,11 +74,13 @@ function getAllNetworks() {
  * @returns {string[]} Ordered array of interface IP addresses forming the path from source to
  *   destination. Empty if no path exists.
  */
-function findShortestPath(startNetwork, endNetwork) {
+// [agent-added: esm-migration phase 05]
+export function findShortestPath(startNetwork, endNetwork) {
 
     getNodes();
 
-    const networkTopology = nodes;
+    // [agent-added: esm-migration phase 05]
+    const networkTopology = state.nodes;
     const graph = buildGraphFromNetwork(networkTopology);
     const distances = {};
     const previous = {};
@@ -143,10 +154,11 @@ function findShortestPath(startNetwork, endNetwork) {
  * @param {string} network - Network address to search for (e.g. "192.168.1.0").
  * @returns {string[]} Array of router DOM ids that are directly connected to `network`.
  */
-function getRoutersForNetwork(network) {
+// [agent-added: esm-migration phase 05]
+export function getRoutersForNetwork(network) {
     const routers = [];
-    for (const routerId in nodes) {
-        if (nodes[routerId].includes(network)) {
+    for (const routerId in state.nodes) {
+        if (state.nodes[routerId].includes(network)) {
             routers.push(routerId);
         }
     }
@@ -160,7 +172,8 @@ function getRoutersForNetwork(network) {
  * @param {string[]} pathNodes - Ordered array of network addresses forming the path.
  * @returns {string[]} Array of interface IP addresses (one per hop transition).
  */
-function mapPathToIPs(pathNodes) {
+// [agent-added: esm-migration phase 05]
+export function mapPathToIPs(pathNodes) {
     const pathIPs = [];
 
     for (let i = 0; i < pathNodes.length - 1; i++) {
@@ -169,10 +182,10 @@ function mapPathToIPs(pathNodes) {
 
         let chosenIp = null;
 
-        for (const routerId in nodes) {
-            const index = nodes[routerId].indexOf(currentNode);
-            if (index !== -1 && nodes[routerId].includes(nextNode)) {
-                chosenIp = nodesIp[routerId][index];
+        for (const routerId in state.nodes) {
+            const index = state.nodes[routerId].indexOf(currentNode);
+            if (index !== -1 && state.nodes[routerId].includes(nextNode)) {
+                chosenIp = state.nodesIp[routerId][index];
                 break; // take the IP that actually connects to the next path node
             }
         }
@@ -194,7 +207,8 @@ function mapPathToIPs(pathNodes) {
  * @returns {Object.<string, string[]>} Adjacency list where each key is a network address and the
  *   value is an array of directly reachable network addresses.
  */
-function buildGraphFromNetwork(networkTopology) {
+// [agent-added: esm-migration phase 05]
+export function buildGraphFromNetwork(networkTopology) {
 
     const graph = {};
     const routerMap = {}; // map networks to their routers
@@ -240,7 +254,8 @@ function buildGraphFromNetwork(networkTopology) {
  * @param {string} startNetwork - Network address of the router whose next-hops to compute.
  * @returns {Array<[string, string, string]>} Array of [destination, netmask, nextHop] tuples.
  */
-function getNextHop(startNetwork) {
+// [agent-added: esm-migration phase 05]
+export function getNextHop(startNetwork) {
 
     const networks = getAllNetworks();
     const nextHop = [];
@@ -251,10 +266,10 @@ function getNextHop(startNetwork) {
 
         if (path.length > 0) {
             let netmask = null;
-            for (const routerId in nodes) {
-                const networkIndex = nodes[routerId].indexOf(targetNetwork);
+            for (const routerId in state.nodes) {
+                const networkIndex = state.nodes[routerId].indexOf(targetNetwork);
                 if (networkIndex !== -1) {
-                    netmask = nodesNetmask[routerId][networkIndex];
+                    netmask = state.nodesNetmask[routerId][networkIndex];
                     break;
                 }
             }
@@ -276,7 +291,8 @@ function getNextHop(startNetwork) {
  * @returns {Array<Array<string>>} Matrix of route rows, each containing
  *   [destination, netmask, nextHop, gateway, interface].
  */
-function getRoutes(routerId) {
+// [agent-added: esm-migration phase 05]
+export function getRoutes(routerId) {
 
     const $router = document.getElementById(routerId); //get the router element
     const validNetworks = [];
@@ -333,7 +349,8 @@ function getRoutes(routerId) {
  * @param {Array<Array<string>>} matrix - Matrix of route rows.
  * @returns {Array<Array<string>>} Matrix with duplicate rows removed.
  */
-function removeDuplicateRows(matrix) {
+// [agent-added: esm-migration phase 05]
+export function removeDuplicateRows(matrix) {
 
     if (!matrix.length) return [];
 
@@ -358,7 +375,8 @@ function removeDuplicateRows(matrix) {
  * @param {string} $routerObjectId - DOM id of the router element.
  * @returns {void}
  */
-function autoInputRules($routerObjectId) {
+// [agent-added: esm-migration phase 05]
+export function autoInputRules($routerObjectId) {
 
     const matrix = getRoutes($routerObjectId);
 
@@ -375,19 +393,20 @@ function autoInputRules($routerObjectId) {
 
 /**
  * @description Condenses the route matrix by replacing the most-used next-hop (or the
- * pre-configured `defaultNetwork` next-hop) with a single default route (`0.0.0.0/0.0.0.0`).
- * When `defaultNetwork` is set, that network's next-hop is always promoted to the default route
+ * pre-configured `state.defaultNetwork` next-hop) with a single default route (`0.0.0.0/0.0.0.0`).
+ * When `state.defaultNetwork` is set, that network's next-hop is always promoted to the default route
  * regardless of count.
  * @param {Array<Array<string>>} matrix - Route matrix rows: [destination, netmask, nextHop, gateway, interface].
  * @returns {Array<Array<string>>} Condensed matrix with a default route entry appended where applicable.
  */
-function groupByDefaultRules(matrix) {
+// [agent-added: esm-migration phase 05]
+export function groupByDefaultRules(matrix) {
 
     const hopCounter = {};
     const newMatrix = [];
     let nextHopDefault;
 
-    if (defaultNetwork === "") { //group by the next-hop with the most rules
+    if (state.defaultNetwork === "") { //group by the next-hop with the most rules
 
         for (let i = 0; i < matrix.length; i++) {
             const nextHop = matrix[i][2];
@@ -431,7 +450,7 @@ function groupByDefaultRules(matrix) {
         for (let i = 0; i < matrix.length; i++) {
             const network = matrix[i][0];
             const nextHop = matrix[i][2];
-            if (network === defaultNetwork) { //save the next-hop for the default route
+            if (network === state.defaultNetwork) { //save the next-hop for the default route
                 nextHopDefault = nextHop;
                 defaultInterface = matrix[i][4];
                 defaultGateway = matrix[i][3];
@@ -463,7 +482,8 @@ function groupByDefaultRules(matrix) {
  * `autoInputRules`.
  * @returns {void}
  */
-function dynamicRouting() {
+// [agent-added: esm-migration phase 05]
+export function dynamicRouting() {
 
     const $routers = Array.from(document.querySelectorAll(".item-dropped"))
     .filter($networkObject => $networkObject.getAttribute("ipv4-forwarding") === "true");

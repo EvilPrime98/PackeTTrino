@@ -1,3 +1,6 @@
+import { dragModal } from "@/lib/component_lib";
+import { browserSearch } from "@/utilities/browser_Search";
+
 /**
  * Creates and returns the browser modal component as a `<div>` DOM node.
  * The element includes a header with window controls (close, minimize, maximize),
@@ -7,7 +10,7 @@
  *
  * @returns {HTMLDivElement} The fully configured browser modal element.
  */
-function browser() {
+export function browser() {
 
     const $browser = document.createElement("div");
     $browser.classList.add("browser-component", "draggable-modal");
@@ -73,7 +76,7 @@ const $BROWSERHOMEPAGE = `
 `;
 
 /** @type {string} Full HTML document displayed when a requested page is not found (404). */
-const $BROWSERERRORPAGE = `
+export const $BROWSERERRORPAGE = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -185,7 +188,7 @@ const $BROWSERERRORPAGE = `
  * @param {MouseEvent} event - The click event fired from the network object's controls.
  * @returns {void}
  */
-function openBrowser(event) {
+export function openBrowser(event) {
     event.stopPropagation();
     event.preventDefault();
     const $networkObject = event.target.closest(".item-dropped"); //get the nearest object
@@ -203,7 +206,7 @@ function openBrowser(event) {
  * @param {MouseEvent} event - The click event fired by the close button.
  * @returns {void}
  */
-function closeBrowser(event) {
+export function closeBrowser(event) {
     event.stopPropagation();
     event.preventDefault();
     const browser = document.querySelector(".browser-component");
@@ -227,7 +230,7 @@ function closeBrowser(event) {
  *
  * @returns {Promise<void>} Resolves when the minimize animation completes.
  */
-async function minimizeBrowser() {
+export async function minimizeBrowser() {
     const browser = document.querySelector(".browser-component");
     if (!browser || browser.style.display === "none") return resolve();
     if (browser.style.left === "0px" || browser.style.left === "0%") return resolve();
@@ -254,7 +257,7 @@ async function minimizeBrowser() {
  *
  * @returns {Promise<void>} Resolves when the maximize animation completes.
  */
-async function maximizeBrowser() {
+export async function maximizeBrowser() {
     return new Promise(resolve => {
         const browser = document.querySelector(".browser-component");
         if (!browser || browser.style.display === "none") return;

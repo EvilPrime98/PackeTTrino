@@ -17,7 +17,7 @@
  * await command_traceroute("pc-1", ["192.168.1.1"]);
  * await command_traceroute("pc-1", ["-n", "10.0.0.1"]);
  */
-async function command_traceroute(networkObjectId, args) {
+export async function command_traceroute(networkObjectId, args) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const networkObjectInterface = getInterfaces(networkObjectId)[0];

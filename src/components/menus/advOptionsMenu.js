@@ -13,7 +13,7 @@
  * const menu = advancedOptionsObject("terminal", "arp", "delete");
  * document.body.appendChild(menu);
  */
-function advancedOptionsObject(...options) {
+export function advancedOptionsObject(...options) {
 
     const $advancedOptions = document.createElement("div");
     const append = (...nodes) => nodes.forEach(node => $advancedOptions.appendChild(node));
@@ -51,7 +51,7 @@ function advancedOptionsObject(...options) {
  *
  * @returns {HTMLButtonElement} Button element with id "terminal-option".
  */
-function terminalOptionButton() {
+export function terminalOptionButton() {
     const $button = document.createElement("button");
     $button.id = "terminal-option";
     $button.innerHTML = "Terminal Mode";
@@ -65,7 +65,7 @@ function terminalOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "arp-option".
  */
-function arpOptionButton() {
+export function arpOptionButton() {
     const $button = document.createElement("button");
     $button.id = "arp-option";
     $button.innerHTML = "View ARP Table";
@@ -79,7 +79,7 @@ function arpOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "cache-dns-option".
  */
-function cacheDnsOptionButton() {
+export function cacheDnsOptionButton() {
     const $button = document.createElement("button");
     $button.id = "cache-dns-option";
     $button.innerHTML = "View DNS Cache";
@@ -93,7 +93,7 @@ function cacheDnsOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "browser-option".
  */
-function browserOptionButton() {
+export function browserOptionButton() {
     const $button = document.createElement("button");
     $button.id = "browser-option";
     $button.innerHTML = "Browser";
@@ -107,7 +107,7 @@ function browserOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "delete-option".
  */
-function deleteOptionButton() {
+export function deleteOptionButton() {
     const $button = document.createElement("button");
     $button.id = "delete-option";
     $button.innerHTML = "Delete";
@@ -121,7 +121,7 @@ function deleteOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "firewall-option".
  */
-function firewallTableOptionButton() {
+export function firewallTableOptionButton() {
     const $button = document.createElement("button");
     $button.id = "firewall-option";
     $button.innerHTML = "View Firewall Table";
@@ -135,7 +135,7 @@ function firewallTableOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "routing-option".
  */
-function routingTableOptionButton() {
+export function routingTableOptionButton() {
     const $button = document.createElement("button");
     $button.id = "routing-option";
     $button.innerHTML = "View Routing Table";
@@ -149,7 +149,7 @@ function routingTableOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "dhcp-option".
  */
-function leasesTableOptionButton() {
+export function leasesTableOptionButton() {
     const $button = document.createElement("button");
     $button.id = "dhcp-option";
     $button.innerHTML = "View Leases Table";
@@ -163,7 +163,7 @@ function leasesTableOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "dns-option".
  */
-function dnsRecordsOptionButton() {
+export function dnsRecordsOptionButton() {
     const $button = document.createElement("button");
     $button.id = "dns-option";
     $button.innerHTML = "View DNS Records Table";
@@ -177,7 +177,7 @@ function dnsRecordsOptionButton() {
  *
  * @returns {HTMLButtonElement} Button element with id "dhcp-server-config".
  */
-function dhcpServerConfig() {
+export function dhcpServerConfig() {
     const $button = document.createElement("button");
     $button.id = "dhcp-server-config";
     $button.innerHTML = "Configure DHCP Server";
@@ -191,7 +191,7 @@ function dhcpServerConfig() {
  *
  * @returns {HTMLButtonElement} Button element with id "dhcp-relay-config".
  */
-function dhcpRelayConfig() {
+export function dhcpRelayConfig() {
     const $button = document.createElement("button");
     $button.id = "dhcp-relay-config";
     $button.innerHTML = "Configure DHCP Relay";
@@ -205,7 +205,7 @@ function dhcpRelayConfig() {
  *
  * @returns {HTMLButtonElement} Button element with id "dns-server-config".
  */
-function dnsServerConfig() {
+export function dnsServerConfig() {
     const $button = document.createElement("button");
     $button.id = "dns-server-config";
     $button.innerHTML = "Configure DNS Server";

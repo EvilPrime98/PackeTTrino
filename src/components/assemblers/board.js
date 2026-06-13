@@ -1,3 +1,12 @@
+import { isConnected } from "@/lib/network_lib";
+import { DhcpRelayObject } from "../network_elements/dhcp-relay-agent";
+import { DhcpServerObject } from "../network_elements/dhcp-server";
+import { DnsServerObject } from "../network_elements/dns-server";
+import { PcObject } from "../network_elements/pc";
+import { RouterObject } from "../network_elements/router";
+import { SwitchObject } from "../network_elements/switch";
+import { TextObject } from "../network_elements/text";
+
 /**
  * Returns the main Board component. The board is the area where all the network objects are rendered.
  * This component also renders the board's SVG layer.The default event listeners set are:
@@ -6,7 +15,7 @@
  *  - onclick: closeAllAdvOptsModals
  * @returns {HTMLElement} The board component.
  */
-function itemBoard() {
+export function itemBoard() {
 
     const $board = document.createElement("section");
 
@@ -29,7 +38,7 @@ function itemBoard() {
  * @param {DragEvent} event
  * @returns {void}
  */
-function dragOverBoard(event) {
+export function dragOverBoard(event) {
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
 }
@@ -39,7 +48,7 @@ function dragOverBoard(event) {
  * @param {DragEvent} event
  * @returns {void}
  */
-function BoardItemDragStart(event) {
+export function BoardItemDragStart(event) {
 
     const $networkObject = event.target.closest(".item-dropped");
     const networkObjectid = $networkObject.id;
@@ -66,7 +75,7 @@ function BoardItemDragStart(event) {
  * @param {DragEvent} event
  * @returns {void}
  */
-function dropItemOverBoard(event) {
+export function dropItemOverBoard(event) {
     
     event.preventDefault();
 
@@ -118,7 +127,7 @@ function dropItemOverBoard(event) {
  * @param {Event} event
  * @returns {void}
  */
-function deleteItem(event) {
+export function deleteItem(event) {
 
     event.stopPropagation();
     const $networkObject = event.target.closest(".item-dropped") || event.target.closest(".text-annotation");
@@ -149,13 +158,13 @@ function deleteItem(event) {
  * @param {Event} event 
  * @returns {void}
  */
-function dropPackageOverItem(event) {
+export function dropPackageOverItem(event) {
 
-    const package = event.dataTransfer.getData("json");
+    const pkg = event.dataTransfer.getData("json");
     const $networkObject = event.target.closest(".item-dropped");
     const networkObjectId = $networkObject.id;
-    const itemType = JSON.parse(package).itemType;
-    const itemId = JSON.parse(package).itemId;
+    const itemType = JSON.parse(pkg).itemType;
+    const itemId = JSON.parse(pkg).itemId;
     const packages = ["isc-dhcp-server", "isc-dhcp-client", "isc-dhcp-relay", "bind9", "apache2"];
     
     if (itemType !== "item") return; //<-- prevents from installing packages that are not items
@@ -175,7 +184,7 @@ function dropPackageOverItem(event) {
  * @param {Event} event 
  * @returns {void}
  */
-function dropSwitchOverItem(event) {
+export function dropSwitchOverItem(event) {
     
     const switchInfo = event.dataTransfer.getData("json");
     const switchId = JSON.parse(switchInfo).itemId;

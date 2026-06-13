@@ -11,7 +11,7 @@
  *
  * @returns {HTMLDivElement} The assembled dynamic-routing modal container element.
  */
-function DynamicRoutingMenu() {
+export function DynamicRoutingMenu() {
 
     const $menu = document.createElement("div");
     $menu.classList.add("dynamic-routing-modal-container", "modal");
@@ -53,7 +53,7 @@ function DynamicRoutingMenu() {
  *
  * @returns {void}
  */
-function closeDynamicRoutingModal() {
+export function closeDynamicRoutingModal() {
     const $menu = document.querySelector(".dynamic-routing-modal-container");
     document.querySelector(".modal-overlay").style.display = "none";
     $menu.querySelector(".btn-accept").removeEventListener("click", dynamicRoutingHandler);
@@ -77,7 +77,7 @@ function closeDynamicRoutingModal() {
  * @async
  * @returns {Promise<void>} Resolves after the 1.5 s cleanup delay.
  */
-async function dynamicRoutingHandler() {
+export async function dynamicRoutingHandler() {
 
     const $modalComponent = document.querySelector(".dynamic-routing-modal-container");
     const $inputComponentValue = $modalComponent.querySelector("input").value;

@@ -3,7 +3,8 @@
  * configured. Displayed to confirm that the simulated Apache2 server is running correctly.
  * @type {string}
  */
-const $APACHEDEFAULTCONTENT = `
+// [agent-added: esm-migration phase 04]
+export const $APACHEDEFAULTCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -152,7 +153,8 @@ You should <b>replace this file</b> (located at
  * filesystem when the Apache2 package is installed.
  * @type {string}
  */
-const $APACHECONFIGCONTENT = `
+// [agent-added: esm-migration phase 04]
+export const $APACHECONFIGCONTENT = `
 #Example Apache configuration
 <VirtualHost ip="*" port="80">
    <DocumentRoot value="/var/www/html"/>
@@ -166,7 +168,8 @@ const $APACHECONFIGCONTENT = `
  * resource is denied (HTTP 403 Forbidden — firewall/access-control rejection).
  * @type {string}
  */
-const $APACHEREJECTCONTENT = `
+// [agent-added: esm-migration phase 04]
+export const $APACHEREJECTCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -378,7 +381,8 @@ If you believe you should have access to this content, please contact the
  * permissions (HTTP 403 Forbidden — directory-level restriction).
  * @type {string}
  */
-const $FORBIDDENCONTENT = `
+// [agent-added: esm-migration phase 04]
+export const $FORBIDDENCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -581,7 +585,8 @@ If you believe you should have access to this content, please contact the
  * rejects the TCP connection (no HTTP server listening, or port closed — HTTP 503 equivalent).
  * @type {string}
  */
-const $DEVICEREJECTIONCONTENT = `
+// [agent-added: esm-migration phase 04]
+export const $DEVICEREJECTIONCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -799,7 +804,8 @@ margin-bottom: 0;
  * does not exist on the server (HTTP 404 Not Found).
  * @type {string}
  */
-const $404ERRORCONTENT = `
+// [agent-added: esm-migration phase 04]
+export const $404ERRORCONTENT = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -995,7 +1001,8 @@ We're sorry, but the requested resource was not found on this server.
  * @param {string} site - Hostname or IP address being connected to, displayed in the status line.
  * @returns {string} Full HTML document string for the loading page.
  */
-const $LOADERCONTENT = (site) => {
+// [agent-added: esm-migration phase 04]
+export const $LOADERCONTENT = (site) => {
 return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -1226,7 +1233,8 @@ transform: scale(1.02);
  * @param {string[]} directoryIndexFiles - Array of filenames to display in the directory listing.
  * @returns {string} Full HTML document string for the directory index page.
  */
-const $DIRECTORYINDEXCONTENT = (documentRoot, directoryIndexFiles) => {
+// [agent-added: esm-migration phase 04]
+export const $DIRECTORYINDEXCONTENT = (documentRoot, directoryIndexFiles) => {
 return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml">
     <head>

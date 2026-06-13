@@ -5,7 +5,7 @@
  * Processing pipeline:
  * 1. **TTL** — decrements the packet's TTL. If it reaches zero, an ICMP Time Exceeded
  *    message is generated and routed back to the sender.
- * 2. **Connection tracking** — if the origin IP has a `connTrack` entry on this device
+ * 2. **Connection tracking** — if the origin IP has a `state.connTrack` entry on this device
  *    (NAT-like state), the destination IP is rewritten and the entry is removed.
  * 3. **Local delivery** — if the destination IP belongs to this router or is the
  *    limited broadcast (`255.255.255.255`):
@@ -23,7 +23,21 @@
  * @param {Object} packet - The packet object being processed.
  * @returns {Promise<void>}
  */
-async function packetProcessor_Router(switchId, networkObjectId, packet) {
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { getAvailableIps, getInterfaceSwitchInfo, switchToInterface } from '../lib/network_lib.js';
+import { getAvailableServices } from '../services/systemd_service.js';
+import { firewallProcessorFilter } from '../services/iptablesd_service.js';
+import { igniteFire } from '../../animations/firewall-block.js';
+import { IcmpTimeExceeded } from '../lib/packets_lib.js';
+import { kernelProcessor } from './kernelProc.js';
+import { serviceProcessor } from './serviceProc.js';
+import { routing } from './routingProc.js';
+import { switchProcessor } from './switchProc.js';
+// esm-migration: scope unclear — addPacketTraffic is defined in src/components/menus/packetTracerMenu.js (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export async function packetProcessor_Router(switchId, networkObjectId, packet) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const [networkObjectIp, networkObjectNetmask, networkObjectMac] = getInterfaceSwitchInfo(networkObjectId, switchId);
@@ -47,9 +61,9 @@ async function packetProcessor_Router(switchId, networkObjectId, packet) {
 
     //connection tracking between source and destination
 
-    if (Object.hasOwn(connTrack, networkObjectId) && connTrack[networkObjectId][packet.origin_ip]) {
-        packet.destination_ip = connTrack[networkObjectId][packet.origin_ip];
-        delete connTrack[networkObjectId][packet.origin_ip];
+    if (Object.hasOwn(state.connTrack, networkObjectId) && state.connTrack[networkObjectId][packet.origin_ip]) {
+        packet.destination_ip = state.connTrack[networkObjectId][packet.origin_ip];
+        delete state.connTrack[networkObjectId][packet.origin_ip];
     }
 
     //packet destined for a router IP, or broadcast
@@ -59,7 +73,7 @@ async function packetProcessor_Router(switchId, networkObjectId, packet) {
         //filter the packet through the filter table with the INPUT chain
 
         if (!firewallProcessorFilter(networkObjectId, packet, "INPUT", networkObjectInterface, "")) {
-            if (visualToggle) igniteFire(networkObjectId);
+            if (state.visualToggle) igniteFire(networkObjectId);
             return;
         }
 
@@ -108,7 +122,7 @@ async function packetProcessor_Router(switchId, networkObjectId, packet) {
     //filter through FORWARD
 
     if (!firewallProcessorFilter(networkObjectId, packet, "FORWARD", networkObjectInterface, "")) {
-        if (visualToggle) igniteFire(networkObjectId);
+        if (state.visualToggle) igniteFire(networkObjectId);
         return;
     }
 

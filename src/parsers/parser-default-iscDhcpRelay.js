@@ -16,7 +16,12 @@
  * @throws {Error} If any interface listed in `INTERFACES` does not exist on the device.
  * @throws {Error} If the value in `SERVERS` is not a valid IP address.
  */
-function iscDhcpRelayInterpreter(networkObjectId, content) {
+// [agent-added: esm-migration phase 05]
+import { splitFirst, splitLast } from '../lib/component_lib.js';
+import { getInterfaces, isValidIp } from '../lib/network_lib.js';
+
+// [agent-added: esm-migration phase 05]
+export function iscDhcpRelayInterpreter(networkObjectId, content) {
 
     const $networkObject = document.getElementById(networkObjectId);
 

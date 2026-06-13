@@ -7,7 +7,12 @@
  * @param {HTMLElement} $networkObject - The DOM element representing the network device.
  * @returns {void}
  */
-function installDhclient($networkObject) {
+// [agent-added: esm-migration phase 05]
+import { getInterfaces } from '../lib/network_lib.js';
+// esm-migration: scope unclear — terminalMessage is defined in src/components/network_tools/terminal.js (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export function installDhclient($networkObject) {
 
     const networkObjectId = $networkObject.id;
     const attr = (attribute, value) => $networkObject.setAttribute(attribute, value);
@@ -38,7 +43,8 @@ function installDhclient($networkObject) {
  * @param {string} networkObjectId - The DOM element ID of the network device.
  * @returns {void}
  */
-function uninstallDhclient(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function uninstallDhclient(networkObjectId) {
 
     terminalMessage("Uninstalling DHCP Client...", networkObjectId);
 

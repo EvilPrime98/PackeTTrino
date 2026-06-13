@@ -1,16 +1,22 @@
+// [agent-added: esm-migration phase 04]
 import { describe, it, expect, suite } from 'vitest';
-import { createWindowWithScripts } from './setup-globals.js';
+import {
+    isValidMac,
+    isValidIp,
+    getRandomMac,
+    getNetwork,
+    ipToBinary,
+    binaryToIp,
+    getBroadcast,
+    netmaskToCidr,
+    parseCidr,
+    isValidCidrIp
+} from '../src/lib/network_lib.js';
 import { ips, macs } from './mockup.js';
 
 describe('network_lib.js', () => {
 
-    const window = createWindowWithScripts(
-        '../src/lib/network_lib.js',
-    );
-
     suite('isValidMac(mac)', () => {
-        
-        const isValidMac = window.isValidMac;
 
         it('should be a function', () => {
             expect(typeof isValidMac).toBe('function');
@@ -41,7 +47,7 @@ describe('network_lib.js', () => {
         });
 
         it('should return `false` for an invalid MAC address', () => {
-            for (const { mac } of macs.invalid){ 
+            for (const { mac } of macs.invalid){
                 expect(isValidMac(mac)).toBe(false);
             }
         });
@@ -49,8 +55,6 @@ describe('network_lib.js', () => {
     });
 
     suite('isValidIp(ip)', () => {
-
-        const isValidIp = window.isValidIp;
 
         it('should be a function', () => {
             expect(typeof isValidIp).toBe('function');
@@ -87,8 +91,6 @@ describe('network_lib.js', () => {
 
     suite('getRandomMac()', () => {
 
-        const getRandomMac = window.getRandomMac;
-
         it('should be a function', () => {
             expect(typeof getRandomMac).toBe('function');
         });
@@ -112,8 +114,6 @@ describe('network_lib.js', () => {
     });
 
     suite('getNetwork(ip, netmask)', () => {
-
-        const getNetwork = window.getNetwork;
 
         it('should be a function', () => {
             expect(typeof getNetwork).toBe('function');
@@ -139,8 +139,6 @@ describe('network_lib.js', () => {
 
     suite('ipToBinary(decimal)', () => {
 
-        const ipToBinary = window.ipToBinary
-
         it('should be a function', () => {
             expect(typeof ipToBinary).toBe('function')
         })
@@ -160,8 +158,6 @@ describe('network_lib.js', () => {
 
     suite('binaryToIp(binary)', () => {
 
-        const binaryToIp = window.binaryToIp;
-
         it('should be a function', () => {
             expect(typeof binaryToIp).toBe('function');
         })
@@ -174,15 +170,13 @@ describe('network_lib.js', () => {
 
         it('should return the IP address for a valid binary string', () => {
             for (const { ip, bin } of ips.validIps) {
-                expect(window.binaryToIp(bin)).toBe(ip);
+                expect(binaryToIp(bin)).toBe(ip);
             }
         });
 
     });
 
     suite('getBroadcast(ip, netmask)', () => {
-
-        const getBroadcast = window.getBroadcast;
 
         it('should be a function', () => {
             expect(typeof getBroadcast).toBe('function');
@@ -207,8 +201,6 @@ describe('network_lib.js', () => {
     });
 
     suite('netmaskToCidr(netmask)', () => {
-
-        const netmaskToCidr = window.netmaskToCidr;
 
         it('should be a function', () => {
             expect(typeof netmaskToCidr).toBe('function');
@@ -235,8 +227,6 @@ describe('network_lib.js', () => {
     });
 
     suite('parseCidr(cidr)', () => {
-
-        const parseCidr = window.parseCidr;
 
         it('should be a function', () => {
             expect(typeof parseCidr).toBe('function');
@@ -265,8 +255,6 @@ describe('network_lib.js', () => {
     });
 
     suite('isValidCidrIp', () => {
-
-        const isValidCidrIp = window.isValidCidrIp;
 
         it('should be a function', () => {
             expect(typeof isValidCidrIp).toBe('function');

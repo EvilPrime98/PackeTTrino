@@ -18,7 +18,7 @@
  * await command_ping("pc-1", "192.168.1.1");
  * await command_ping("pc-1", "google.com");
  */
-async function command_ping(networkObjectId, destination) {
+export async function command_ping(networkObjectId, destination) {
 
     const $networkObject = document.getElementById(networkObjectId);
 
@@ -57,7 +57,7 @@ async function command_ping(networkObjectId, destination) {
  * // Second click — executes ping from pc-1 to pc-2's IP
  * await quickPing("pc-2");
  */
-async function quickPing(id) {
+export async function quickPing(id) {
 
     const $networkObject = document.getElementById(id);
     const $board = document.querySelector(".board");

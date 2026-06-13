@@ -9,7 +9,13 @@
  * @param {HTMLElement} $networkObject - The DOM element representing the network device.
  * @returns {void}
  */
-function installDhcpd($networkObject) {
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+import { FileSystem } from '../lib/fileSystem_lib.js';
+// esm-migration: scope unclear — terminalMessage, dhcpTable, leasesTableOptionButton, dhcpServerConfig are defined in src/components/ (Phase 06)
+
+// [agent-added: esm-migration phase 05]
+export function installDhcpd($networkObject) {
 
     const networkObjectId = $networkObject.id;
     const $advancedOptions = $networkObject.querySelector(".advanced-options-modal");
@@ -83,7 +89,8 @@ function installDhcpd($networkObject) {
  * @param {string} networkObjectId - The DOM element ID of the network device.
  * @returns {void}
  */
-function uninstallDhcpd(networkObjectId) {
+// [agent-added: esm-migration phase 05]
+export function uninstallDhcpd(networkObjectId) {
 
     terminalMessage("Uninstalling DHCP Server...", networkObjectId);
 
@@ -117,8 +124,8 @@ function uninstallDhcpd(networkObjectId) {
     remove($dhcpTable);
 
     //delete the lease timer associated with the DHCP server
-    clearInterval(serverLeaseTimers[networkObjectId]);
-    delete serverLeaseTimers[networkObjectId];
+    clearInterval(state.serverLeaseTimers[networkObjectId]);
+    delete state.serverLeaseTimers[networkObjectId];
 
     terminalMessage("DHCP Server uninstalled successfully.", networkObjectId);
 

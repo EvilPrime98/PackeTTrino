@@ -1,9 +1,13 @@
+// [agent-added: esm-migration phase 05]
+import { state } from '../env.js';
+
 /**
  * @description Simulates a Unix-like virtual filesystem stored as a nested JSON object in the
  * `filesystem` attribute of a network object DOM element. Supports standard operations such as
  * ls, touch, cp, rm, rmdir, mkdir, cd, read, and write.
  */
-class FileSystem {
+// [agent-added: esm-migration phase 05]
+export class FileSystem {
 
     /**
      * @param {Element} $item - The network object DOM element that holds the `filesystem` attribute.
@@ -32,7 +36,8 @@ class FileSystem {
      */
     getPWD() {
         let currentDirectory = (this.structure)["/"];
-        for (let i = 0; i < $PWD.length; i++) currentDirectory = currentDirectory[$PWD[i]];
+        // [agent-added: esm-migration phase 05]
+        for (let i = 0; i < state.$PWD.length; i++) currentDirectory = currentDirectory[state.$PWD[i]];
         return currentDirectory;
     }
 
@@ -256,7 +261,8 @@ class FileSystem {
             provisionalPWD.push(dir);
         });
 
-        $PWD = [...provisionalPWD];
+        // [agent-added: esm-migration phase 05]
+        state.$PWD = [...provisionalPWD];
 
     }
 

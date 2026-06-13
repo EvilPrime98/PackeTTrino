@@ -31,7 +31,12 @@
  * @throws {Error} If a host block contains an invalid IP address.
  * @throws {Error} If a reserved IP does not belong to the DHCP server's subnet.
  */
-function dhcpdConfInterpreter(networkObjectId, content)  {
+// [agent-added: esm-migration phase 05]
+import { isValidMac, isValidIp, getNetwork } from '../lib/network_lib.js';
+import { validateDhpcConfiguration, addDhcpReservation } from '../lib/dhcp_lib.js';
+
+// [agent-added: esm-migration phase 05]
+export function dhcpdConfInterpreter(networkObjectId, content)  {
 
     const $networkObject = document.getElementById(networkObjectId);
     const dhcpListenOnInterfaces = $networkObject.getAttribute("dhcp-listen-on-interfaces").split(",");

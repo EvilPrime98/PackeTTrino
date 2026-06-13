@@ -7,10 +7,23 @@
 
 //PACKETTRINO DEVELOPED BY AMÍN PÉREZ (2025-PRESENT)
 
-var htmlComponent = new componentToken("html");
-var bodyComponent = new componentToken("body");
-var rootComponent = new componentToken("#root");
-var boardComponent = new componentToken(".board");
+import { itemBoard } from "./components/assemblers/board";
+import { itemPanel } from "@/components/assemblers/panel";
+import { pc_menu } from "./components/menus/pcMenu";
+import { dns_server_menu } from "./components/menus/dnsServerMenu";
+import { dhcp_server_menu } from "./components/menus/dhcpServerMenu";
+import { rootComponent, bodyComponent, htmlComponent } from "./env";
+import { dhcp_agent_menu } from "./components/menus/dhcpAgentMenu";
+import { router_menu } from "./components/menus/routerMenu";
+import { AnimationControls } from "./components/menus/animationControlsMenu";
+import { terminal } from "./components/network_tools/terminal";
+import { browser } from "./components/network_tools/browser";
+import { packetTracer } from "./components/menus/packetTracerMenu";
+import { GeneralOptions } from "./components/menus/generalSettingsMenu";
+import { documentKeyboardHandler } from "./components/assemblers/html";
+import { $, $$ } from "./lib/dom_lib";
+import { activateDarkMode } from "./components/assemblers/html";
+import { startTutorial } from "./lib/tutorial";
 
 rootComponent.render(
     itemBoard(),
@@ -45,7 +58,7 @@ setTimeout(startApp, 1000);
  *
  * @returns {void}
  */
-function startApp() {
+export function startApp() {
 
     const $loadingScreen = $('#loading-screen');
     const $itemPanel = $('#item-panel');

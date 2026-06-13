@@ -18,7 +18,7 @@
  * @param {string} outputInterface - The interface on which the packet will leave (empty string to skip matching).
  * @returns {boolean} True if the packet is accepted, false if it is dropped.
  */
-function firewallProcessorFilter(networkObjectId, packet, targetChain, inputInterface, outputInterface)  {
+export function firewallProcessorFilter(networkObjectId, packet, targetChain, inputInterface, outputInterface)  {
 
     const $networkObject = document.getElementById(networkObjectId);
     const defaultPolicies = JSON.parse($networkObject.getAttribute("firewall-default-policy"));
@@ -92,7 +92,7 @@ function firewallProcessorFilter(networkObjectId, packet, targetChain, inputInte
  * @param {string} targetChain - The NAT chain to process: "PREROUTING" (DNAT) or "POSTROUTING" (SNAT).
  * @returns {Object} A deep clone of the packet with any applicable address translations applied.
  */
-function firewallProcessorNat(networkObjectId, packet, inputInterface, outputInterface, targetChain)  {
+export function firewallProcessorNat(networkObjectId, packet, inputInterface, outputInterface, targetChain)  {
 
     const $networkObject = document.getElementById(networkObjectId);
     const firewallRules = JSON.parse($networkObject.getAttribute("firewall-rules"));
@@ -152,7 +152,7 @@ function firewallProcessorNat(networkObjectId, packet, inputInterface, outputInt
  * @param {string} outputInterface - The egress interface name used for chain matching and switch lookup.
  * @returns {Promise<void>}
  */
-async function firewallProc(networkObjectId, packet, outputInterface) {
+export async function firewallProc(networkObjectId, packet, outputInterface) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableIps = getAvailableIps(networkObjectId);

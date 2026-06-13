@@ -6,7 +6,7 @@
  *
  * @returns {HTMLElement} The DNS table `<article>` element, ready to be appended to a network object.
  */
-function dnsTable() {
+export function dnsTable() {
 
     const $dnsTable = document.createElement("article");
 

@@ -39,7 +39,14 @@
  *   not a network address, the nexthop IP is invalid, or the nexthop is unreachable from
  *   the interface's subnet.
  */
-async function interfacesFileInterpreter(networkObjectId, content, interfaceInput) {
+// [agent-added: esm-migration phase 05]
+import { getInterfaces, catchopts, isValidIp, isValidCidrIp, parseCidr, getNetwork, setDefaultGateway } from '../lib/network_lib.js';
+import { configureInterface } from '../services/networkd_service.js';
+import { setRemoteRoutingRule } from '../services/routing_service.js';
+import { dhcpDiscoverHandler } from '../utilities/dhcp_util.js';
+
+// [agent-added: esm-migration phase 05]
+export async function interfacesFileInterpreter(networkObjectId, content, interfaceInput) {
 
     const $networkObject = document.getElementById(networkObjectId);
     const availableInterfaces = getInterfaces(networkObjectId); //<-- get the available interfaces of the device

@@ -1,3 +1,4 @@
 {
-    "svg.preview.background": "editor"
+    "js/ts.suggest.autoImports": true,
+    "js/ts.updateImportsOnFileMove.enabled": "always",
 }

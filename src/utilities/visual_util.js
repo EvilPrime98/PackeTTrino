@@ -21,7 +21,7 @@
  * command_visual("pc-1", ["--off"]);
  * command_visual("pc-1", ["--config"]);
  */
-function command_visual(networkObjectId, args) {
+export function command_visual(networkObjectId, args) {
 
     const $OPTS = catchopts([
         "speed:",

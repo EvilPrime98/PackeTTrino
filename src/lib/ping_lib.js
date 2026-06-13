@@ -5,7 +5,8 @@
  * @param {string} origin - IP address of the replying host to display in the output.
  * @returns {void}
  */
-function pingSuccess(origin) {
+// [agent-added: esm-migration phase 05]
+export function pingSuccess(origin) {
     const terminal = document.querySelector(".terminal-component");
     if (window.getComputedStyle(terminal).display === "none") return;
     const terminalOutput = document.querySelector(".terminal-output");
@@ -25,7 +26,8 @@ function pingSuccess(origin) {
  * @param {string} origin - IP address of the source host to display in the output.
  * @returns {void}
  */
-function pingFailure(origin) {
+// [agent-added: esm-migration phase 05]
+export function pingFailure(origin) {
     const terminal = document.querySelector(".terminal-component");
     if (window.getComputedStyle(terminal).display === "none") return;
     const terminalOutput = document.querySelector(".terminal-output");
