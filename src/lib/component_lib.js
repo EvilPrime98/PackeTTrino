@@ -103,10 +103,11 @@ function showAdvancedOptions(event) {
     const boardHeight = parseInt(boardProperties.getPropertyValue("height")); //board height
     const boardWidth = parseInt(boardProperties.getPropertyValue("width"));
     const boardRect = $board.getBoundingClientRect();
+    const scale = parseFloat($board.style.scale || '1');
     const networkObject = event.target.closest(".item-dropped") || event.target.closest(".text-annotation");
     const $modal = networkObject.querySelector(".advanced-options-modal");
-    const x = event.clientX - boardRect.left;
-    const y = event.clientY - boardRect.top;
+    const x = (event.clientX - boardRect.left) / scale;
+    const y = (event.clientY - boardRect.top) / scale;
 
     if (y < boardHeight / 2 && x < boardWidth / 2) {
         $modal.style.top = "30%";

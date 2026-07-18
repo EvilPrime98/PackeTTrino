@@ -25,6 +25,23 @@ function itemBoard() {
 }
 
 /**
+ * Manages the wheel event for the document
+ * @param {WheelEvent} event 
+ */
+function zoomBoard(event) {
+    event.preventDefault();
+    const $board = /** @type {HTMLElement} */ ($('.board'));
+    let scale = parseFloat($board.style.scale || '1');
+    scale *= event.deltaY < 0 ? 1.1 : 0.9;
+    scale = Math.min(5, Math.max(0.05, scale));
+    if (scale < zoomOutLimit) return;
+    $board.style.scale = String(scale);
+    $board.style.width = `${100 / scale}dvw`;
+    $board.style.height = `${100 / scale}dvh`;
+    zoomNotification(scale);
+}
+
+/**
  * Manages the drag-over event over the board.
  * @param {DragEvent} event
  * @returns {void}
@@ -83,8 +100,9 @@ function dropItemOverBoard(event) {
     const $board = document.querySelector(".board");
     const $networkObject = document.getElementById(itemId);
     const boardRect = $board.getBoundingClientRect();
-    let x = event.clientX - boardRect.left;
-    let y = event.clientY - boardRect.top;
+    const scale = parseFloat($board.style.scale || '1');
+    let x = (event.clientX - boardRect.left) / scale;
+    let y = (event.clientY - boardRect.top) / scale;
 
     const boardItemRender = {
         "pc": () => PcObject(x, y),

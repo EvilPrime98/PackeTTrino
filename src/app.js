@@ -32,6 +32,10 @@ bodyComponent.render(
 
 htmlComponent.event("keydown", documentKeyboardHandler);
 
+$('html').addEventListener('wheel', documentWheelHandler,  {
+    passive: false
+})
+
 setTimeout(startApp, 1000);
 
 /**

@@ -135,3 +135,6 @@ let dnsCacheTimers = {};
 
 /** @type {Record<string, Object>} SNAT/DNAT connection-tracking table keyed by a five-tuple hash. */
 let connTrack = {};
+
+/** @type {number} Maximum zoom-out limit for the map view. */
+let zoomOutLimit = .5

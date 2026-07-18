@@ -20,6 +20,14 @@ function documentKeyboardHandler(event) {
 }
 
 /**
+ * Manages wheel events in the document
+ * @param {KeyboardEvent} event 
+ */
+function documentWheelHandler(event) {
+    zoomBoard(event);
+}
+
+/**
  * Hides all modals and popups.
  * @param {Event} event 
  */
@@ -115,4 +123,3 @@ function activateDarkMode() {
     }
     
 }
-
